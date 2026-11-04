@@ -5,13 +5,13 @@ import vm from "node:vm";
 const html=readFileSync(new URL("../index.html",import.meta.url),"utf8");
 const markup=html.slice(0,html.indexOf('<script type="module">'));
 
-test('first-visit tutorial overlay and eight ordered steps are defined',()=>{
-  assert.match(markup,/id="tutorialOverlay" hidden role="dialog"/);
-  assert.match(html,/const TUTORIAL_STORAGE = 'snu-v68-tutorial-seen'/);
+test('onboarding retains all eight steps and preserves first-visit storage',()=>{
+  assert.match(markup,/id="tutorialOverlay" hidden role="region"/);
+  assert.match(html,/const TUTORIAL_STORAGE = 'snu-v69-tutorial-complete'/);
   assert.match(html,/const tutorialSteps=\[/);
-  for(const title of ['화면 이동과 확대 축소','도서관 이동','캐릭터 변경','바닥 터치로 이동','의자에 앉아 시간 기록','말하기','친구 초대','Google 로그인'])assert.match(html,new RegExp(title));
-  assert.match(html,/if\(profileComplete&&!tutorialSeen\)setTimeout\(\(\)=>openTutorial\(\),420\)/);
-  assert.match(html,/if\(!tutorialSeen\)setTimeout\(\(\)=>openTutorial\(\),220\)/);
+  for(const title of ['화면 움직이기','도서관 바꿔보기','나만의 캐릭터 만들기','바닥 터치로 걷기','의자에 앉아 공부 시작','메시지 보내기','친구 초대해 보기','Google 로그인 알아보기'])assert.match(html,new RegExp(title));
+  assert.match(html,/if\(profileComplete&&!tutorialSeen\)setTimeout\(openTutorial,420\)/);
+  assert.match(html,/else setTimeout\(openTutorial,220\)/);
 });
 
 test('labels now keep only nearby subset while retaining name and time together',()=>{

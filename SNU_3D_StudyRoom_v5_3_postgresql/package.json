@@ -1,6 +1,6 @@
 {
   "name": "snu-library-3d-studyroom",
-  "version": "6.8.0-tutorial-nearby-labels.1",
+  "version": "6.9.0-action-tutorial.1",
   "private": true,
   "type": "module",
   "description": "Three photo-referenced university libraries (SNU, Korea, Yonsei) with isolated WebSocket rooms and PostgreSQL study records",
