@@ -126,8 +126,10 @@ const $ = s => document.querySelector(s);
 // All seat locations and path bounds are mirrored in server/room.js.
 const query = new URLSearchParams(location.search);
 const ROOM_ID = (()=>{const name=query.get('room')||'main';return /^[a-z0-9][a-z0-9_-]{0,31}$/.test(name)?name:'main'})();
-const KOREA_ROOM=ROOM_ID==='korea';
-const YONSEI_ROOM=ROOM_ID==='yonsei';
+const KOREA_ROOM=ROOM_ID==='korea'||/^korea-[2-9][0-9]*$/.test(ROOM_ID);
+const YONSEI_ROOM=ROOM_ID==='yonsei'||/^yonsei-[2-9][0-9]*$/.test(ROOM_ID);
+const PRIMARY_ROOM=['main','korea','yonsei'].includes(ROOM_ID);
+const BASE_LIBRARY=KOREA_ROOM?'korea':YONSEI_ROOM?'yonsei':'main';
 const CONFIG = {width:48, length:88, height:16.2, frontZ:-39, rearZ:49, frontWalkLimit:-33.5, rearWalkLimit:44, rows:4, columnsPerSide:1,
   rowSpacing:17.4, columnSpacing:4.55, npcCount:8, navStep:.6};
 const D = {canvas:$('#scene'),labels:$('#labels'),status:$('#status'),time:$('#timeDisplay'),
@@ -143,7 +145,7 @@ const LIBRARY_META={
  korea:{badge:'고려대 도서관',brand:'고려대학교 중앙도서관',subtitle:'고려대 중앙도서관 참고 · 비공식 3D 재현',short:'고려대'},
  yonsei:{badge:'연세대 도서관',brand:'연세대학교 연세·삼성학술정보관',subtitle:'연세·삼성학술정보관 참고 · 비공식 3D 재현',short:'연세대'}
 };
-const libraryMeta=LIBRARY_META[ROOM_ID]||LIBRARY_META.main;
+const libraryMeta=LIBRARY_META[BASE_LIBRARY];
 $('#roomBadge').textContent=libraryMeta.badge;
 $('#libraryBrand').firstChild.textContent=libraryMeta.brand;
 $('#librarySubtitle').textContent=libraryMeta.subtitle;
@@ -891,7 +893,7 @@ const npcList=[];
 // Server reserves exactly these seat IDs in EACH library. Do not reindex by location:
 // Yonsei's west-facing single desks are at x≈-1 and must keep their original IDs.
 const npcIndices=[2,8,14,20,26,32,38,44]; // 8 distinct NPC seats among 48
-for(let i=0;i<CONFIG.npcCount;i++){
+for(let i=0;i<(PRIMARY_ROOM?CONFIG.npcCount:0);i++){
  const s=seats[npcIndices[i]];
  const npc=new Character({npc:true,name:npcNames[i],species:NPC_SPECIES[i],hood:NPC_COLORS[i],x:s.x,z:s.z,studyMs:60000*(12+i*19)});
  npc.sit(s);npcList.push(npc)
@@ -960,6 +962,39 @@ function applyStudyClock(record,day){
  updateHUD();
 }
 function updatePlayerCount(count){$('#onlineCount').innerHTML='<i></i>실제 접속자 '+Math.max(0,count||0)+'명 · NPC '+npcList.length+'명';}
+// The server sends the canonical NPC positions. Clients never roll independent
+// random NPC movement, so all users see the same action and the same seat lock.
+const npcStretchWords=['오늘도 집중!','잠깐 스트레칭해요.','열공 중이에요.','물 한 잔 마셔야지.'];
+function syncNpcStates(states){
+ for(const state of states||[]){
+  const npc=npcList[state.id],seat=seats[state.seatId];
+  if(!npc||!seat)continue;
+  npc.studyMs=Number(state.studyMs)||0;npc.studyActive=false;
+  if(state.seated){
+   if(!npc.seated||npc.seat!==seat)npc.sit(seat);
+   npc.studyActive=false;
+   npc.npcTarget=null;npc.root.rotation.y=state.yaw;
+  }else{
+   if(npc.seated){npc.stand();npc.root.position.set(state.x,0,state.z);}
+   // A vacant-looking chair is still reserved for its home NPC.
+   seat.occupiedBy=npc;
+   npc.route=[];npc.arrive=null;
+   npc.npcTarget={x:state.x,z:state.z,yaw:state.yaw};
+   if(!npc.npcSynced){npc.root.position.set(state.x,0,state.z);npc.root.rotation.y=state.yaw;}
+  }
+  npc.stretchUntil=state.kind==='stretch'?performance.now()+1300:0;
+  if(state.kind==='stretch'&&npc.npcLastKind!=='stretch')npc.say(npcStretchWords[state.id%npcStretchWords.length]);
+  npc.npcLastKind=state.kind;npc.npcSynced=true;
+ }
+}
+function updateNpcVisuals(dt){for(const npc of npcList){
+ if(!npc.npcTarget||npc.seated)continue;
+ const t=npc.npcTarget,p=npc.root.position,dx=t.x-p.x,dz=t.z-p.z,dist=Math.hypot(dx,dz);
+ const k=dist>3?1:Math.min(1,dt*8);
+ p.x+=dx*k;p.z+=dz*k;
+ npc.root.rotation.y+=Math.atan2(Math.sin(t.yaw-npc.root.rotation.y),Math.cos(t.yaw-npc.root.rotation.y))*Math.min(1,dt*10);
+ if(dist>.035){npc.walkPhase+=dt*10;npc.model.body.position.y=Math.sin(npc.walkPhase)*.035;}
+ }}
 function setLocks(locks){seatLocks.clear();for(const lock of locks)seatLocks.set(lock.id,lock);}
 function applyLock(m){if(m.ownerId===null)seatLocks.delete(m.seatId);
  else seatLocks.set(m.seatId,{id:m.seatId,ownerId:m.ownerId,phase:m.phase});}
@@ -1015,7 +1050,7 @@ function onServer(m){
  switch(m.t){
  case 'welcome':{
    selfId=m.id;pendingIntent=null;ring.visible=false;
-   setLocks(m.locks);updatePlayerCount(m.count);
+   setLocks(m.locks);syncNpcStates(m.npcStates);updatePlayerCount(m.count);
    for(const id of [...remotePlayers.keys()])disposeRemote(id);
    const me=m.players.find(p=>p.id===selfId);
    for(const p of m.players)if(p.id!==selfId)updateRemoteRecord(p,true);
@@ -1063,6 +1098,7 @@ function onServer(m){
  }
  case 'clock':{
    if(typeof m.count==='number')updatePlayerCount(m.count);
+   syncNpcStates(m.npcStates);
    for(const p of m.players||[]){if(p.id===selfId)applyStudyClock(p,m.day);
      else {const obj=remotePlayers.get(p.id);if(obj){obj.studyMs=p.studyMs||0;obj.studyActive=!!p.studying&&!p.paused;obj.studySince=Date.now();}}}
    break;
@@ -1076,7 +1112,7 @@ function onServer(m){
    // cancel the local intention and release the server reservation safely.
    if(pendingIntent!==null){pendingIntent=null;player.route=[];player.arrive=null;
      ring.visible=false;net?.send({t:'seat_cancel'});}
-   setLocks(m.locks);updatePlayerCount(m.count);
+   setLocks(m.locks);syncNpcStates(m.npcStates);updatePlayerCount(m.count);
    const ids=new Set(m.players.map(p=>p.id));for(const id of [...remotePlayers.keys()])if(!ids.has(id))disposeRemote(id);
    for(const p of m.players)if(p.id===selfId)syncSelf(p,m.day);else updateRemoteRecord(p);
    dashboard.onReconnect();
@@ -1209,26 +1245,7 @@ document.addEventListener('visibilitychange',()=>{
  save();if(!document.hidden){last=performance.now();resetPerfWindow();net?.refresh();}
 });
 window.addEventListener('pageshow',()=>{if(!document.hidden)net?.refresh()});
-let npcEventAt=performance.now()+12000;
-function updateNpcBehaviors(now){if(now<npcEventAt)return;npcEventAt=now+9000+Math.random()*8000;
- const npc=npcList[Math.floor(Math.random()*npcList.length)];
- if(npc.route.length)return;
- if(npc.mode==='break'){
-  const s=npc.home;const dest=seatApproach(s);
-  if(npc.go(dest,()=>{
-    const destSeat=(!s.occupiedBy||s.occupiedBy===npc)?s:seats.find(candidate=>!candidate.occupiedBy&&!seatLocks.has(candidate.id)&&Math.hypot(candidate.x-s.x,candidate.z-s.z)<9);
-    if(destSeat)npc.sit(destSeat);npc.mode='sitting';
-   }))npc.mode='returning';
- }else if(npc.seated){
-  if(Math.random()<.40){npc.stretchUntil=performance.now()+2400;npc.say(['오늘도 집중!','잠깐 스트레칭해요.','열공 중이에요.','물 한 잔 마셔야지.'][Math.floor(Math.random()*4)])}
-  else{
-    const s=npc.seat;npc.home=s; // reserve seat for return via home, but vacate it physically.
-    npc.stand();npc.mode='walkingOut';
-    const dest={x:Math.random()>.5?1.4:-1.4,z:clamp(s.z+(Math.random()-.5)*11,-34,33)};
-    if(!npc.go(dest,()=>{npc.mode='break'})){npc.sit(s);npc.mode='sitting'}
-  }
- }else if(npc.mode==='walkingOut')npc.mode='break';
-}
+// NPC behavior is driven by server clock messages, never Math.random().
 const tempVec=new THREE.Vector3();const shown=[];
 function updateLabels(){shown.length=0;
  for(const obj of [player,...remotePlayers.values(),...npcList]){
@@ -1276,7 +1293,7 @@ function frame(now){requestAnimationFrame(frame);
  const rawInterval=now-last;const dt=Math.min(.055,rawInterval/1000||.016);last=now;elapsed+=dt;uiElapsed+=dt;saveElapsed+=dt;
  player.update(dt,elapsed);keyboardMove(dt);sendPosition();updateRemoteMovement(dt);updateTapRipples(dt);
  for(const npc of npcList)npc.update(dt,elapsed);
- updateNpcBehaviors(now);
+ updateNpcVisuals(dt);
  if(follow){targetFollow.set(player.root.position.x,1.35,player.root.position.z-1.3);
   offsetFollow.subVectors(targetFollow,orbit.target).multiplyScalar(Math.min(1,dt*2.9));
   orbit.target.add(offsetFollow);camera.position.add(offsetFollow)}
@@ -1294,7 +1311,7 @@ function frame(now){requestAnimationFrame(frame);
 requestAnimationFrame(frame);
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth<700?66:58;camera.updateProjectionMatrix();
  renderer.setPixelRatio(pixelRatio());renderer.setSize(innerWidth,innerHeight)});
-updateHUD();$('#loading').remove();
+updateHUD();updatePlayerCount(0);$('#loading').remove();
 await account.initialize();
 net=new NetworkClient({room:ROOM_ID,profile:currentProfile,onEvent:onServer,
  onStatus:(message)=>{if(!net.connected)setStatus(message);},isAccount:()=>account.signedIn,ensureAccount:()=>account.ensureSession()});
