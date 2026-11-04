@@ -195,6 +195,31 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
  #bottom .controls .chat-action,#bottom .controls #sendBtn{width:40px;min-width:40px;height:40px;min-height:40px}
  #bottom .controls #chatInput{height:40px;min-height:40px}
 }
+
+#tutorialOverlay[hidden]{display:none!important}
+#tutorialOverlay{position:fixed;inset:0;z-index:42;background:rgba(6,14,24,.74);display:grid;place-items:center;padding:16px;backdrop-filter:blur(4px)}
+#tutorialOverlay .dialog{width:min(430px,100%);position:relative}
+#tutorialOverlay .tutorial-progress{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 10px}
+#tutorialOverlay .tutorial-step{font-size:11px;color:#bcd1e5}
+#tutorialOverlay .tutorial-bars{display:flex;gap:5px;flex:1;justify-content:flex-end}
+#tutorialOverlay .tutorial-bars i{display:block;width:18px;height:4px;border-radius:999px;background:#314a63}
+#tutorialOverlay .tutorial-bars i.active{background:#8bcaff}
+#tutorialOverlay h1{font-size:20px;margin-bottom:10px}
+#tutorialOverlay p{font-size:13px;color:#d3deeb;line-height:1.7;margin:0 0 8px}
+#tutorialOverlay .tutorial-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+#tutorialOverlay .tutorial-actions button{min-height:42px;padding:0 14px;border-radius:11px;border:1px solid #6f88a2;background:#2a4057;color:#f4f8ff}
+#tutorialOverlay .tutorial-actions .ok{background:#8bcaff;color:#112a3f;border-color:#8bcaff;font-weight:800}
+#tutorialOverlay .tutorial-actions .ghost{background:#1a2a3d}
+#tutorialOverlay .tutorial-hint{font-size:11px;color:#9ab3ca}
+body.tutorial-open #topbar,body.tutorial-open #bottom,body.tutorial-open #appNav,body.tutorial-open #labels{pointer-events:none}
+body.tutorial-open .tutorial-focus{position:relative;z-index:41;box-shadow:0 0 0 2px #8bcaff88,0 0 0 7px #8bcaff2a;border-radius:14px}
+@media(max-width:690px){
+ #tutorialOverlay{padding:12px}
+ #tutorialOverlay .tutorial-actions{justify-content:stretch}
+ #tutorialOverlay .tutorial-actions button{flex:1 1 0}
+ #tutorialOverlay .tutorial-bars i{width:13px}
+}
+
 </style>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"}}
@@ -211,6 +236,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
 <div id="librarySelect" hidden role="dialog" aria-modal="true" aria-labelledby="librarySelectTitle"><div class="dialog"><h1 id="librarySelectTitle">도서관 선택</h1><p>공부 기록과 친구 관계는 세 공간에서 동일하게 유지됩니다. 다른 도서관으로 이동하면 기존 좌석은 반납됩니다.</p><div class="library-cards"><button type="button" class="library-choice" data-library="main"><strong>서울대학교 중앙도서관</strong><small>48석</small></button><button type="button" class="library-choice" data-library="korea"><strong>고려대학교 중앙도서관</strong><small>48석</small></button><button type="button" class="library-choice" data-library="yonsei"><strong>연세대학교 연세·삼성학술정보관</strong><small>48석</small></button></div><button type="button" class="iconbtn" id="libraryClose">현재 도서관에 머물기</button></div></div><div id="accountOverlay" hidden><div class="dialog" role="dialog" aria-modal="true" aria-label="계정 메뉴"><button type="button" id="accountClose" aria-label="도서관으로 돌아가기" title="닫기">×</button><h1>계정 연결</h1><p id="accountStatus">게스트로 이용 중입니다. 친구 기능은 Google 로그인 후 사용할 수 있습니다.</p><p id="authError" class="auth-error" role="alert" hidden></p><div class="account-actions"><button id="googleLogin" class="ok">Google로 계속하기</button><button id="logoutBtn" class="ok alt" hidden>Google 로그아웃</button><button id="deleteAccountBtn" class="account-danger" hidden>스터디룸 계정 데이터 삭제</button></div><p class="note">게스트 인증 정보가 삭제되면 이전 기록에 접근하지 못할 수 있습니다. Google 연결 시 기존 게스트 기록을 서버에서 안전하게 병합합니다.</p><p class="note">모바일 Google 팝업이 차단되면 브라우저 설정에서 팝업을 허용해 주세요.</p></div></div>
 <section id="bottom" class="glass" aria-label="실시간 채팅"><div class="controls"><button class="chat-action" id="switchLibraryBtn" type="button" title="도서관 변경" aria-label="도서관 변경"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V6l7-3 7 3v15M9 9v2m6-2v2M9 14v2m6-2v2M10 21v-3h4v3"/></svg></button><button class="chat-action" id="avatarBtn" type="button" title="캐릭터 변경" aria-label="캐릭터 변경"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="16" rx="5" ry="3.3"/><path d="M5.5 9.5c-1.5-.8-2.5.5-1.7 2.2.6 1.1 1.9 1.4 2.5.5M9.2 6c-1.2-1-2.5.3-2.1 2 .3 1.3 1.7 1.7 2.4.7M14.7 6c1.2-1 2.5.3 2.1 2-.3 1.3-1.7 1.7-2.4.7M18.5 9.5c1.5-.8 2.5.5 1.7 2.2-.6 1.1-1.9 1.4-2.5.5"/></svg></button><input id="chatInput" maxlength="40" enterkeyhint="send" placeholder="메시지 입력 (40자)" aria-label="실시간 채팅 입력"/><button id="sendBtn" class="primary" type="button" title="메시지 전송" aria-label="메시지 전송"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4 20-7ZM22 2 11 13"/></svg></button></div></section>
 <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog"><h1 id="modalTitle">캐릭터 선택</h1><p>로우폴리 동물 캐릭터를 선택하고 도서관에 입장하세요. 선택 내용은 이 브라우저에 저장됩니다.</p><div class="fields"><label class="field full">닉네임<input id="nick" maxlength="15" value="공부하는토끼" /></label><label class="field">동물<select id="species"><option value="rabbit">토끼</option><option value="bear">곰</option><option value="cat">고양이</option><option value="dog">강아지</option></select></label><label class="field">기본 후드 색상<select id="gender"><option value="female">분홍색 기본</option><option value="male">하늘색 기본</option></select></label><label class="field full">후드 색상 직접 변경<input id="hood" type="color" value="#f39bc4" /></label></div><button id="enterBtn" class="ok">3D 도서관 입장</button><div class="note">게스트로 실시간 서버에 접속합니다. NPC는 NPC로 표시되며 실제 이용자 수에 포함되지 않습니다.</div></div></div>
+<div id="tutorialOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="tutorialTitle" aria-describedby="tutorialBody"><div class="dialog"><div class="tutorial-progress"><strong class="tutorial-step" id="tutorialStepCount">1 / 8</strong><div class="tutorial-bars" id="tutorialBars" aria-hidden="true"></div></div><h1 id="tutorialTitle">처음 오셨다면 이렇게 시작하세요</h1><p id="tutorialBody">카메라를 드래그해 화면을 움직이고, 두 손가락으로 확대·축소할 수 있습니다.</p><p class="tutorial-hint" id="tutorialHint">튜토리얼은 이 브라우저에서 처음 한 번만 자동으로 표시됩니다.</p><div class="tutorial-actions"><button type="button" class="ghost" id="tutorialSkip">건너뛰기</button><button type="button" id="tutorialPrev">이전</button><button type="button" class="ok" id="tutorialNext">다음</button></div></div></div>
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -246,6 +272,7 @@ const PERF_ENABLED = query.get('perf')==='1';
 const LOW_QUALITY = query.get('quality')==='low'; // opt-in diagnostics; default rendering unchanged.
 const pixelRatio=()=>LOW_QUALITY?Math.min(devicePixelRatio,1):Math.min(devicePixelRatio,innerWidth<700?1.35:1.85);
 const STORAGE = 'snu-study-3d-demo-v1'; // v1 visual preferences are preserved
+const TUTORIAL_STORAGE = 'snu-v68-tutorial-seen';
 const LIBRARY_META={
  main:{badge:'서울대 도서관',brand:'서울대학교 중앙도서관',short:'서울대'},
  korea:{badge:'고려대 도서관',brand:'고려대학교 중앙도서관',short:'고려대'},
@@ -278,6 +305,39 @@ let statusMessage='';
 function setStatus(message){statusMessage=message}
 // Study time is displayed above the avatar by updateLabels(), not a second HUD.
 function updateHUD(){}
+const tutorialSteps=[
+ {title:'화면 이동과 확대 축소',body:'화면을 드래그하면 시점을 움직일 수 있고, 두 손가락으로 확대·축소할 수 있습니다. 3D 공간을 먼저 둘러보세요.',hint:'터치 조작만 익혀도 공간을 훨씬 편하게 볼 수 있습니다.',focus:null},
+ {title:'도서관 이동',body:'왼쪽 아래의 도서관 버튼을 누르면 다른 도서관으로 이동할 수 있습니다. 이동하면 기존 좌석은 자동으로 반납됩니다.',hint:'현재 위치를 유지하고 싶다면 창을 닫으면 됩니다.',focus:'#switchLibraryBtn'},
+ {title:'캐릭터 변경',body:'바로 옆 캐릭터 버튼에서 동물과 닉네임, 후드 색상을 바꿀 수 있습니다.',hint:'처음 정한 캐릭터도 언제든 다시 바꿀 수 있습니다.',focus:'#avatarBtn'},
+ {title:'바닥 터치로 이동',body:'도서관 바닥을 터치하면 캐릭터가 그 위치로 이동합니다. 키보드 없이도 스마트폰에서 쉽게 이동할 수 있습니다.',hint:'원하는 책상 근처 바닥을 눌러 이동해 보세요.',focus:'#scene'},
+ {title:'의자에 앉아 시간 기록',body:'의자를 터치해 앉으면 공부 시간이 기록됩니다. 브라우저 화면을 벗어나거나 연결이 끊기면 시간 기록은 멈춰 딴짓을 막습니다.',hint:'기록은 서버 기준으로 저장되며 좌석 상태도 함께 동기화됩니다.',focus:'#scene'},
+ {title:'말하기',body:'아래 입력창에 40자 이하로 입력한 뒤 전송 버튼을 누르면 같은 방 사람들과 실시간으로 대화할 수 있습니다.',hint:'빈 메시지 전송과 너무 빠른 연속 전송은 자동으로 막습니다.',focus:'#chatInput'},
+ {title:'친구 초대',body:'오른쪽 위 링크 버튼으로 같은 방 초대 링크를 복사해 친구와 함께 공부할 수 있습니다.',hint:'친구가 같은 링크로 접속하면 같은 방에서 만날 수 있습니다.',focus:'#inviteBtn'},
+ {title:'Google 로그인',body:'오른쪽 위 계정 버튼에서 Google로 로그인하면 친구 등록과 공부 시간 기록을 더 안정적으로 사용할 수 있습니다.',hint:'게스트도 이용할 수 있지만 친구 기능은 로그인 후 더 편해집니다.',focus:'#accountBtn'}
+];
+let tutorialSeen=false;try{tutorialSeen=localStorage.getItem(TUTORIAL_STORAGE)==='1'}catch{}
+let tutorialIndex=0;
+function markTutorialSeen(){tutorialSeen=true;try{localStorage.setItem(TUTORIAL_STORAGE,'1')}catch{}}
+function clearTutorialFocus(){document.querySelectorAll('.tutorial-focus').forEach(el=>el.classList.remove('tutorial-focus'));}
+function renderTutorial(){
+ const overlay=$('#tutorialOverlay');const step=tutorialSteps[tutorialIndex];if(!overlay||!step)return;
+ $('#tutorialTitle').textContent=step.title;$('#tutorialBody').textContent=step.body;$('#tutorialHint').textContent=step.hint;
+ $('#tutorialStepCount').textContent=`${tutorialIndex+1} / ${tutorialSteps.length}`;
+ const bars=$('#tutorialBars');bars.innerHTML='';
+ tutorialSteps.forEach((_,i)=>{const dot=document.createElement('i');if(i<=tutorialIndex)dot.className='active';bars.appendChild(dot);});
+ $('#tutorialPrev').disabled=tutorialIndex===0;$('#tutorialNext').textContent=tutorialIndex===tutorialSteps.length-1?'시작하기':'다음';
+ clearTutorialFocus();if(step.focus){document.querySelector(step.focus)?.classList.add('tutorial-focus');}
+ }
+function closeTutorial(markSeen=true){
+ const overlay=$('#tutorialOverlay');if(!overlay)return;overlay.hidden=true;document.body.classList.remove('tutorial-open');clearTutorialFocus();
+ if(markSeen)markTutorialSeen();
+}
+function openTutorial(force=false){
+ const overlay=$('#tutorialOverlay');
+ if(!overlay||(!force&&tutorialSeen)||!profileComplete||!overlay.hidden)return;
+ if(!$('#librarySelect').hidden||$('#modal').classList.contains('visible')||!welcome.hidden){setTimeout(()=>openTutorial(force),260);return;}
+ tutorialIndex=0;overlay.hidden=false;document.body.classList.add('tutorial-open');renderTutorial();
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. Three renderer, camera, lights
@@ -1352,6 +1412,11 @@ function updateKeyboardInset(){
 if(window.visualViewport){window.visualViewport.addEventListener('resize',updateKeyboardInset);window.visualViewport.addEventListener('scroll',updateKeyboardInset);}
 D.chat.addEventListener('focus',updateKeyboardInset);
 D.chat.addEventListener('blur',()=>requestAnimationFrame(updateKeyboardInset));
+$('#tutorialSkip').onclick=()=>closeTutorial(true);
+$('#tutorialPrev').onclick=()=>{tutorialIndex=Math.max(0,tutorialIndex-1);renderTutorial();};
+$('#tutorialNext').onclick=()=>{if(tutorialIndex>=tutorialSteps.length-1){closeTutorial(true);return;}tutorialIndex++;renderTutorial();};
+$('#tutorialOverlay').addEventListener('click',e=>{if(e.target===$('#tutorialOverlay'))closeTutorial(true);});
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#tutorialOverlay').hidden){e.preventDefault();closeTutorial(true);}});
 $('#avatarBtn').onclick=()=>showModal();
 $('#inviteBtn').onclick=async()=>{const u=new URL(location.href);u.searchParams.set('room',ROOM_ID);u.searchParams.delete('auto');u.hash='';
  try{await navigator.clipboard.writeText(u.href);toast('같은 방 초대 링크를 복사했습니다.');}
@@ -1367,6 +1432,7 @@ $('#enterBtn').onclick=()=>{
   if(!query.has('room')&&!localStorage.getItem('snu-last-library-v6'))openLibraryChooser();
   else {setStatus('게스트로 입장하는 중…');net.start();}
  }
+ if(!tutorialSeen)setTimeout(()=>openTutorial(),220);
  toast('캐릭터 설정을 저장했습니다.')
 };
 if(!profileComplete)showModal();
@@ -1380,10 +1446,10 @@ window.addEventListener('pageshow',()=>{if(!document.hidden)net?.refresh()});
 // NPC behavior is driven by server clock messages, never Math.random().
 const tempVec=new THREE.Vector3();
 // Room-scale label sizes with hysteresis; names and clocks remain together on every visible tier.
-const LABEL_LIMITS=[CONFIG.width*.30,CONFIG.width*.56];
+const LABEL_LIMITS=[CONFIG.width*.22,CONFIG.width*.38];
 const LABEL_HYSTERESIS=1.8;
-// Limit work in crowded rooms without hiding nearby NPCs or players just because labels overlap.
-const LABEL_CAP=MOBILE?16:36;
+// Only nearby people/NPCs keep visible nameplates; preserve the player label at all times.
+const LABEL_CAP=MOBILE?7:14;
 function labelTier(obj,d){
  if(obj===player)return 0;
  let tier=obj.labelTierIndex??0;
@@ -1409,7 +1475,7 @@ function updateLabels(){
  let otherCount=0;
  for(const {obj,tier,x,y} of candidates){
   const tag=obj.label;
-  if(obj!==player&&otherCount>=LABEL_CAP){tag.style.display='none';continue;}
+  if(obj!==player&&(tier>=2||otherCount>=LABEL_CAP)){tag.style.display='none';continue;}
   if(obj!==player)otherCount++;
   tag.style.display='block';tag.style.left=x+'px';tag.style.top=y+'px';
   const tierName=obj===player?'near':['near','mid','far'][tier];
@@ -1483,6 +1549,7 @@ if(profileComplete)net.start();
 // No Google-vs-guest choice at launch; Google login remains available from
 // the account menu and the explicit button inside the guest friend tab.
 welcome.hidden=true;
+if(profileComplete&&!tutorialSeen)setTimeout(()=>openTutorial(),420);
 const suggested=Number(query.get('suggestSeat'));
 if(query.has('suggestSeat')&&Number.isInteger(suggested)&&seats[suggested])setTimeout(()=>toast(`친구 주변 추천 좌석: ${suggested+1}번 의자를 터치해 주세요.`),3500);
 console.info('Multilibrary 3D study room initialized:',{room:ROOM_ID,tables:YONSEI_ROOM?22:KOREA_ROOM?24:CONFIG.rows*CONFIG.columnsPerSide*2,seats:seats.length,npcs:npcList.length});

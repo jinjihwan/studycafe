@@ -25,7 +25,7 @@ test('send availability changes only presentation; keep transport, 40 character 
  assert.match(html,/performance\.now\(\)-lastChatSentAt<250/);
 });
 
-test('projected nameplates keep their screen position, clocks and overlap without forced screen-edge clamping',()=>{
+test('projected nearby nameplates keep their screen position and clocks without forced screen-edge clamping',()=>{
  const excerpt=html.slice(html.indexOf('function labelTier(obj,d){'),html.indexOf('// Lightweight frame diagnostics'));
  assert.doesNotMatch(excerpt,/placed\.some|x=clamp\(|y=clamp\(|safeTop|safeBottom/);
  assert.match(excerpt,/tag\.querySelector\('\.clock'\)\.textContent='◷ '\+fmt\(obj\.getTimer\(\)\)/);
@@ -35,17 +35,18 @@ test('projected nameplates keep their screen position, clocks and overlap withou
   const label={style:{display:'none'},dataset:{},querySelector(sel){return sel==='.clock'?clock:bubble;}};
   return { model:{headAnchor:{getWorldPosition(v){v.projectX=px;v.projectY=py;v.projectZ=depth;v.distance=dist;}}}, label, bubbleUntil:0,getTimer(){return dist*1000;},clock};
  };
- const me=mk(0,.1,0,2),a=mk(.3,0,0,10),b=mk(.3,0,0,52),edge=mk(-1.08,0,0,30),gone=mk(-2.1,0,0,60);
- const context={CONFIG:{width:48},LABEL_LIMITS:[14.4,26.88],LABEL_HYSTERESIS:1.8,LABEL_CAP:16,
-  MOBILE:true,player:me,remotePlayers:new Map([['one',a],['two',b],['edge',edge],['gone',gone]]),npcList:[],
+ const me=mk(0,.1,0,2),a=mk(.3,0,0,10),b=mk(.3,0,0,17),edge=mk(-1.08,0,0,15),gone=mk(-2.1,0,0,60),far=mk(.1,0,0,28);
+ const context={CONFIG:{width:48},LABEL_LIMITS:[10.56,18.24],LABEL_HYSTERESIS:1.8,LABEL_CAP:7,
+  MOBILE:true,player:me,remotePlayers:new Map([['one',a],['two',b],['edge',edge],['gone',gone],['far',far]]),npcList:[],
   innerWidth:390,innerHeight:844,performance:{now:()=>1000},camera:{position:{distanceTo:v=>v.distance}},
   tempVec:{project(){this.x=this.projectX;this.y=this.projectY;this.z=this.projectZ;return this;}},fmt:n=>String(n)};
  vm.createContext(context);vm.runInContext(excerpt,context);context.updateLabels();
  assert.equal(me.label.style.display,'block');
- assert.equal(a.label.style.display,'block');assert.equal(b.label.style.display,'block','overlapping labels remain attached to their characters');
- assert.equal(b.label.dataset.tier,'far');assert.equal(b.clock.textContent,'◷ 52000','far label retains time');
+ assert.equal(a.label.style.display,'block');assert.equal(b.label.style.display,'block','nearby labels remain attached to their characters');
+ assert.equal(b.label.dataset.tier,'mid');assert.equal(b.clock.textContent,'◷ 17000','visible nearby label retains time');
  assert.equal(a.label.style.left,b.label.style.left,'overlapping labels never shift from the head projection');
- assert.equal(edge.label.style.display,'block','partially clipped label may leave the viewport naturally');
+ assert.equal(edge.label.style.display,'block','partially clipped nearby label may leave the viewport naturally');
  assert.ok(Number.parseFloat(edge.label.style.left)<0,'no snapping the edge label into view');
+ assert.equal(far.label.style.display,'none','distant labels are hidden completely');
  assert.equal(gone.label.style.display,'none','completely offscreen label skips work');
 });

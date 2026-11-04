@@ -37,23 +37,22 @@ test('navigation keeps records/ranking/friends/library behavior, visually hides 
  assert.match(html,/#appNav button\[disabled\]\{display:none!important\}/);
 });
 test('distance label boundaries are room-relative and apply hysteresis; self is always near',()=>{
- assert.match(html,/const LABEL_LIMITS=\[CONFIG\.width\*\.30,CONFIG\.width\*\.56\]/);
+ assert.match(html,/const LABEL_LIMITS=\[CONFIG\.width\*\.22,CONFIG\.width\*\.38\]/);
  const body=html.match(/function labelTier\(obj,d\)\{[\s\S]*?\n\}/)?.[0];assert.ok(body);
- const ctx={CONFIG:{width:48},LABEL_LIMITS:[14.4,26.88],LABEL_HYSTERESIS:1.8,player:{}};
+ const ctx={CONFIG:{width:48},LABEL_LIMITS:[10.56,18.24],LABEL_HYSTERESIS:1.8,player:{}};
  vm.createContext(ctx);vm.runInContext(body,ctx);
  const p={};assert.equal(ctx.labelTier(ctx.player,200),0);
  assert.equal(ctx.labelTier(p,5),0);
- assert.equal(ctx.labelTier(p,16),0,'within hysteresis remains near');
- assert.equal(ctx.labelTier(p,17),1);
- assert.equal(ctx.labelTier(p,15),1,'reverse transition must not flicker');
- assert.equal(ctx.labelTier(p,12),0);
- assert.equal(ctx.labelTier(p,44.5),2);
- assert.equal(ctx.labelTier(p,42),2,'far name and time remain visible');
- assert.equal(ctx.labelTier(p,26),2,'reverse transition uses hysteresis');
- assert.equal(ctx.labelTier(p,24),1,'far tier returns to mid after hysteresis');
+ assert.equal(ctx.labelTier(p,11),0,'within hysteresis remains near');
+ assert.equal(ctx.labelTier(p,13),1);
+ assert.equal(ctx.labelTier(p,10),1,'reverse transition must not flicker');
+ assert.equal(ctx.labelTier(p,8),0);
+ assert.equal(ctx.labelTier(p,21),2);
+ assert.equal(ctx.labelTier(p,19),2,'far tier remains latched until hysteresis allows return');
+ assert.equal(ctx.labelTier(p,16),1,'far tier returns to mid after hysteresis');
 });
 test('labels keep head attachment, visible time, screen-edge clipping and bounded count',()=>{
- assert.match(html,/const LABEL_CAP=MOBILE\?16:36/);
+ assert.match(html,/const LABEL_CAP=MOBILE\?7:14/);
  assert.match(html,/tempVec\.project\(camera\)/);
  assert.match(html,/candidates\.sort\(/);
  assert.match(html,/otherCount>=LABEL_CAP/);
