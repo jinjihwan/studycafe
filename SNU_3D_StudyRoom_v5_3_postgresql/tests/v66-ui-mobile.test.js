@@ -7,7 +7,7 @@ const account=readFileSync(new URL('../client/account.js',import.meta.url),'utf8
 const markup=html.slice(0,html.indexOf('<script type="module">'));
 
 test('mobile room header retains library, live count, room and accessible account / invite controls',()=>{
- assert.match(markup,/<header id="topbar"[^>]*>.*?<span id="libraryBrand"[^>]*>.*?id="onlineCount".*?id="roomBadge".*?id="inviteBtn".*?id="accountBtn"/s);
+ assert.match(markup,/<header id="topbar"[^>]*>.*?<span id="libraryBrand"[^>]*>.*?id="roomBadge".*?id="onlineCount".*?id="inviteBtn".*?id="accountBtn"/s);
  assert.match(markup,/id="accountBtn"[^>]*aria-label="게스트 · 로그인"/);
  assert.match(markup,/id="inviteBtn"[^>]*aria-label="같은 방 초대 링크 복사"/);
  assert.match(html,/function updatePlayerCount\(count\)/);
@@ -37,9 +37,9 @@ test('navigation keeps records/ranking/friends/library behavior, visually hides 
  assert.match(html,/#appNav button\[disabled\]\{display:none!important\}/);
 });
 test('distance label boundaries are room-relative and apply hysteresis; self is always near',()=>{
- assert.match(html,/const LABEL_LIMITS=\[CONFIG\.width\*\.30,CONFIG\.width\*\.56,CONFIG\.width\*\.88\]/);
+ assert.match(html,/const LABEL_LIMITS=\[CONFIG\.width\*\.30,CONFIG\.width\*\.56\]/);
  const body=html.match(/function labelTier\(obj,d\)\{[\s\S]*?\n\}/)?.[0];assert.ok(body);
- const ctx={CONFIG:{width:48},LABEL_LIMITS:[14.4,26.88,42.24],LABEL_HYSTERESIS:1.8,player:{}};
+ const ctx={CONFIG:{width:48},LABEL_LIMITS:[14.4,26.88],LABEL_HYSTERESIS:1.8,player:{}};
  vm.createContext(ctx);vm.runInContext(body,ctx);
  const p={};assert.equal(ctx.labelTier(ctx.player,200),0);
  assert.equal(ctx.labelTier(p,5),0);
@@ -47,18 +47,19 @@ test('distance label boundaries are room-relative and apply hysteresis; self is 
  assert.equal(ctx.labelTier(p,17),1);
  assert.equal(ctx.labelTier(p,15),1,'reverse transition must not flicker');
  assert.equal(ctx.labelTier(p,12),0);
- assert.equal(ctx.labelTier(p,44.5),3);
- assert.equal(ctx.labelTier(p,42),3,'remain hidden in hysteresis');
- assert.equal(ctx.labelTier(p,39),2);
+ assert.equal(ctx.labelTier(p,44.5),2);
+ assert.equal(ctx.labelTier(p,42),2,'far name and time remain visible');
+ assert.equal(ctx.labelTier(p,26),2,'reverse transition uses hysteresis');
+ assert.equal(ctx.labelTier(p,24),1,'far tier returns to mid after hysteresis');
 });
-test('labels have per-screen cap, occlusion check, priority ordering and tier styles',()=>{
- assert.match(html,/const LABEL_CAP=MOBILE\?12:22/);
+test('labels keep head attachment, visible time, screen-edge clipping and bounded count',()=>{
+ assert.match(html,/const LABEL_CAP=MOBILE\?16:36/);
  assert.match(html,/tempVec\.project\(camera\)/);
  assert.match(html,/candidates\.sort\(/);
- assert.match(html,/if\(otherCount>=LABEL_CAP\|\|placed\.some/);
+ assert.match(html,/otherCount>=LABEL_CAP/);
  assert.match(html,/tag\.style\.display='none'/);
- assert.match(markup,/\.tag\[data-tier="mid"\] \.clock,\.tag\[data-tier="far"\] \.clock\{display:none\}/);
- assert.match(html,/if\(self\)y=clamp\(y,safeTop\+labelHeight/);
+ assert.doesNotMatch(markup,/\.clock\{display:none\}/);
+ assert.doesNotMatch(html,/x=clamp\(x,halfWidth/);
 });
 test('mobile viewport handling supports keyboard and system safe area with compact tab/chat layout',()=>{
  assert.match(html,/function updateKeyboardInset\(\)/);

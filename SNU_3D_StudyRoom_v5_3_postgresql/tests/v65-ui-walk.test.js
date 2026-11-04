@@ -22,7 +22,7 @@ test('camera always follows, input works, and guidance/promotional copy is not p
  for(const id of ['followBtn','helpBtn','hints','librarySubtitle'])assert.doesNotMatch(visible,new RegExp(`id="${id}"`));
  assert.doesNotMatch(visible,/비공식 3D|파란 카펫|붉은 커튼|정면 통창|WASD/);
  assert.doesNotMatch(html,/function followToggle\(/);
- assert.match(html,/targetFollow\.set\(player\.root\.position\.x,MOBILE\?1\.72:1\.35,player\.root\.position\.z-\(MOBILE\?3\.4:1\.3\)\)/);
+ assert.match(html,/targetFollow\.set\(player\.root\.position\.x,MOBILE\?1\.72:1\.35,player\.root\.position\.z-\(MOBILE\?2\.5:1\.3\)\)/);
  assert.match(html,/window\.addEventListener\('keydown'/);
  assert.match(html,/function keyboardMove\(dt\)/);
  assert.match(html,/function goToFloor\(p\)/);
