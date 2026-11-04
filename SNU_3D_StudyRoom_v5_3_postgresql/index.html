@@ -126,9 +126,11 @@ const $ = s => document.querySelector(s);
 // All seat locations and path bounds are mirrored in server/room.js.
 const query = new URLSearchParams(location.search);
 const ROOM_ID = (()=>{const name=query.get('room')||'main';return /^[a-z0-9][a-z0-9_-]{0,31}$/.test(name)?name:'main'})();
-const KOREA_ROOM=ROOM_ID==='korea'||/^korea-[2-9][0-9]*$/.test(ROOM_ID);
-const YONSEI_ROOM=ROOM_ID==='yonsei'||/^yonsei-[2-9][0-9]*$/.test(ROOM_ID);
+const KOREA_ROOM=ROOM_ID==='korea'||/^korea-(?:[2-9]|[1-9][0-9]+)$/.test(ROOM_ID);
+const YONSEI_ROOM=ROOM_ID==='yonsei'||/^yonsei-(?:[2-9]|[1-9][0-9]+)$/.test(ROOM_ID);
 const PRIMARY_ROOM=['main','korea','yonsei'].includes(ROOM_ID);
+const ADMISSION=query.get('admission');
+if(ADMISSION){const scrub=new URL(location.href);scrub.searchParams.delete('admission');history.replaceState(null,'',scrub.href);}
 const BASE_LIBRARY=KOREA_ROOM?'korea':YONSEI_ROOM?'yonsei':'main';
 const CONFIG = {width:48, length:88, height:16.2, frontZ:-39, rearZ:49, frontWalkLimit:-33.5, rearWalkLimit:44, rows:4, columnsPerSide:1,
   rowSpacing:17.4, columnSpacing:4.55, npcCount:8, navStep:.6};
@@ -146,7 +148,7 @@ const LIBRARY_META={
  yonsei:{badge:'연세대 도서관',brand:'연세대학교 연세·삼성학술정보관',subtitle:'연세·삼성학술정보관 참고 · 비공식 3D 재현',short:'연세대'}
 };
 const libraryMeta=LIBRARY_META[BASE_LIBRARY];
-$('#roomBadge').textContent=libraryMeta.badge;
+$('#roomBadge').textContent=libraryMeta.badge + (!PRIMARY_ROOM?' · '+ROOM_ID.split('-').at(-1)+'번 방':' · 1번 방');
 $('#libraryBrand').firstChild.textContent=libraryMeta.brand;
 $('#librarySubtitle').textContent=libraryMeta.subtitle;
 document.title=libraryMeta.short+' 도서관 · 3D 스터디카페';
@@ -909,7 +911,7 @@ const remotePlayers=new Map();const seatLocks=new Map();
 let selfId=null,net=null,pendingIntent=null,lastMoveSent=0;
 const account=new AccountClient({getGuestToken:()=>net?.token||localStorage.getItem('snu-study-guest-token-v2')||'',onToast:toast,onChange:()=>{
  net?.stop();for(const id of [...remotePlayers.keys()])disposeRemote(id);selfId=null;
- net=new NetworkClient({room:ROOM_ID,profile:currentProfile,onEvent:onServer,onStatus:(message)=>{if(!net.connected)setStatus(message);},isAccount:()=>account.signedIn,ensureAccount:()=>account.ensureSession()});if(profileComplete)net.start();dashboard.onReconnect();
+ net=new NetworkClient({room:ROOM_ID,admission:ADMISSION,profile:currentProfile,onEvent:onServer,onStatus:(message)=>{if(!net.connected)setStatus(message);},isAccount:()=>account.signedIn,ensureAccount:()=>account.ensureSession()});if(profileComplete)net.start();dashboard.onReconnect();
 }});
 let friends;
 const dashboard=initDashboard({getToken:()=>account.signedIn?'account':net?.token,onToast:toast,
@@ -922,7 +924,7 @@ friends=createFriendsPanel({account,onToast:toast,onAllRanking:()=>dashboard.ope
 const chooser=$('#librarySelect');
 let switchingTo=null;
 function libraryURL(room){const url=new URL(location.href);url.searchParams.set('room',room);
- url.searchParams.delete('suggestSeat');return url.href;}
+ url.searchParams.set('auto','1');url.searchParams.delete('suggestSeat');return url.href;}
 function openLibraryChooser(){chooser.hidden=false;chooser.querySelectorAll('[data-library]').forEach(btn=>{
   const same=btn.dataset.library===ROOM_ID;btn.disabled=same&&!!net?.connected;
   btn.querySelector('strong').textContent=(LIBRARY_META[btn.dataset.library]?.brand||'도서관')+(same?' · 현재 위치':'');
@@ -932,7 +934,7 @@ $('#switchLibraryBtn').addEventListener('click',openLibraryChooser);
 $('#libraryClose').addEventListener('click',closeLibraryChooser);
 chooser.addEventListener('click',e=>{if(e.target===chooser)closeLibraryChooser()});
 for(const btn of chooser.querySelectorAll('[data-library]'))btn.addEventListener('click',()=>{
- const room=btn.dataset.library;if(room===ROOM_ID){try{localStorage.setItem('snu-last-library-v6',room);}catch{}closeLibraryChooser();return;}
+ const room=btn.dataset.library;if(room===ROOM_ID){try{localStorage.setItem('snu-last-library-v6',room);}catch{}if(!net?.connected){location.assign(libraryURL(room));return;}closeLibraryChooser();return;}
  try{localStorage.setItem('snu-last-library-v6',room);}catch{}
  save();switchingTo=libraryURL(room);
  if(!net?.connected||!net.send({t:'room_exit'})){location.assign(switchingTo);return;}
@@ -1140,7 +1142,7 @@ function onServer(m){
 }
 function sendPosition(force=false){
  if(!net?.connected||player.seated)return;
- const now=performance.now();if(!force&&now-lastMoveSent<105)return;
+ const now=performance.now();if(!force&&now-lastMoveSent<165)return;
  lastMoveSent=now;
  net.send({t:'move',x:player.root.position.x,z:player.root.position.z,yaw:player.root.rotation.y});
 }
@@ -1221,7 +1223,7 @@ function sendChat(){const msg=D.chat.value.trim();if(!msg)return;if(!net?.send({
 D.send.onclick=sendChat;D.chat.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChat()}});
 $('#helpBtn').onclick=()=>toast('드래그 회전 · 휠/핀치 줌 · 바닥 클릭 이동 · 의자 클릭 앉기 · WASD 이동');
 $('#avatarBtn').onclick=()=>showModal();
-$('#inviteBtn').onclick=async()=>{const u=new URL(location.href);u.searchParams.set('room',ROOM_ID);u.hash='';
+$('#inviteBtn').onclick=async()=>{const u=new URL(location.href);u.searchParams.set('room',ROOM_ID);u.searchParams.delete('auto');u.hash='';
  try{await navigator.clipboard.writeText(u.href);toast('같은 방 초대 링크를 복사했습니다.');}
  catch{window.prompt('친구에게 이 주소를 전달하세요.',u.href);}};
 $('#species').value=prefs.species;$('#gender').value=prefs.gender;$('#nick').value=prefs.nick;$('#hood').value=prefs.hood;
@@ -1313,7 +1315,7 @@ window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camer
  renderer.setPixelRatio(pixelRatio());renderer.setSize(innerWidth,innerHeight)});
 updateHUD();updatePlayerCount(0);$('#loading').remove();
 await account.initialize();
-net=new NetworkClient({room:ROOM_ID,profile:currentProfile,onEvent:onServer,
+net=new NetworkClient({room:ROOM_ID,admission:ADMISSION,profile:currentProfile,onEvent:onServer,
  onStatus:(message)=>{if(!net.connected)setStatus(message);},isAccount:()=>account.signedIn,ensureAccount:()=>account.ensureSession()});
 // Returning visitors enter immediately. First-time guests choose their avatar first.
 if(profileComplete)net.start();

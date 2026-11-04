@@ -1,12 +1,13 @@
 import crypto from 'node:crypto';
+import {roomCapacity,parsedPublicRoom} from './room-routing.js';
 
 export const NPC_COUNT = 8;
 // NPCs belong only to the FIRST instance of each library, not to overflow rooms.
 export const PRIMARY_LIBRARY_ROOMS = Object.freeze(['main', 'korea', 'yonsei']);
 export const NPC_HOME_SEAT_IDS = Object.freeze([2,8,14,20,26,32,38,44]);
 export function baseLibraryForRoom(roomId) {
-  if (roomId === 'korea' || /^korea-[2-9][0-9]*$/.test(roomId)) return 'korea';
-  if (roomId === 'yonsei' || /^yonsei-[2-9][0-9]*$/.test(roomId)) return 'yonsei';
+  if (roomId === 'korea' || /^korea-(?:[2-9]|[1-9][0-9]+)$/.test(roomId)) return 'korea';
+  if (roomId === 'yonsei' || /^yonsei-(?:[2-9]|[1-9][0-9]+)$/.test(roomId)) return 'yonsei';
   return 'main';
 }
 export const npcCountForRoom = roomId => PRIMARY_LIBRARY_ROOMS.includes(roomId) ? NPC_COUNT : 0;
@@ -29,6 +30,8 @@ export const koreaMidnightUtc = ms => Math.floor((ms + KST_OFFSET_MS) / DAY_MS) 
 const localDay = koreaDay;
 const MAX_JSON_BYTES = 4096;
 const MAX_MESSAGES_PER_SECOND = 35;
+const FLUSH_INTERVAL_MS=Math.min(30000,Math.max(4500,Number(process.env.STUDYROOM_FLUSH_INTERVAL_MS)||4500));
+const MOVEMENT_BROADCAST_MS=150;
 
 
 export function buildSeatsAndObstacles() {
@@ -171,7 +174,7 @@ export function createAuth(secret) {
 }
 
 export class Rooms {
-  constructor(auth,store,accounts=null) { this.auth=auth; this.store=store; this.accounts=accounts; this.rooms=new Map(); this.connections=new Set(); this.lastFlush=0; this.persistenceError=null; this.joinQueue=new Map(); }
+  constructor(auth,store,accounts=null,presence=null) { this.presence=presence;this.lastPresenceTick=0;this.auth=auth; this.store=store; this.accounts=accounts; this.rooms=new Map(); this.connections=new Set(); this.lastFlush=0; this.persistenceError=null; this.joinQueue=new Map(); }
   get(roomId) { if(!this.rooms.has(roomId)) this.rooms.set(roomId,{id:roomId,users:new Map(),locks:new Map()}); return this.rooms.get(roomId); }
   members(room) { return [...room.users.values()].filter(p=>p.online).length; }
   public(p) { return {id:p.id,nick:p.nick,species:p.species,hood:p.hood,x:p.x,z:p.z,yaw:p.yaw,
@@ -219,7 +222,7 @@ export class Rooms {
     return p.persistPromise;
   }
   async flushAll(force=false){
-    const now=Date.now();if(!force&&!this.persistenceError&&now-this.lastFlush<4500)return;
+    const now=Date.now();if(!force&&!this.persistenceError&&now-this.lastFlush<FLUSH_INTERVAL_MS)return;
     this.lastFlush=now;
     const tasks=[];
     for(const room of this.rooms.values())for(const p of room.users.values()){
@@ -232,8 +235,8 @@ export class Rooms {
   async history(id){await this.flushAll(true);return this.store.getDays(id);}
   broadcast(room,message,except=null) { for(const p of room.users.values()) if(p.online&&p.peer!==except) p.peer.send(message); }
   error(peer,code,message,seatId) { peer.send({t:'error',code,message,seatId}); }
-  connect(peer,accountId=null,accountExpiresAt=0) {
-    const connection={accountId,accountExpiresAt,peer, player:null, room:null, joined:false, closed:false, created:Date.now(), windowStart:Date.now(), packetCount:0, lastProfileAt:0};
+  connect(peer,accountId=null,accountExpiresAt=0,expectedRoom=null) {
+    const connection={accountId,accountExpiresAt,expectedRoom,peer, player:null, room:null, joined:false, closed:false, created:Date.now(), windowStart:Date.now(), packetCount:0, lastProfileAt:0};
     this.connections.add(connection);
     peer.on('message',raw=>this.receive(connection,raw));
     peer.on('close',()=>{connection.closed=true;this.connections.delete(connection);this.disconnect(connection)});
@@ -279,7 +282,7 @@ export class Rooms {
   async joinVerified(c,m,id) {
     if(c.closed)return;
     const roomId=m.room;
-    if(!validRoom(roomId)){this.error(c.peer,'room','방 주소가 올바르지 않습니다.');c.peer.close(1008,'Room');return;}
+    if(!validRoom(roomId)|| (c.expectedRoom && c.expectedRoom!==roomId) || (/^(main|korea|yonsei)-/.test(roomId)&&!parsedPublicRoom(roomId))){this.error(c.peer,'room','방 주소가 올바르지 않습니다.');c.peer.close(1008,'Room');return;}
     if(this.accounts&&!await this.accounts.canEnterRoom(roomId,id)){this.error(c.peer,'room_private','이 방에 입장할 권한이 없습니다.');c.peer.close(1008,'Room access denied');return;}
     // A Google account can own only one active 3D controller globally.
     // Explicit takeover confirmation is required BEFORE evicting a controller
@@ -294,11 +297,15 @@ export class Rooms {
       }
     }
     // At most one room membership per verified identity at a time.
-    for(const r of this.rooms.values()) if(r.id!==roomId && r.users.has(id)){const old=r.users.get(id);this.studyMs(old);await this.persist(old);this.remove(r,old);}
+    for(const r of this.rooms.values()) if(r.id!==roomId && r.users.has(id)){const old=r.users.get(id);this.studyMs(old);await this.persist(old);this.remove(r,old,true);}
     const room=this.get(roomId);
-    if(!room.users.has(id)&&this.members(room)>=64){this.error(c.peer,'full','이 방은 최대 64명까지 입장할 수 있습니다.');c.peer.close(1008,'Full');return;}
+    if(!room.users.has(id)&&this.members(room)>=roomCapacity(roomId)){this.error(c.peer,'full','이 방은 만석입니다. 다른 방으로 안내합니다.');c.peer.close(1008,'Full');return;}
     // Refuse new joins when the durable identity / study database is unavailable.
     const stored=await this.store.ensureGuest(id);
+    if(this.presence){
+      const lease=await this.presence.acquire(id,roomId,{takeover:!!m.takeover,reservation:m.admission});
+      if(!lease.ok){this.error(c.peer,lease.code,lease.code==='full'?'방이 가득 찼습니다. 다른 방을 선택해 주세요.':'이미 다른 기기에서 사용 중입니다.');c.peer.close(1008,lease.code);return;}
+    }
     let p=room.users.get(id), resumed=!!p;
     if(!p){const currentDay=koreaDay();const savedMs=await this.store.getDay(id,currentDay);p={id,x:SPAWN.x,z:SPAWN.z,yaw:Math.PI,seatId:null,pendingSeatId:null,
        nick:stored.nick,species:stored.species,hood:stored.hood,rankingPublic:stored.rankingPublic,studyMs:savedMs,studyStartedAt:0,
@@ -324,6 +331,7 @@ export class Rooms {
     await this.persist(p);
     if(c.closed||p.peer!==c.peer)return;
     this.release(room,p);p.peer=null;p.online=false;
+    if(this.presence)await this.presence.release(p.id);
     room.users.delete(p.id);this.broadcast(room,{t:'left',id:p.id,count:this.members(room)});
     if(!room.users.size)this.rooms.delete(room.id);
     c.player=null;c.room=null;c.joined=false;
@@ -414,7 +422,9 @@ export class Rooms {
       }
     }
     p.x=m.x;p.z=m.z;p.yaw=bound(m.yaw,-Math.PI*10,Math.PI*10);p.lastMoveAt=now;
-    this.broadcast(c.room,{t:'moved',id:p.id,x:p.x,z:p.z,yaw:p.yaw},c.peer);
+    if(!p.lastBroadcastAt||now-p.lastBroadcastAt>=MOVEMENT_BROADCAST_MS){
+      p.lastBroadcastAt=now;this.broadcast(c.room,{t:'moved',id:p.id,x:p.x,z:p.z,yaw:p.yaw},c.peer);
+    }
   }
   pause(c,m) {
     const p=c.player;if(!p.studying||typeof m.paused!=='boolean')return;
@@ -447,9 +457,10 @@ export class Rooms {
     this.cancelReservation(c);
     this.broadcast(c.room,{t:'player',player:this.public(p),count:this.members(c.room)});
   }
-  remove(room,p) {
+  remove(room,p,skipPresence=false) {
     if(p.peer){const old=p.peer;p.peer=null;p.online=false;old.close(4002,'Room changed');}
     this.release(room,p);room.users.delete(p.id);
+    if(this.presence&&!skipPresence)void this.presence.release(p.id).catch(e=>console.error('[presence] release failed:',e.message));
     this.broadcast(room,{t:'left',id:p.id,count:this.members(room)});
     if(!room.users.size)this.rooms.delete(room.id);
   }
@@ -469,6 +480,16 @@ export class Rooms {
       }
       this.broadcast(room,{t:'clock',serverNow:now,day:localDay(now),count:this.members(room),npcCount:npcCountForRoom(room.id),npcStates:npcStatesForRoom(room.id,now),
         players:[...room.users.values()].map(p=>({id:p.id,studyMs:this.studyMs(p),studying:p.studying,paused:p.paused}))});
+    }
+    if(this.presence && now-this.lastPresenceTick>=10000){
+      this.lastPresenceTick=now;
+      const live=[...this.rooms.values()].flatMap(r=>[...r.users.values()].filter(p=>p.online));
+      try{
+        const replaced=await this.presence.renew(live);
+        for(const id of replaced){for(const room of this.rooms.values()){
+          const p=room.users.get(id);if(p){this.stopStudy(p);this.remove(room,p);}
+        }}
+      }catch(e){this.persistenceError=e.message;console.error('[presence] heartbeat:',e.message);}
     }
     try{await this.flushAll();}catch{/* retry next tick; health reports degraded storage */}
     for(const c of this.connections){

@@ -2,6 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import {isIP} from 'node:net';
 import { fileURLToPath } from 'node:url';
 import { upgradeWebSocket } from './websocket.js';
 import { createAuth, Rooms, koreaDay } from './room.js';
@@ -13,6 +14,10 @@ import { createFirebaseVerifier } from './firebase.js';
 import { createAccountAPI,accountContext } from './account-api.js';
 import { originDecision } from './origin.js';
 import {statePaths,assertExistingProductionData} from './state-paths.js';
+import {LivePresence} from './live-presence.js';
+import {validId} from './room.js';
+import {parseWorkerTargets,proxyRoomWebsocket} from './ws-router.js';
+import {LIBRARIES,choosePublicRoom,parsedPublicRoom,workerForRoom,roomCapacity} from './room-routing.js';
 import {createSQLiteBackup} from '../scripts/backup-sqlite.mjs';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
@@ -33,7 +38,28 @@ const auth=createAuth(loadSecret());
 const store=await createStore();
 const accounts=store.kind==='postgres'?new PostgresAccountsStore(store):new AccountsStore(store);
 const firebaseVerifier=await createFirebaseVerifier();
-const rooms=new Rooms(auth,store,accounts);
+const routeTargets=parseWorkerTargets(process.env.STUDYROOM_ROUTER_TARGETS||'');
+const livePresence=store.kind==='postgres'?await new LivePresence(store.pool).init():null;
+const rooms=new Rooms(auth,store,accounts,livePresence);
+const workerCount=Number(process.env.STUDYROOM_WORKER_COUNT||0);
+const workerIndex=Number(process.env.STUDYROOM_WORKER_INDEX||0);
+const internalSecret=process.env.STUDYROOM_INTERNAL_SECRET||'';
+if((routeTargets.length||workerCount) && (internalSecret.length<32 || store.kind!=='postgres'))
+  throw new Error('Multi-worker mode requires PostgreSQL and a shared 32+ character STUDYROOM_INTERNAL_SECRET');
+if(routeTargets.length && workerCount)throw new Error('Gateway and worker modes are mutually exclusive');
+if(workerCount&&(!Number.isInteger(workerCount)||workerCount<1||workerCount>32||!Number.isInteger(workerIndex)||workerIndex<0||workerIndex>=workerCount))
+  throw new Error('Invalid worker configuration');
+async function stopIdentityGlobal(id){
+ if(!routeTargets.length)return rooms.stopIdentity(id);
+ const live=(await livePresence.getUsers([id])).get(id);
+ if(!live)return;
+ const dest=new URL('/internal/stop-identity',routeTargets[workerForRoom(live.roomId,routeTargets.length)]);
+ const abort=AbortSignal.timeout(7000);
+ const response=await fetch(dest,{method:'POST',signal:abort,headers:{'Content-Type':'application/json','X-Studyroom-Internal-Secret':internalSecret},body:JSON.stringify({id})});
+ if(!response.ok)throw new Error('Room worker checkpoint failed; abort identity change');
+ await livePresence.forceRelease(id);
+}
+
 let rankingCache=null;
 function currentPlayers(){const byId=new Map();for(const room of rooms.rooms.values())for(const p of room.users.values())byId.set(p.id,p);return byId;}
 async function dailyRanking(day){
@@ -87,7 +113,12 @@ function sameOrigin(req) {
 // Basic IP rate limits; application message limits are in room.js.
 const rate=new Map();
 function permit(req,kind,limit,intervalMs=60000) {
-  const key=(req.socket.remoteAddress||'?')+':'+kind,now=Date.now();
+  // Railway public ingress rewrites X-Real-IP. In distributed mode the trusted
+  // gateway forwards it only to workers authenticated with the internal secret.
+  const realIp=req.headers['x-real-ip'];
+  const identity=(routeTargets.length||workerCount||process.env.STUDYROOM_TRUST_RAILWAY_EDGE_IP==='1')
+    &&typeof realIp==='string'&&isIP(realIp)?realIp:(req.socket.remoteAddress||'?');
+  const key=identity+':'+kind,now=Date.now();
   const entry=rate.get(key);
   if(!entry||now-entry.start>intervalMs){rate.set(key,{start:now,count:1});return true;}
   if(++entry.count>limit)return false;
@@ -101,14 +132,66 @@ function readBody(req,maxBytes=2048) {return new Promise((resolve,reject)=>{
   req.on('end',()=>{try{resolve(JSON.parse(body||'{}'))}catch{reject(new Error('JSON required'))}});
   req.on('error',reject);
  });}
-const accountAPI=createAccountAPI({accounts,rooms,auth,verifyFirebase:firebaseVerifier,json,sameOrigin,permit,readBody,store});
+const accountAPI=createAccountAPI({accounts,rooms,auth,verifyFirebase:firebaseVerifier,json,sameOrigin,permit,readBody,store,livePresence,stopIdentity:stopIdentityGlobal});
 async function handleHttp(req,res){
   let pathname;try{pathname=new URL(req.url||'/',`http://${req.headers.host||'localhost'}`).pathname;}catch{return json(res,400,{error:'Invalid URL'});}
+  // Worker-only private endpoint: flush an identity BEFORE the gateway links
+  // a guest to Google or deletes an account. Never expose worker services publicly.
+  if(pathname==='/internal/stop-identity' && req.method==='POST' && workerCount){
+    const actual=req.headers['x-studyroom-internal-secret'];
+    const a=Buffer.from(typeof actual==='string'?actual:'');const b=Buffer.from(internalSecret);
+    if(a.length!==b.length||!crypto.timingSafeEqual(a,b))return json(res,403,{error:'Forbidden'});
+    let data;try{data=await readBody(req,128);}catch{return json(res,400,{error:'Invalid request'});}
+    if(!validId(data.id))return json(res,400,{error:'Invalid identity'});
+    await rooms.stopIdentity(data.id);
+    if(livePresence)await livePresence.forceRelease(data.id);
+    return json(res,200,{ok:true});
+  }
+  // Shareable auto-room links; no room ID is trusted from a browser for capacity.
+  if(pathname==='/' && req.method==='GET'){
+    const q=new URL(req.url||'/', 'http://localhost').searchParams;
+    if(q.get('auto')==='1'){
+      if(!permit(req,'allocate',60))return json(res,429,{error:'입장 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.'});
+      const library=q.get('room')||'main';
+      if(!LIBRARIES.includes(library))return json(res,400,{error:'도서관을 선택해 주세요.'});
+      const allocated=livePresence?await livePresence.allocate(library):await choosePublicRoom(library,async l=>{
+        return new Map([...rooms.rooms].filter(([id])=>parsedPublicRoom(id)?.library===l)
+          .map(([id,r])=>[id,rooms.members(r)]));
+      });
+      if(!allocated)return json(res,503,{error:'모든 방이 가득 찼습니다. 잠시 후 다시 시도해 주세요.'});
+      const dest=new URL(req.url||'/',`http://${req.headers.host||'localhost'}`);
+      dest.searchParams.set('room',allocated.room);dest.searchParams.delete('auto');
+      if(allocated.reservation)dest.searchParams.set('admission',allocated.reservation);
+      // 303 is deliberate: prevent caching and preserve no account tokens.
+      res.writeHead(303,{'Location':dest.pathname+dest.search,'Cache-Control':'no-store'});res.end();return;
+    }
+  }
   if(await accountAPI(req,res,pathname))return;
+  if(pathname==='/api/rooms/status'&&req.method==='GET'){
+    if(!permit(req,'status',60))return json(res,429,{error:'Too many requests'});
+    const data={};
+    for(const library of LIBRARIES){
+      const counts=livePresence?await livePresence.occupancy(library):
+        new Map([...rooms.rooms].filter(([room])=>parsedPublicRoom(room)?.library===library)
+          .map(([room,r])=>[room,rooms.members(r)]));
+      data[library]={users:[...counts.values()].reduce((a,b)=>a+b,0),rooms:[...counts.entries()].filter(([,n])=>n>0).length,
+        occupied:[...counts.entries()].map(([room,n])=>({room,users:n,capacity:roomCapacity(room)}))};
+    }
+    return json(res,200,{libraries:data,users:Object.values(data).reduce((a,x)=>a+x.users,0),routerEnabled:routeTargets.length>0});
+  }
   if(pathname==='/health'&&req.method==='GET'){
     let dbOK=!rooms.persistenceError;
     if(store.kind==='postgres')try{await store.pool.query('SELECT 1')}catch{dbOK=false;}
-    return json(res,dbOK?200:503,{ok:dbOK,rooms:rooms.rooms.size,db:store.kind,storageError:!dbOK});
+    let workerHealth=[];
+    if(routeTargets.length){workerHealth=await Promise.all(routeTargets.map(async(target,index)=>{
+      try{const response=await fetch(new URL('/health',target),{signal:AbortSignal.timeout(1800)});
+        return {index,ok:response.ok};}
+      catch{return {index,ok:false};}
+    }));}
+    const healthy=dbOK&&workerHealth.every(w=>w.ok);
+    return json(res,healthy?200:503,{ok:healthy,rooms:rooms.rooms.size,db:store.kind,
+      storageError:!dbOK,router:routeTargets.length>0,workerCount:routeTargets.length||1,
+      ...(routeTargets.length?{workers:workerHealth}:{} )});
   }
   if(pathname==='/api/me/stats'||pathname==='/api/ranking'||pathname==='/api/me/privacy'){
     if(!sameOrigin(req))return json(res,403,{error:'Wrong origin'});
@@ -176,9 +259,22 @@ server.on('upgrade',(req,socket,head)=>{
   }
   if(!permit(req,'upgrade',90)){socket.end('HTTP/1.1 429 Too Many Requests\r\nConnection: close\r\n\r\n');return;}
   // The PG session lookup is asynchronous. Do not trust a claimed WS user ID.
+  if(routeTargets.length){proxyRoomWebsocket(req,socket,head,routeTargets,internalSecret);return;}
+  if(workerCount){
+    const actual=req.headers['x-studyroom-internal-secret'];
+    const a=Buffer.from(typeof actual==='string'?actual:'');const b=Buffer.from(internalSecret);
+    if(a.length!==b.length||!crypto.timingSafeEqual(a,b)){socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');return;}
+  }
+  const expectedRoom=url.searchParams.get('room');
+  if(expectedRoom && !/^[a-z0-9][a-z0-9_-]{0,31}$/.test(expectedRoom)){
+    socket.end('HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n');return;
+  }
+  if(workerCount && (!expectedRoom || workerForRoom(expectedRoom,workerCount)!==workerIndex)){
+    socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');return;
+  }
   void Promise.resolve(accountContext(req,accounts)).then(ctx=>{
     if(socket.destroyed)return;
-    upgradeWebSocket(req,socket,head,peer=>rooms.connect(peer,ctx?.id||null,ctx?.expiresAt||0));
+    upgradeWebSocket(req,socket,head,peer=>rooms.connect(peer,ctx?.id||null,ctx?.expiresAt||0,expectedRoom));
   }).catch(()=>{try{socket.end('HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n')}catch{socket.destroy();}});
 });
 let ticking=false;const timer=setInterval(()=>{if(ticking)return;ticking=true;void rooms.tick().catch(e=>console.error('room tick',e)).finally(()=>{ticking=false;});},1000);timer.unref();
@@ -202,7 +298,7 @@ if(store.kind==='sqlite'&&Number.isFinite(backupHours)&&backupHours>0&&backupHou
  firstSnapshotTimer.unref();snapshotTimer.unref();
 }
 server.requestTimeout=15000;server.headersTimeout=12000;server.keepAliveTimeout=5000;
-server.maxConnections=512;
+server.maxConnections=routeTargets.length?Number(process.env.STUDYROOM_ROUTER_MAX_CONNECTIONS||4096):Number(process.env.STUDYROOM_SERVER_MAX_CONNECTIONS||512);
 const PORT=Number(process.env.PORT)||3000;
 const HOST=process.env.HOST||'0.0.0.0';
 if(process.env.NODE_ENV!=='test-autostart-disabled'){

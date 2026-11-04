@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import {hash} from './accounts-store.js';
-import {koreaDay,layoutForRoom,validRoom,npcCountForRoom} from './room.js';
+import {koreaDay,layoutForRoom,validRoom,npcCountForRoom,baseLibraryForRoom} from './room.js';
+import {roomCapacity} from './room-routing.js';
 import {buildRanking} from './stats.js';
 
 export const parseCookies=req=>Object.fromEntries((req.headers.cookie||'').split(';').map(s=>s.trim().split('=')).filter(a=>a.length===2));
@@ -15,15 +16,23 @@ export const sessionCookie=(req,raw,maxAge=14*86400)=>{
  const secure=req.socket.encrypted||req.headers['x-forwarded-proto']==='https'||host.endsWith('.app.github.dev')||process.env.STUDYROOM_PUBLIC_ORIGIN?.startsWith('https:');
  return `snu_session=${raw}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}; ${secure?'Secure; ':''}Priority=High`;
 };
-export function createAccountAPI({accounts,rooms,auth,verifyFirebase,json,sameOrigin,permit,readBody,store}){
+export function createAccountAPI({accounts,rooms,auth,verifyFirebase,json,sameOrigin,permit,readBody,store,livePresence=null,stopIdentity=id=>rooms.stopIdentity(id)}){
  const bad=(res,code,message)=>json(res,code,{error:message});
- const roomUsers=()=>{const map=new Map();for(const room of rooms.rooms.values())for(const p of room.users.values())map.set(p.id,{...p,roomId:room.id});return map;};
+ const roomUsers=async(ids=null)=>{
+  const map=new Map();for(const room of rooms.rooms.values())for(const p of room.users.values())map.set(p.id,{...p,roomId:room.id});
+  if(livePresence){
+   // Query only the requested identities; never scan all 2,000 sessions for a friend list.
+   const global=ids?await livePresence.getUsers(ids):await livePresence.allUsers();
+   for(const [id,p] of global)map.set(id,p);
+  }
+  return map;
+ };
  async function evictNewlyUnauthorized(a,b){
   for(const room of [...rooms.rooms.values()]){
    const policy=await accounts.roomPolicy(room.id);
    if(!policy?.is_private)continue;
-   if(policy.owner_id===a&&room.users.has(b))await rooms.stopIdentity(b);
-   else if(policy.owner_id===b&&room.users.has(a))await rooms.stopIdentity(a);
+   if(policy.owner_id===a&&room.users.has(b))await stopIdentity(b);
+   else if(policy.owner_id===b&&room.users.has(a))await stopIdentity(a);
   }
  }
  const presence=async (viewer,id,live)=>{
@@ -34,6 +43,7 @@ export function createAccountAPI({accounts,rooms,auth,verifyFirebase,json,sameOr
    room:a.joinAllowed&&p?.online?p.roomId:null};
  };
  return async function handle(req,res,pathname){
+  if(pathname==='/api/rooms/status')return false; // Public occupancy endpoint belongs to the main router.
   if(!pathname.startsWith('/api/auth/')&&!pathname.startsWith('/api/friends/')&&!pathname.startsWith('/api/rooms/'))return false;
   if(!sameOrigin(req))return bad(res,403,'Wrong origin'),true;
   if(!permit(req,'account-api',100))return bad(res,429,'요청 제한을 초과했습니다.'),true;
@@ -48,7 +58,7 @@ export function createAccountAPI({accounts,rooms,auth,verifyFirebase,json,sameOr
     let verified;try{verified=await verifyFirebase.verify(body.idToken);}catch{return bad(res,401,'Google 인증 검증에 실패했습니다.'),true;}
     const guestId=auth.validate(body.guestToken);
     // Stop and durably checkpoint any active guest BEFORE transactional transfer.
-    if(guestId&&await accounts.isGuestAvailable(guestId))await rooms.stopIdentity(guestId);
+    if(guestId&&await accounts.isGuestAvailable(guestId))await stopIdentity(guestId);
     const result=await accounts.createOrLink(verified.uid,guestId);
     const session=await accounts.createSession(result.id);
     res.setHeader('Set-Cookie',sessionCookie(req,session.raw));
@@ -64,12 +74,12 @@ export function createAccountAPI({accounts,rooms,auth,verifyFirebase,json,sameOr
    if(pathname==='/api/auth/logout'&&req.method==='POST'){
     await accounts.revokeSession(ctx.raw);
     res.setHeader('Set-Cookie',sessionCookie(req,'',0));
-    await rooms.stopIdentity(ctx.id);
+    await stopIdentity(ctx.id);
     return json(res,200,{ok:true}),true;
    }
    if(pathname==='/api/auth/delete'&&req.method==='POST'){
     // Delete app-side records only; provider Firebase account remains untouched.
-    await rooms.stopIdentity(ctx.id);
+    await stopIdentity(ctx.id);
     await accounts.deleteAccount(ctx.id);
     res.setHeader('Set-Cookie',sessionCookie(req,'',0));return json(res,200,{ok:true,providerAccountDeleted:false}),true;
    }
@@ -99,7 +109,7 @@ export function createAccountAPI({accounts,rooms,auth,verifyFirebase,json,sameOr
     const {id}=await readBody(req);accounts.unblock(ctx.id,id);return json(res,200,{ok:true}),true;
    }
    if(pathname==='/api/friends/list'&&req.method==='GET'){
-    const live=roomUsers();const friends=await accounts.friends(ctx.id);
+    const friends=await accounts.friends(ctx.id);const live=await roomUsers([ctx.id,...friends.map(f=>f.id)]);
     return json(res,200,{account:await accounts.account(ctx.id),
       friends:await Promise.all(friends.map(async a=>({id:a.id,nick:a.nick,species:a.species,hood:a.hood,...await presence(ctx.id,a.id,live)}))),
       requests:await accounts.requests(ctx.id),blocks:await accounts.blocks(ctx.id)}),true;
@@ -107,25 +117,32 @@ export function createAccountAPI({accounts,rooms,auth,verifyFirebase,json,sameOr
    if(pathname==='/api/friends/ranking'&&req.method==='GET'){
     await rooms.flushAll(true);const day=koreaDay(),friendIds=[];
     for(const id of await accounts.friendIds(ctx.id))if((await accounts.account(id))?.friendRankingPublic)friendIds.push(id);
-    const ids=[ctx.id,...friendIds];const entries=await accounts.friendRanking(ids,day),live=roomUsers();const rows=new Map(entries.map(r=>[r.id,r]));
+    const ids=[ctx.id,...friendIds];const entries=await accounts.friendRanking(ids,day),live=await roomUsers(ids);const rows=new Map(entries.map(r=>[r.id,r]));
     for(const id of ids){const p=live.get(id);if(p&&p.day===day){const ms=rooms.studyMs(p);if(ms>0)rows.set(id,{id,nick:p.nick,species:p.species,hood:p.hood,ms});}}
     return json(res,200,{...buildRanking([...rows.values()],ctx.id,day,20),friends:friendIds.length}),true;
    }
    if(pathname==='/api/friends/join'&&req.method==='POST'){
     const {id}=await readBody(req);if(!await accounts.isFriend(ctx.id,id)||await accounts.blocked(ctx.id,id))return bad(res,403,'친구 관계가 필요합니다.'),true;
-    const profile=await accounts.account(id),live=roomUsers(),target=live.get(id);
+    const profile=await accounts.account(id),live=await roomUsers([id]),target=live.get(id);
     if(!profile.activityPublic||!profile.joinAllowed||!target?.online)return bad(res,403,'친구가 합류를 허용하지 않았거나 오프라인입니다.'),true;
-    const room=rooms.rooms.get(target.roomId);
-    if(!room||rooms.members(room)>=64)return bad(res,409,'방 정원이 가득 찼습니다.'),true;
-    if(!await accounts.canEnterRoom(room.id,ctx.id))await accounts.grantRoom(room.id,ctx.id);
+    // On the public gateway, the friend may live on a different WebSocket worker;
+    // no local Room instance is expected. Use the shared room ID and PG occupancy.
+    const roomId=target.roomId;
+    const room=rooms.rooms.get(roomId) || {id:roomId,locks:new Map(),users:new Map()};
+    const occupancy=livePresence?(await livePresence.occupancy(baseLibraryForRoom(roomId))).get(roomId)||0:room?rooms.members(room):0;
+    if(occupancy>=roomCapacity(roomId))return bad(res,409,'방 정원이 가득 찼습니다.'),true;
+    if(!await accounts.canEnterRoom(roomId,ctx.id))await accounts.grantRoom(roomId,ctx.id);
     const {seats,npcSeats:layoutNpcSeats}=layoutForRoom(room.id);
     // Overflow rooms have no NPCs; the former NPC-only chairs are available.
     const npcSeats=npcCountForRoom(room.id)>0?layoutNpcSeats:new Set();
-    const mySeat=target.seatId!==null?seats[target.seatId]:null;
-    const candidates=seats.filter(s=>!npcSeats.has(s.id)&&!room.locks.has(s.id))
-     .sort((a,b)=>Math.hypot(a.x-(mySeat?.x??target.x),a.z-(mySeat?.z??target.z))-Math.hypot(b.x-(mySeat?.x??target.x),b.z-(mySeat?.z??target.z)))
+    const mySeat=target.seatId!=null?seats[target.seatId]:null;
+    const preferredX=mySeat?.x??(Number.isFinite(target.x)?target.x:0);
+    const preferredZ=mySeat?.z??(Number.isFinite(target.z)?target.z:35);
+    const liveLocks=livePresence?await livePresence.roomSeats(roomId):new Set();
+    const candidates=seats.filter(s=>!npcSeats.has(s.id)&&!room?.locks.has(s.id)&&!liveLocks.has(s.id))
+     .sort((a,b)=>Math.hypot(a.x-preferredX,a.z-preferredZ)-Math.hypot(b.x-preferredX,b.z-preferredZ))
      .slice(0,4).map(s=>({id:s.id,x:s.x,z:s.z}));
-    return json(res,200,{room:room.id,seats:candidates}),true;
+    return json(res,200,{room:roomId,seats:candidates}),true;
    }
    if(pathname==='/api/rooms/private'&&req.method==='POST'){
     const room='private-'+crypto.randomBytes(8).toString('hex');

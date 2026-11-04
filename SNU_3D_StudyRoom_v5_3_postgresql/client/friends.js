@@ -45,7 +45,7 @@ export function createFriendsPanel({account,onToast,onAllRanking}){
    const r=row(`${avatar[f.species]||'🐾'} ${f.nick}`,`후드 ${f.hood} · ${state}${f.sameRoom?' · 같은 방':''}`);
    if(f.room)r.append(button('함께 공부하기',async()=>{const d=await action('/api/friends/join',{id:f.id});
     if(!confirm(`${f.nick}님 방으로 이동할까요? 추천 빈 좌석: ${d.seats.map(s=>s.id+1).join(', ')||'없음'}`))return;
-    const url=new URL(location.href);url.searchParams.set('room',d.room);if(d.seats[0])url.searchParams.set('suggestSeat',d.seats[0].id);location.href=url.href;}));
+    const url=new URL(location.href);url.searchParams.set('room',d.room);url.searchParams.delete('auto');if(d.seats[0])url.searchParams.set('suggestSeat',d.seats[0].id);location.href=url.href;}));
    r.append(button('삭제',async()=>{if(confirm('친구 관계를 삭제할까요?')){await action('/api/friends/remove',{id:f.id});await render();}}),
     button('차단',async()=>{if(confirm('차단하면 친구 관계가 끊어지고 활동 정보가 숨겨집니다.')){await action('/api/friends/block',{id:f.id});await render();}}));list.append(r);}
   root.append(list);

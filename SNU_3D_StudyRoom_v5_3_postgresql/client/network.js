@@ -1,8 +1,8 @@
 // Browser transport only. The room server owns identity, seats, clocks and presence.
 // A reconnect uses the server-signed guest token (never an asserted player ID).
 export class NetworkClient {
-  constructor({room,profile,onEvent,onStatus,isAccount=()=>false,ensureAccount=async()=>{}}) {
-    this.room=room;this.profile=profile;this.onEvent=onEvent;this.onStatus=onStatus;this.isAccount=isAccount;this.ensureAccount=ensureAccount;this.takeover=false;
+  constructor({room,profile,onEvent,onStatus,isAccount=()=>false,ensureAccount=async()=>{},admission=null}) {
+    this.room=room;this.admission=admission;this.profile=profile;this.onEvent=onEvent;this.onStatus=onStatus;this.isAccount=isAccount;this.ensureAccount=ensureAccount;this.takeover=false;
     this.connected=false;this.stopped=false;this.socket=null;this.retries=0;this.token=null;
     this.reconnectTimer=null;this.joinTimer=null;this.syncTimer=null;
     this.generation=0;this.lastMessageAt=0;
@@ -36,10 +36,10 @@ export class NetworkClient {
     if(this.stopped||generation!==this.generation)return;
     const scheme=location.protocol==='https:'?'wss:':'ws:';
     this.onStatus('서버 연결 중…');
-    const socket=new WebSocket(scheme+'//'+location.host+'/ws');this.socket=socket;
+    const socket=new WebSocket(scheme+'//'+location.host+'/ws?room='+encodeURIComponent(this.room));this.socket=socket;
     socket.onopen=()=>{
       if(this.stopped||generation!==this.generation){socket.close();return;}
-      socket.send(JSON.stringify({t:'join',token:this.token,room:this.room,profile:this.profile(),takeover:this.takeover}));
+      socket.send(JSON.stringify({t:'join',token:this.token,room:this.room,profile:this.profile(),takeover:this.takeover,admission:this.admission}));
       // A TCP/WebSocket handshake alone does not mean the room join succeeded.
       this.joinTimer=setTimeout(()=>{if(!this.connected&&this.socket===socket)socket.close();},10000);
     };
@@ -48,8 +48,15 @@ export class NetworkClient {
       this.lastMessageAt=Date.now();
       let m;try{m=JSON.parse(e.data)}catch{return;}
       if(m.t==='welcome'){
-        clearTimeout(this.joinTimer);this.connected=true;this.retries=0;
+        clearTimeout(this.joinTimer);this.connected=true;this.retries=0;this.admission=null;
         this.onStatus('온라인 연결됨');
+      }
+      if(m.t==='error'&&m.code==='full'){
+        this.stop();
+        const base=this.room.startsWith('korea')?'korea':this.room.startsWith('yonsei')?'yonsei':'main';
+        const url=new URL(location.href);url.searchParams.set('room',base);url.searchParams.set('auto','1');
+        this.onStatus('방이 가득 찼습니다. 빈 방으로 이동합니다.');
+        location.replace(url.href);return;
       }
       if(m.t==='error'&&m.code==='control_conflict'){
         this.stop();this.onStatus('다른 기기에서 같은 계정으로 공부 중입니다.');
