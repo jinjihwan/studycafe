@@ -113,66 +113,29 @@ const koreaLayout=buildKoreaSeatsAndObstacles();
 const yonseiLayout=buildYonseiSeatsAndObstacles();
 export const layoutForRoom=roomId=>baseLibraryForRoom(roomId)==='yonsei'?yonseiLayout:baseLibraryForRoom(roomId)==='korea'?koreaLayout:layout;
 
-// Deterministic synthetic study companions: never client-generated, never database guests.
-// Public UI / ranking must disclose that these are virtual participants.
-export const VIRTUAL_NAMES=Object.freeze({
- main:['관악새벽','책갈피솔','지식나무','조용한봄','푸른연필','도란북','달빛독서','정독바람'],
- korea:['안암호랑','붉은필기','고대밤샘','안암나래','크림슨달','책읽는별','백년서가','새벽안암'],
- yonsei:['신촌푸름','연희별빛','독수리펜','백양연구','진리나래','연세여울','하늘한장','청송독서']
-});
-const VIRTUAL_COLORS=['#f39bc4','#82bbed','#d9a86d','#a6c9a3','#bf9dd4','#c6be91','#e8b0bd','#88aabd'];
-const VIRTUAL_SPECIES=['rabbit','bear','cat','dog','rabbit','cat','dog','bear'];
-const HALF_HOUR=30*60*1000;
-function virtualHash(value){let h=2166136261;for(let i=0;i<value.length;i++){h^=value.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0)/4294967296;}
-function virtualProbability(hour){
- if(hour<5)return .015;
- if(hour<7)return .08;
- if(hour<9)return .27;
- if(hour<12)return .55;
- if(hour<14)return .40;
- if(hour<18)return .66;
- if(hour<22)return .73;
- if(hour<23)return .48;
- return .16;
-}
-function virtualPresent(day,roomId,id,slot){
- const hour=Math.floor(slot/2);
- return virtualHash(`${day}:${roomId}:${id}:${slot}`)<virtualProbability(hour);
-}
-export function npcStatesForRoom(roomId,now=Date.now(),unavailableSeats=null) {
- if(!npcCountForRoom(roomId))return [];
- const seats=layoutForRoom(roomId).seats;
- const day=koreaDay(now),start=koreaMidnightUtc(now),elapsed=Math.max(0,Math.min(DAY_MS,now-start));
- const slot=Math.min(47,Math.floor(elapsed/HALF_HOUR)),slotElapsed=elapsed-slot*HALF_HOUR;
- return NPC_HOME_SEAT_IDS.map((seatId,id)=>{
-  const seat=seats[seatId],name=VIRTUAL_NAMES[baseLibraryForRoom(roomId)][id];
-  const scheduled=virtualPresent(day,roomId,id,slot);
-  const active=scheduled&&!(unavailableSeats?.has(seatId));
-  // KST daily balance: no arbitrary starting bonus, no previous-day carryover.
-  let studiedMs=0;
-  for(let i=0;i<slot;i++)if(virtualPresent(day,roomId,id,i))studiedMs+=Math.floor(HALF_HOUR*.76);
-  if(scheduled)studiedMs+=Math.floor(slotElapsed*.76);
-  const phase=((now/1000+id*13)%120+120)%120;
-  const home={x:seat.x,z:seat.z},away=seatApproach(seat,Math.min(2.2,seat.approachDist??2.62));
-  let kind='seated',seated=true,ratio=0;
-  if(phase>=65&&phase<73){kind='walking';seated=false;ratio=(phase-65)/8;}
-  else if(phase>=73&&phase<91){kind='break';seated=false;ratio=1;}
-  else if(phase>=91&&phase<99){kind='walking';seated=false;ratio=1-(phase-91)/8;}
-  else if(phase>=28&&phase<32){kind='stretch';}
-  const x=home.x+(away.x-home.x)*ratio,z=home.z+(away.z-home.z)*ratio;
-  const outward=Math.atan2(away.x-home.x,away.z-home.z);
-  return {id,seatId,active,kind:active?kind:'absent',seated:active&&seated,x,z,
-   name,studyMs:studiedMs, yaw:seated?seatYaw(seat):phase>=91&&phase<99?outward+Math.PI:outward};
- });
-}
-export function npcActiveCountForRoom(roomId,now=Date.now(),unavailableSeats=null){
- return npcStatesForRoom(roomId,now,unavailableSeats).filter(v=>v.active).length;
-}
-export function virtualRankingForDay(day=koreaDay(),now=Date.now()){
- if(day!==koreaDay(now))return [];
- return PRIMARY_LIBRARY_ROOMS.flatMap(roomId=>npcStatesForRoom(roomId,now).filter(v=>v.studyMs>0).map(v=>({
-   id:`virtual:${roomId}:${v.id}`,nick:v.name,species:VIRTUAL_SPECIES[v.id],hood:VIRTUAL_COLORS[v.id],ms:v.studyMs,virtual:true
- })));
+// The server owns NPC movement and seat availability. All viewers receive
+// exactly the same timestamped NPC poses in welcome, snapshot and clock.
+// NPC seats stay reserved even while an NPC briefly walks away.
+export function npcStatesForRoom(roomId,now=Date.now()) {
+  if (!npcCountForRoom(roomId)) return [];
+  const seats=layoutForRoom(roomId).seats;
+  const kstStart=Math.floor((now+9*3600000)/86400000)*86400000-9*3600000;
+  return NPC_HOME_SEAT_IDS.map((seatId,id)=>{
+    const seat=seats[seatId];
+    const phase=((now/1000+id*13)%120+120)%120;
+    const home={x:seat.x,z:seat.z};
+    const away=seatApproach(seat,Math.min(2.2,seat.approachDist??2.62));
+    let kind='seated', seated=true, ratio=0;
+    if(phase>=65&&phase<73){kind='walking';seated=false;ratio=(phase-65)/8;}
+    else if(phase>=73&&phase<91){kind='break';seated=false;ratio=1;}
+    else if(phase>=91&&phase<99){kind='walking';seated=false;ratio=1-(phase-91)/8;}
+    else if(phase>=28&&phase<32){kind='stretch';}
+    const x=home.x+(away.x-home.x)*ratio,z=home.z+(away.z-home.z)*ratio;
+    const outward=Math.atan2(away.x-home.x,away.z-home.z);
+    return {id,seatId,kind,seated,x,z,
+      yaw:seated?seatYaw(seat):phase>=91&&phase<99?outward+Math.PI:outward,
+      studyMs:60000*(12+id*19)+Math.floor(Math.max(0,now-kstStart)*.65)};
+  });
 }
 export const LAYOUT_SEATS=layout.seats;
 export const NPC_SEATS=layout.npcSeats;
@@ -302,7 +265,7 @@ export class Rooms {
       case 'chat':this.chat(c,m);break;
       case 'profile':this.profile(c,m);break;
       case 'room_exit':void this.exitRoom(c).catch(e=>{console.error('[room_exit]',e);this.error(c.peer,'room_exit_failed','공부 기록 저장에 실패했습니다. 다시 시도해 주세요.');});break;
-      case 'sync':{const now=Date.now();c.peer.send({t:'snapshot',serverNow:now,day:localDay(now),players:[...room.users.values()].map(u=>this.public(u)),locks:this.getLocks(room),count:this.members(room),npcCount:npcActiveCountForRoom(room.id,now,new Set(room.locks.keys())),npcStates:npcStatesForRoom(room.id,now,new Set(room.locks.keys()))});break;}
+      case 'sync':{const now=Date.now();c.peer.send({t:'snapshot',serverNow:now,day:localDay(now),players:[...room.users.values()].map(u=>this.public(u)),locks:this.getLocks(room),count:this.members(room),npcCount:npcCountForRoom(room.id),npcStates:npcStatesForRoom(room.id,now)});break;}
       default: break;
     }
   }
@@ -357,7 +320,7 @@ export class Rooms {
     await this.store.updateProfile(id,p);
     c.room=room;c.player=p;c.joined=true;
     {const now=Date.now();c.peer.send({t:'welcome',serverNow:now,day:localDay(now),id,room:roomId,resumed,players:[...room.users.values()].map(u=>this.public(u)),
-      locks:this.getLocks(room),count:this.members(room),npcCount:npcActiveCountForRoom(roomId,now,new Set(room.locks.keys())),npcStates:npcStatesForRoom(roomId,now,new Set(room.locks.keys()))});}
+      locks:this.getLocks(room),count:this.members(room),npcCount:npcCountForRoom(roomId),npcStates:npcStatesForRoom(roomId,now)});}
     this.broadcast(room,{t:'player',player:this.public(p),count:this.members(room)},c.peer);
   }
   async exitRoom(c){
@@ -383,7 +346,7 @@ export class Rooms {
   getLocks(room) {
     const userLocks=[...room.locks.entries()].map(([id,v])=>({id,ownerId:v.id,phase:v.phase}));
     if(!npcCountForRoom(room.id))return userLocks;
-    return [...npcStatesForRoom(room.id,Date.now(),new Set(room.locks.keys())).filter(v=>v.active).map(v=>({id:v.seatId,ownerId:`npc:${room.id}:${v.id}`,phase:'npc'})),...userLocks];
+    return [...NPC_HOME_SEAT_IDS.map((id,index)=>({id,ownerId:`npc:${room.id}:${index}`,phase:'npc'})),...userLocks];
   }
   release(room,p) {
     let changed=false;
@@ -393,7 +356,7 @@ export class Rooms {
   }
   requestSeat(c,m) {
     const p=c.player,room=c.room,layout=layoutForRoom(room.id),s=layout.seats[m.seatId];
-    if(!Number.isInteger(m.seatId)||!s||(npcCountForRoom(room.id)>0&&npcStatesForRoom(room.id,Date.now(),new Set(room.locks.keys())).some(v=>v.active&&v.seatId===s.id)))
+    if(!Number.isInteger(m.seatId)||!s||(npcCountForRoom(room.id)>0&&layout.npcSeats.has(s.id)))
       return this.error(c.peer,'seat_unavailable','NPC 전용이거나 유효하지 않은 좌석입니다.',m.seatId);
     const occupant=room.locks.get(s.id);
     if(occupant&&occupant.id!==p.id)return this.error(c.peer,'seat_occupied','이미 사용 중이거나 예약된 좌석입니다.',s.id);
@@ -515,13 +478,7 @@ export class Rooms {
         room.locks.delete(sid);const owner=room.users.get(lock.id);if(owner?.pendingSeatId===sid){owner.pendingSeatId=null;owner.peer?.send({t:'error',code:'seat_expired',seatId:sid,message:'좌석 예약이 만료되었습니다.'});}
         this.broadcast(room,{t:'seat_lock',seatId:sid,ownerId:null,phase:null});
       }
-      const npcStates=npcStatesForRoom(room.id,now,new Set(room.locks.keys()));
-      const activeNpcSeats=new Set(npcStates.filter(v=>v.active).map(v=>v.seatId));
-      const previousNpcSeats=room.lastNpcSeats||new Set();
-      for(const seatId of previousNpcSeats)if(!activeNpcSeats.has(seatId))this.broadcast(room,{t:'seat_lock',seatId,ownerId:null,phase:null});
-      for(const npc of npcStates)if(npc.active&&!previousNpcSeats.has(npc.seatId))this.broadcast(room,{t:'seat_lock',seatId:npc.seatId,ownerId:`npc:${room.id}:${npc.id}`,phase:'npc'});
-      room.lastNpcSeats=activeNpcSeats;
-      this.broadcast(room,{t:'clock',serverNow:now,day:localDay(now),count:this.members(room),npcCount:activeNpcSeats.size,npcStates,
+      this.broadcast(room,{t:'clock',serverNow:now,day:localDay(now),count:this.members(room),npcCount:npcCountForRoom(room.id),npcStates:npcStatesForRoom(room.id,now),
         players:[...room.users.values()].map(p=>({id:p.id,studyMs:this.studyMs(p),studying:p.studying,paused:p.paused}))});
     }
     if(this.presence && now-this.lastPresenceTick>=10000){

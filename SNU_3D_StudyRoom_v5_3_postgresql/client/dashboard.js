@@ -81,16 +81,16 @@ export function initDashboard({getToken,onToast,onFriends,onFriendRanking,onHide
   }
   function drawRanking(data){
     const root=document.createDocumentFragment();
-    root.append(heading('오늘의 공부 랭킹',data.day+' (한국시간) · 실제 사용자와 가상 학습자 · 약 30초 간격 자동 갱신'));
+    root.append(heading('오늘의 공부 랭킹',data.day+' (한국시간) · NPC 제외 · 약 30초 간격 자동 갱신'));
     const friendSwitch=el('div','friend-switch');const all=el('button','friend-action selected','전체 랭킹'),friends=el('button','friend-action','친구 랭킹');friends.addEventListener('click',()=>{rankingMode='friends';onFriendRanking();});friendSwitch.append(all,friends);root.append(friendSwitch);
-    root.append(el('div','dash-ranking-summary',data.myRank?`내 순위 ${data.myRank}위 · ${dur(data.myStudyMs)} · 전체 참여 ${data.count}명`:'내 순위: 비공개 또는 아직 공부 기록 없음 · 전체 참여 '+data.count+'명'));
+    root.append(el('div','dash-ranking-summary',data.myRank?`내 순위 ${data.myRank}위 · ${dur(data.myStudyMs)} · 참여 사용자 ${data.count}명`:'내 순위: 비공개 또는 아직 공부 기록 없음 · 참여 사용자 '+data.count+'명'));
     if(!data.entries.length)root.append(el('p','dash-empty','오늘 공개 랭킹 기록이 없습니다.'));
     const list=el('div','dash-rank-list');
     for(const r of data.entries){const item=el('article','dash-rank');if(r.isMe)item.classList.add('is-me');
       const number=el('span','dash-rank-num',String(r.rank));
       const avatar=el('span','dash-avatar',speciesIcon[r.species]||'🐾');avatar.style.background=r.hood;
       avatar.title=r.species+' · '+r.hood;
-      const name=el('div','dash-rank-name');name.append(el('strong','',r.nick+(r.virtual?' · 가상 학습자':'')+(r.isMe?' (나)':'')),el('small','',r.species+' · 후드 '+r.hood));
+      const name=el('div','dash-rank-name');name.append(el('strong','',r.nick+(r.isMe?' (나)':'')),el('small','',r.species+' · 후드 '+r.hood));
       item.append(number,avatar,name,el('strong','dash-rank-time',dur(r.ms)));list.append(item);}
     root.append(list,el('p','dash-footer','동일 공부 시간은 서버 게스트 ID 오름차순으로 순위를 정합니다. 랭킹은 한국시간 00:00에 새로 시작합니다.'));
     body.replaceChildren(root);
