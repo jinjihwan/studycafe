@@ -23,18 +23,22 @@ const MAX_MESSAGES_PER_SECOND = 35;
 
 export function buildSeatsAndObstacles() {
   const seats = [], obstacles = [{x:0,z:-41.65,w:54,d:1.5}];
-  for (const side of [-1,1]) for (let col=0;col<4;col++) for (let row=0;row<11;row++) {
-    const x=side*(6.05+col*4.55), z=-32+row*5.85;
-    obstacles.push({x,z,w:3.74,d:2.08});
-    for (const sign of [-1,1]) for (const dx of [-.91,.91]) {
-      const cx=x+dx, cz=z+sign*1.61;
+  // Client index.html must have precisely the same 8-table/48-seat geometry.
+  for (const side of [-1,1]) for (let col=0;col<1;col++) for (let row=0;row<4;row++) {
+    const x=side*(7.30+col*4.55), z=-30+row*19.4;
+    obstacles.push({x,z,w:5.97,d:2.28});
+    for (const sign of [-1,1]) for (const dx of [-1.68,0,1.68]) {
+      const cx=x+dx, cz=z+sign*1.62;
       seats.push({id:seats.length,x:cx,z:cz,sign});
       obstacles.push({x:cx,z:cz,w:.84,d:.79});
     }
   }
-  const candidates=seats.filter(s=>s.x < -5 || s.x > 5);
-  const npcIndices=[27,88,115,159,190,242,300,338];
-  const npcSeats=new Set(npcIndices.map(i=>candidates[i % candidates.length].id));
+  // Diagonal steel X-brace floor anchors occupy walkable space near the side walls.
+  for(const z of [-29,-7,15,37])for(const side of [-1,1]){
+    obstacles.push({x:side*14.0,z,w:2.2,d:1.8});
+  }
+  const npcIndices=[2,8,14,20,26,32,38,44];
+  const npcSeats=new Set(npcIndices);
   return {seats,obstacles,npcSeats};
 }
 const layout=buildSeatsAndObstacles();

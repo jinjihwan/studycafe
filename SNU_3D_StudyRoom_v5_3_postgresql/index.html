@@ -120,8 +120,10 @@ import { smoothWaypoints } from './client/navigation-smooth.js';
 // 1. Config / DOM / persist  (이 HTML 파일만 수정해도 좌석과 NPC 확장 가능)
 // ─────────────────────────────────────────────────────────────────────────────
 const $ = s => document.querySelector(s);
-const CONFIG = {width:54, length:98, height:18.6, frontZ:-43, rearZ:55, frontWalkLimit:-37.5, rearWalkLimit:49, rows:11, columnsPerSide:4,
-  rowSpacing:5.85, columnSpacing:4.55, npcCount:8, navStep:.6};
+// Eight study tables: four on each side of the central aisle, six seats per table.
+// Keep this layout exactly in sync with server/room.js (authoritative seat locks).
+const CONFIG = {width:54, length:98, height:18.6, frontZ:-43, rearZ:55, frontWalkLimit:-37.5, rearWalkLimit:49, rows:4, columnsPerSide:1,
+  rowSpacing:19.4, columnSpacing:4.55, npcCount:8, navStep:.6};
 const D = {canvas:$('#scene'),labels:$('#labels'),status:$('#status'),time:$('#timeDisplay'),
   pause:$('#pauseBtn'),stand:$('#standBtn'),modal:$('#modal'),follow:$('#followBtn'),
   avatar:$('#avatarBtn'),chat:$('#chatInput'),send:$('#sendBtn')};
@@ -289,12 +291,18 @@ function buildRoom(){const {width:W,length:L,height:H}=CONFIG;
   for(let x=-23.5;x<=23.5;x+=4.7){batch.box('led',[x,H-.292,z],[2.4,.045,.42])}
  }
  for(let x=-23.5;x<=23.5;x+=4.7)batch.box('grid',[x,H-.22,centerZ],[.07,.08,L]);
- // Prominent inverted diagonal gray trusses like the supplied photographs.
- for(const z of [-27,5,32,47])for(const side of [-1,1]){
-  const xb=side*25.6,xt=side*21.2;
-  batch.segment('steel',[xb,.2,z-3.3],[xt,H-.65,z+3.3],.7);
-  batch.segment('steel',[xb,.2,z+3.3],[xt,H-.65,z-3.3],.64);
-  batch.box('steelLight',[xt,H-.9,z],[1.2,.35,7]);
+ // Seoul National University Central Library-inspired REAL diagonal X-braces.
+ // The steel members THEMSELVES lean across the room's width, floor to ceiling;
+ // they are not a decorative X painted onto a straight vertical pillar.
+ // Keep the central passage and the 8 study tables outside their footprint.
+ for(const z of [-29,-7,15,37])for(const side of [-1,1]){
+  const innerX=side*14.0, outerX=side*26.0;
+  batch.segment('steel',[innerX,.25,z],[outerX,H-.5,z],1.02);
+  batch.segment('steel',[outerX,.25,z],[innerX,H-.5,z],1.02);
+  batch.box('steelLight',[side*20,H*.5,z],[1.30,1.25,1.28]); // X junction
+  batch.box('steelLight',[side*20,H-.38,z],[12.5,.38,1.23]); // ceiling tie
+  batch.box('steel',[innerX,.30,z],[1.6,.60,1.6]); // floor anchor
+  obstacle(innerX,z,2.2,1.8); // walking/seat path avoids X-foot
  }
  // Far wall bookshelves: lattice, alternating book colors, central patterned exit.
  for(const side of [-1,1]){
@@ -354,25 +362,25 @@ function addChair(x,z,sign,tableId){
  return seat;
 }
 function addTable(x,z,tableId){
- const w=3.52,d=1.92;
+ const w=5.75,d=2.12; // three comfortably spaced chairs along each long side
  batch.box('wood',[x,1.125,z],[w,.12,d]);
  batch.box('woodTrim',[x,1.047,z],[w,.07,d]);
- for(const dx of [-1.55,1.55])for(const dz of [-.78,.78]){
+ for(const dx of [-2.59,2.59])for(const dz of [-.85,.85]){
    batch.box('leg',[x+dx,.515,z+dz],[.095,1.03,.095])}
- // A thin modern desk lamp at the center of each desk.
+ // Individual power outlets, plus a compact central reading lamp.
+ for(const dx of [-1.66,0,1.66])batch.box('black',[x+dx,1.197,z+.77],[.29,.014,.105]);
  batch.box('lamp',[x,1.22,z],[.28,.045,.19]);
  batch.box('steelLight',[x,1.53,z],[.035,.63,.035]);
  batch.box('lamp',[x,1.86,z-.24],[.82,.065,.17]);
  batch.box('led',[x,1.82,z-.24],[.75,.016,.13]);
- batch.box('black',[x,1.197,z+.62],[.29,.014,.105]); // power sockets
  obstacle(x,z,w+.22,d+.16);
- // Four chairs per table: 2 facing each side.
- for(const sign of [-1,1])for(const dx of [-.91,.91])addChair(x+dx,z+sign*1.61,sign,tableId);
+ // SIX chairs per table, three on each long side (48 chairs in total).
+ for(const sign of [-1,1])for(const dx of [-1.68,0,1.68])addChair(x+dx,z+sign*1.62,sign,tableId);
 }
 for(const side of [-1,1])for(let col=0;col<CONFIG.columnsPerSide;col++){
- const x=side*(6.05+col*CONFIG.columnSpacing);
+ const x=side*(7.30+col*CONFIG.columnSpacing);
  for(let row=0;row<CONFIG.rows;row++){
-  const z=-32.0+row*CONFIG.rowSpacing;
+  const z=-30.0+row*CONFIG.rowSpacing;
   addTable(x,z,`${side}-${col}-${row}`);
  }
 }
@@ -576,7 +584,7 @@ const NPC_COLORS=['#8bcaff','#f39bc4','#aaa4dc','#a6ba94','#8bcaff','#f39bc4','#
 const npcNames=['열공냥','독서곰','모닝토끼','필기왕','묵묵이','초코토끼','집중곰','도서관멍'];
 const npcList=[];
 const availableNpcSeats=seats.filter(s=>s.x<-5||s.x>5);
-const npcIndices=[27,88,115,159,190,242,300,338];
+const npcIndices=[2,8,14,20,26,32,38,44]; // 8 distinct NPC seats among 48
 for(let i=0;i<CONFIG.npcCount;i++){
  const s=availableNpcSeats[npcIndices[i]%availableNpcSeats.length];
  const npc=new Character({npc:true,name:npcNames[i],species:NPC_SPECIES[i],hood:NPC_COLORS[i],x:s.x,z:s.z,studyMs:60000*(12+i*19)});
@@ -586,7 +594,7 @@ player=new Character({name:prefs.nick,species:prefs.species,hood:prefs.hood,x:0,
 player.root.rotation.y=Math.PI;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 7B. Network integration. 3D objects above are unchanged from v1.
+// 7B. Network integration. Room layout is synchronized with server/room.js.
 // The Node server, not these local seat proxies, owns all real-user seat locks.
 // ─────────────────────────────────────────────────────────────────────────────
 const remotePlayers=new Map();const seatLocks=new Map();
