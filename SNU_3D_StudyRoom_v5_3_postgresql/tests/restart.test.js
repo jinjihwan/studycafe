@@ -69,6 +69,6 @@ test('actual Node server exits, restarts, restores same guest token and persiste
  const response=await fetch(instance.base+where,{headers:{authorization:'Bearer '+same.token}});
  const stats=await response.json();assert.equal(stats.todayMs,75000);assert.ok(stats.totalMs>=97222);
  const ranks=await fetch(instance.base+'/api/ranking',{headers:{authorization:'Bearer '+same.token}});
- assert.equal((await ranks.json()).entries[0].id,auth.id);
+ assert.ok((await ranks.json()).entries.some(r=>r.id===auth.id),'persisted real user remains in combined ranking');
  restored.sock.close();await terminate(instance.child);
 });

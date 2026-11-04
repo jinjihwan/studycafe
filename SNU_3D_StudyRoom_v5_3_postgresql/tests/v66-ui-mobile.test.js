@@ -10,7 +10,7 @@ test('mobile room header retains library, live count, room and accessible accoun
  assert.match(markup,/<header id="topbar"[^>]*>.*?<span id="libraryBrand"[^>]*>.*?id="roomBadge".*?id="onlineCount".*?id="inviteBtn".*?id="accountBtn"/s);
  assert.match(markup,/id="accountBtn"[^>]*aria-label="게스트 · 로그인"/);
  assert.match(markup,/id="inviteBtn"[^>]*aria-label="같은 방 초대 링크 복사"/);
- assert.match(html,/function updatePlayerCount\(count\)/);
+ assert.match(html,/function updatePlayerCount\(count,virtualCount=null\)/);
  assert.match(html,/#libraryBrand\{[^}]*text-overflow:ellipsis/);
  assert.doesNotMatch(markup,/id="onlineCount"[^<]*>[^<]*NPC \d+명/);
 });

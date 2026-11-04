@@ -74,15 +74,14 @@ test('two users receive identical NPC states and reserved seats in the first roo
   }
   const first=peers[0].messages.find(m=>m.t==='welcome');
   const second=peers[1].messages.find(m=>m.t==='welcome');
-  assert.equal(first.npcCount,8);
-  assert.equal(second.npcCount,8);
+  assert.equal(first.npcCount,first.npcStates.filter(v=>v.active).length);
+  assert.equal(second.npcCount,second.npcStates.filter(v=>v.active).length);
   assert.equal(first.npcStates.length,8);
   assert.equal(second.npcStates.length,8);
   const npcLocks=second.locks.filter(lock=>lock.phase==='npc');
-  assert.deepEqual(npcLocks.map(lock=>lock.id).sort((a,b)=>a-b),[...NPC_HOME_SEAT_IDS]);
-  peers[0].inbound({t:'seat_request',seatId:2});
-  const invalid=await until(peers[0],'error');
-  assert.equal(invalid.code,'seat_unavailable');
+  assert.deepEqual(npcLocks.map(lock=>lock.id).sort((a,b)=>a-b),first.npcStates.filter(v=>v.active).map(v=>v.seatId).sort((a,b)=>a-b));
+  const occupied=first.npcStates.find(v=>v.active);
+  if(occupied){peers[0].inbound({t:'seat_request',seatId:occupied.seatId});const invalid=await until(peers[0],'error');assert.equal(invalid.code,'seat_unavailable');}
   await rooms.tick();
   const c1=peers[0].messages.findLast(m=>m.t==='clock');
   const c2=peers[1].messages.findLast(m=>m.t==='clock');

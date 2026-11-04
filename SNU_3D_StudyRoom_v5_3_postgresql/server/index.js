@@ -8,6 +8,7 @@ import { upgradeWebSocket } from './websocket.js';
 import { createAuth, Rooms, koreaDay } from './room.js';
 import { createStore } from './store.js';
 import { buildStats,buildRanking,validMonth } from './stats.js';
+import {virtualRankingForDay} from './room.js';
 import { AccountsStore } from './accounts-store.js';
 import { PostgresAccountsStore } from './postgres-accounts-store.js';
 import { createFirebaseVerifier } from './firebase.js';
@@ -75,7 +76,7 @@ async function dailyRanking(day){
     const ms=rooms.studyMs(p,now);
     if(p.day===day&&ms>0)entries.set(p.id,{id:p.id,nick:p.nick,species:p.species,hood:p.hood,ms});
   }
-  return [...entries.values()];
+  return [...entries.values(),...virtualRankingForDay(day,now)];
 }
 const json=(res,status,value)=>{const data=JSON.stringify(value);res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(data);};
 // In local/LAN development require the browser Origin to equal the served Host.

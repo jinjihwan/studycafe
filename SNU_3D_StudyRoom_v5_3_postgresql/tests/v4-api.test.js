@@ -44,17 +44,18 @@ async function sitPlayer(client,seat){
  client.send({t:'seat_sit',seatId:seat.id});return client.wait(m=>m.t==='player'&&m.player.seatId===seat.id);
 }
 
-test('real HTTP+WebSocket: study is server-owned, ranking, privacy, rejoin, token isolation and NPC exclusion',{timeout:35000},async()=>{
+test('real HTTP+WebSocket: study is server-owned, ranking with disclosed virtual entries, privacy, rejoin, token isolation',{timeout:35000},async()=>{
  const a=await session(),b=await session();
  const A=await connect(a,'A 연구자'),B=await connect(b,'B 연구자');
  const s1=LAYOUT_SEATS.find(s=>s.x>5&&s.x<6&&s.z>25&&s.sign===1&&!NPC_SEATS.has(s.id));
  const s2=LAYOUT_SEATS.find(s=>s.x>6&&s.x<8&&s.z>25&&s.sign===1&&!NPC_SEATS.has(s.id));
  assert.ok(s1&&s2);await sitPlayer(A,s1);await nap(1400);await sitPlayer(B,s2);await nap(400);
  let rank=await api(a,'/api/ranking?limit=20');assert.equal(rank.status,200);
- assert.equal(rank.body.day,koreaDay());assert.equal(rank.body.count,2);
- assert.equal(rank.body.entries.length,2);assert.equal(rank.body.entries[0].id,a.id);
- assert.ok(rank.body.entries[0].ms>rank.body.entries[1].ms);
+ assert.equal(rank.body.day,koreaDay());assert.ok(rank.body.count>=2);
+ const realEntries=rank.body.entries.filter(r=>!r.virtual);assert.equal(realEntries.length,2);
+ assert.equal(realEntries[0].id,a.id);assert.ok(realEntries[0].ms>realEntries[1].ms);
  assert.equal(rank.body.entries.some(r=>r.nick.includes('NPC')),false);
+ assert.ok(rank.body.entries.filter(r=>r.virtual).every(r=>r.virtual===true));
  const mine=await api(a,'/api/me/stats');assert.equal(mine.status,200);
  assert.ok(mine.body.todayMs>1000);assert.ok(mine.body.totalMs>=mine.body.todayMs);
  assert.equal(mine.body.rankingPublic,true);
@@ -62,7 +63,7 @@ test('real HTTP+WebSocket: study is server-owned, ranking, privacy, rejoin, toke
  const wrongOrigin=await api(a,'/api/me/stats',{headers:{origin:'https://not-our-site.example'}});assert.equal(wrongOrigin.status,403);
  const privacy=await api(a,'/api/me/privacy',{method:'POST',body:JSON.stringify({rankingPublic:false})});
  assert.equal(privacy.status,200);assert.equal(privacy.body.rankingPublic,false);
- rank=await api(b,'/api/ranking');assert.equal(rank.body.count,1);assert.equal(rank.body.entries[0].id,b.id);
+ rank=await api(b,'/api/ranking');assert.equal(rank.body.entries.filter(r=>!r.virtual).length,1);assert.equal(rank.body.entries.find(r=>!r.virtual).id,b.id);
  const privateRank=await api(a,'/api/ranking');assert.equal(privateRank.body.myRank,null);
  assert.ok((await api(a,'/api/me/stats')).body.todayMs>0,'non-participants retain their private study time');
  A.send({t:'pause',paused:true});await A.wait(m=>m.t==='clock'&&m.players.some(p=>p.id===a.id&&p.paused));
@@ -77,7 +78,7 @@ test('real HTTP+WebSocket: study is server-owned, ranking, privacy, rejoin, toke
  A2.send({t:'stand'});await A2.wait(m=>m.t==='player'&&m.player.id===a.id&&m.player.seatId===null);
  assert.equal((await api(a,'/api/me/stats')).body.rankingPublic,false);
  const open=await api(a,'/api/me/privacy',{method:'POST',body:JSON.stringify({rankingPublic:true})});assert.equal(open.body.rankingPublic,true);
- const visible=await api(a,'/api/ranking');assert.equal(visible.body.count,2);
+ const visible=await api(a,'/api/ranking');assert.equal(visible.body.entries.filter(r=>!r.virtual).length,2);
  const dash=await fetch(base+'/client/dashboard.js');assert.equal(dash.status,200);assert.match(await dash.text(),/initDashboard/);
  const noBackup=await fetch(base+'/backup_v3/index.html');assert.equal(noBackup.status,404);
 });

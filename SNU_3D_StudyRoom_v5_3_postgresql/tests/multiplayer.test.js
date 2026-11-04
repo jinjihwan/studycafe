@@ -43,7 +43,7 @@ test('REST + genuine WebSocket: 2 users, room isolation, seat lock, chat, moveme
  const health=await fetch(origin+'/health');assert.equal((await health.json()).ok,true);
  const wrong=await fetch(origin+'/backup_v1/index.html');assert.equal(wrong.status,404);
  const A=await client(a.token), aWelcome=await A.wait(m=>m.t==='welcome');
- assert.equal(aWelcome.count,1);assert.equal(aWelcome.npcCount,NPC_COUNT);
+ assert.equal(aWelcome.count,1);assert.equal(aWelcome.npcCount,aWelcome.npcStates.filter(v=>v.active).length);assert.ok(aWelcome.npcCount<=NPC_COUNT);
  assert.equal(aWelcome.players[0].id,a.id);
  const B=await client(b.token), bWelcome=await B.wait(m=>m.t==='welcome');
  assert.equal(bWelcome.count,2);assert.equal(bWelcome.players.length,2);
@@ -62,9 +62,11 @@ test('REST + genuine WebSocket: 2 users, room isolation, seat lock, chat, moveme
  A.send({t:'seat_cancel'});await B.wait(m=>m.t==='seat_lock'&&m.seatId===sid&&m.ownerId===null);
  B.send({t:'seat_request',seatId:sid});await B.wait(m=>m.t==='seat_granted'&&m.seatId===sid);
  B.send({t:'seat_cancel'});
- // NPC seat never available to real users.
- A.send({t:'seat_request',seatId:[...NPC_SEATS][0]});
- await A.wait(m=>m.t==='error'&&m.code==='seat_unavailable');
+ // A currently occupied virtual seat is unavailable; a vacant virtual seat can be used.
+ const activeVirtual=aWelcome.npcStates.find(v=>v.active);
+ if(activeVirtual){A.send({t:'seat_request',seatId:activeVirtual.seatId});await A.wait(m=>m.t==='error'&&m.code==='seat_unavailable');}
+ const absentVirtual=aWelcome.npcStates.find(v=>!v.active);
+ if(absentVirtual){A.send({t:'seat_request',seatId:absentVirtual.seatId});await A.wait(m=>m.t==='seat_granted'&&m.seatId===absentVirtual.seatId);A.send({t:'seat_cancel'});}
  // Invalid positions are corrected; a legal move is visible on another socket.
  A.send({t:'move',x:100,z:100,yaw:0});await A.wait(m=>m.t==='correction');
  A.send({t:'move',x:.45,z:35,yaw:0});await B.wait(m=>m.t==='moved'&&m.id===a.id&&m.x===.45);
