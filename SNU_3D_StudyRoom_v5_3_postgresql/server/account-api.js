@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import {hash} from './accounts-store.js';
-import {koreaDay,LAYOUT_SEATS,NPC_SEATS,validRoom} from './room.js';
+import {koreaDay,layoutForRoom,validRoom} from './room.js';
 import {buildRanking} from './stats.js';
 
 export const parseCookies=req=>Object.fromEntries((req.headers.cookie||'').split(';').map(s=>s.trim().split('=')).filter(a=>a.length===2));
@@ -118,8 +118,9 @@ export function createAccountAPI({accounts,rooms,auth,verifyFirebase,json,sameOr
     const room=rooms.rooms.get(target.roomId);
     if(!room||rooms.members(room)>=64)return bad(res,409,'방 정원이 가득 찼습니다.'),true;
     if(!await accounts.canEnterRoom(room.id,ctx.id))await accounts.grantRoom(room.id,ctx.id);
-    const mySeat=target.seatId!==null?LAYOUT_SEATS[target.seatId]:null;
-    const candidates=LAYOUT_SEATS.filter(s=>!NPC_SEATS.has(s.id)&&!room.locks.has(s.id))
+    const {seats,npcSeats}=layoutForRoom(room.id);
+    const mySeat=target.seatId!==null?seats[target.seatId]:null;
+    const candidates=seats.filter(s=>!npcSeats.has(s.id)&&!room.locks.has(s.id))
      .sort((a,b)=>Math.hypot(a.x-(mySeat?.x??target.x),a.z-(mySeat?.z??target.z))-Math.hypot(b.x-(mySeat?.x??target.x),b.z-(mySeat?.z??target.z)))
      .slice(0,4).map(s=>({id:s.id,x:s.x,z:s.z}));
     return json(res,200,{room:room.id,seats:candidates}),true;

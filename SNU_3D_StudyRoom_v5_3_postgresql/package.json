@@ -1,9 +1,9 @@
 {
   "name": "snu-library-3d-studyroom",
-  "version": "5.5.0",
+  "version": "6.0.0-korea.1",
   "private": true,
   "type": "module",
-  "description": "SNU 3D Study Room v5.5 — PostgreSQL account, friend and study database",
+  "description": "Two distinct photo-referenced university libraries (SNU and Korea University), separate WebSocket rooms, shared PostgreSQL study records",
   "scripts": {
     "start": "node --env-file-if-exists=.env server/index.js",
     "test": "node --test tests/*.test.js",

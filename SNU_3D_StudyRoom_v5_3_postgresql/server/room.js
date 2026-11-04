@@ -41,17 +41,34 @@ export function buildSeatsAndObstacles() {
   const npcSeats=new Set(npcIndices);
   return {seats,obstacles,npcSeats};
 }
+// Korea University 2021 Graduate School Reading Hall: 24 two-sided carrels.
+// IDs and obstacles MUST mirror the KOREA_ROOM branch in index.html.
+export function buildKoreaSeatsAndObstacles(){
+ const seats=[],obstacles=[{x:0,z:-37.65,w:48,d:1.5}];
+ for(const x of [-14,-7,7,14])for(let row=0;row<6;row++){
+  const z=-27+row*11;
+  obstacles.push({x,z,w:3.52,d:2.34});
+  for(const sign of [-1,1]){
+   const cz=z+sign*1.55;
+   seats.push({id:seats.length,x,z:cz,sign});
+   obstacles.push({x,z:cz,w:.84,d:.79});
+  }
+ }
+ return {seats,obstacles,npcSeats:new Set([2,8,14,20,26,32,38,44])};
+}
 const layout=buildSeatsAndObstacles();
+const koreaLayout=buildKoreaSeatsAndObstacles();
+export const layoutForRoom=roomId=>roomId==='korea'?koreaLayout:layout;
 export const LAYOUT_SEATS=layout.seats;
 export const NPC_SEATS=layout.npcSeats;
-export function isWalkable(x,z) {
+export function isWalkable(x,z,roomId='main') {
   if (!Number.isFinite(x)||!Number.isFinite(z)) return false;
   // Exact same 0.6-unit grid discretisation used by the front-end Navigator.
   const gx=Math.floor((x+23)/.6), gz=Math.floor((z+37)/.6);
   if (gx<0||gx>=Math.ceil(46/.6)||gz<0||gz>=Math.ceil(82/.6)) return false;
   const px=-23+(gx+.5)*.6, pz=-37+(gz+.5)*.6;
   if(Math.abs(px)>22||pz< -33.5||pz>44) return false;
-  return !layout.obstacles.some(o=>Math.abs(px-o.x)<o.w/2+.32&&Math.abs(pz-o.z)<o.d/2+.32);
+  return !layoutForRoom(roomId).obstacles.some(o=>Math.abs(px-o.x)<o.w/2+.32&&Math.abs(pz-o.z)<o.d/2+.32);
 }
 
 // Guest tokens are created and authenticated exclusively by the server.
@@ -169,6 +186,7 @@ export class Rooms {
       case 'pause':this.pause(c,m);break;
       case 'chat':this.chat(c,m);break;
       case 'profile':this.profile(c,m);break;
+      case 'room_exit':void this.exitRoom(c).catch(e=>{console.error('[room_exit]',e);this.error(c.peer,'room_exit_failed','공부 기록 저장에 실패했습니다. 다시 시도해 주세요.');});break;
       case 'sync':c.peer.send({t:'snapshot',serverNow:Date.now(),day:localDay(),players:[...room.users.values()].map(u=>this.public(u)),locks:this.getLocks(room),count:this.members(room),npcCount:NPC_COUNT});break;
       default: break;
     }
@@ -223,6 +241,20 @@ export class Rooms {
       locks:this.getLocks(room),count:this.members(room),npcCount:NPC_COUNT});
     this.broadcast(room,{t:'player',player:this.public(p),count:this.members(room)},c.peer);
   }
+  async exitRoom(c){
+    const p=c.player,room=c.room;
+    if(!p||!room||p.peer!==c.peer)return;
+    // Persist the completed study interval BEFORE acknowledging a library hop.
+    this.studyMs(p);p.studying=false;p.paused=false;p.lastAccruedAt=0;
+    await this.persist(p);
+    if(c.closed||p.peer!==c.peer)return;
+    this.release(room,p);p.peer=null;p.online=false;
+    room.users.delete(p.id);this.broadcast(room,{t:'left',id:p.id,count:this.members(room)});
+    if(!room.users.size)this.rooms.delete(room.id);
+    c.player=null;c.room=null;c.joined=false;
+    c.peer.send({t:'room_exit_ok'});
+    c.peer.close(1000,'Library switch');
+  }
   async stopIdentity(id){
     for(const room of [...this.rooms.values()]){const p=room.users.get(id);if(!p)continue;
       this.stopStudy(p);await this.persist(p);this.remove(room,p);
@@ -236,7 +268,7 @@ export class Rooms {
     return changed;
   }
   requestSeat(c,m) {
-    const p=c.player,room=c.room,s=layout.seats[m.seatId];
+    const p=c.player,room=c.room,layout=layoutForRoom(room.id),s=layout.seats[m.seatId];
     if(!Number.isInteger(m.seatId)||!s||layout.npcSeats.has(s.id))
       return this.error(c.peer,'seat_unavailable','NPC 전용이거나 유효하지 않은 좌석입니다.',m.seatId);
     const occupant=room.locks.get(s.id);
@@ -251,7 +283,7 @@ export class Rooms {
   sit(c,m) {
     const p=c.player,room=c.room,seatId=m.seatId;
     if(!Number.isInteger(seatId)||p.pendingSeatId!==seatId) return this.error(c.peer,'seat_not_reserved','이 좌석의 예약을 확인할 수 없습니다.',seatId);
-    const lock=room.locks.get(seatId),s=layout.seats[seatId];
+    const lock=room.locks.get(seatId),s=layoutForRoom(room.id).seats[seatId];
     if(!lock||lock.id!==p.id||lock.phase!=='reserved'||lock.expiresAt<Date.now())return this.error(c.peer,'seat_expired','좌석 예약이 만료되었습니다.',seatId);
     const approach={x:s.x,z:s.z+s.sign*2.62};
     if(Math.hypot(p.x-approach.x,p.z-approach.z)>2.3)return this.error(c.peer,'not_near_seat','좌석 근처로 이동한 후 착석할 수 있습니다.',seatId);
@@ -271,34 +303,34 @@ export class Rooms {
   }
   stand(c) {
     const p=c.player,room=c.room;if(p.seatId===null){this.cancelReservation(c);return;}
-    const sid=p.seatId,s=layout.seats[sid];this.stopStudy(p);
+    const sid=p.seatId,s=layoutForRoom(room.id).seats[sid];this.stopStudy(p);
     p.seatId=null;p.pendingSeatId=null;
     if(room.locks.get(sid)?.id===p.id){room.locks.delete(sid);this.broadcast(room,{t:'seat_lock',seatId:sid,ownerId:null,phase:null});}
     // Server assigns a legal walkable emergence position; never trust a client teleport from a chair.
     const target={x:s.x,z:s.z+s.sign*2.63};
-    const candidate=this.nearWalkable(target.x,target.z);
+    const candidate=this.nearWalkable(target.x,target.z,room.id);
     p.x=candidate.x;p.z=candidate.z;p.lastMoveAt=Date.now();
     this.broadcast(room,{t:'player',player:this.public(p),count:this.members(room)});
   }
-  nearWalkable(x,z) {
-    if(isWalkable(x,z))return {x,z};
+  nearWalkable(x,z,roomId='main') {
+    if(isWalkable(x,z,roomId))return {x,z};
     for(let radius=.6;radius<=4;radius+=.6)for(let a=0;a<16;a++){
       const xx=x+radius*Math.cos(a*Math.PI/8),zz=z+radius*Math.sin(a*Math.PI/8);
-      if(isWalkable(xx,zz))return {x:xx,z:zz};
+      if(isWalkable(xx,zz,roomId))return {x:xx,z:zz};
     }
     return SPAWN;
   }
   move(c,m) {
     const p=c.player;
     if(p.seatId!==null)return;
-    if(typeof m.x!=='number'||typeof m.z!=='number'||typeof m.yaw!=='number'||!Number.isFinite(m.yaw)||!isWalkable(m.x,m.z)){
+    if(typeof m.x!=='number'||typeof m.z!=='number'||typeof m.yaw!=='number'||!Number.isFinite(m.yaw)||!isWalkable(m.x,m.z,c.room.id)){
       c.peer.send({t:'correction',x:p.x,z:p.z,yaw:p.yaw});return;
     }
     const now=Date.now(), dt=Math.min(2,(now-p.lastMoveAt)/1000);
     const dist=Math.hypot(m.x-p.x,m.z-p.z);
     if(dist>.55+5.8*dt){ c.peer.send({t:'correction',x:p.x,z:p.z,yaw:p.yaw});return; }
     const steps=Math.ceil(dist/.3);for(let i=1;i<=steps;i++){
-      const f=i/steps;if(!isWalkable(p.x+(m.x-p.x)*f,p.z+(m.z-p.z)*f)){
+      const f=i/steps;if(!isWalkable(p.x+(m.x-p.x)*f,p.z+(m.z-p.z)*f,c.room.id)){
        c.peer.send({t:'correction',x:p.x,z:p.z,yaw:p.yaw});return;
       }
     }
