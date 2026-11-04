@@ -1,0 +1,23 @@
+.guest-secret
+.env
+node_modules/
+*.log
+.DS_Store
+data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite-journal
+private-backups/
+service-account*.json
+firebase-service-account*.json
+*.pem
+
+# Deploy preparation and exported user data
+*.db
+*-adminsdk-*.json
+firebase-admin.json
+*.sqlite-*
+snapshots/
+deploy-export/
+railway/.env

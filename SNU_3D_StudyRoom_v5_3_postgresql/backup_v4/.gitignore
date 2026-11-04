@@ -1,0 +1,10 @@
+.guest-secret
+.env
+node_modules/
+*.log
+.DS_Store
+data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite-journal

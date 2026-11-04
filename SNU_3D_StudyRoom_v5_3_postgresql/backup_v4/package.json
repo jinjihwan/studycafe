@@ -1,0 +1,14 @@
+{
+  "name": "snu-library-3d-studyroom",
+  "version": "4.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Three.js 비공식 서울대 도서관 온라인 스터디룸 v4: 영구 공부 기록과 일일 랭킹",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node --test tests/*.test.js",
+    "check": "node --check server/index.js && node --check server/room.js && node --check server/store.js && node --check server/stats.js && node --check server/websocket.js && node --check client/network.js && node --check client/dashboard.js && node scripts/check-html.js && node scripts/check-project.js"
+  },
+  "optionalDependencies": {"pg":"^8.16.3"},
+  "engines": {"node": ">=22.13"}
+}

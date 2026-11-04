@@ -1,0 +1,249 @@
+
+> snu-library-3d-studyroom@5.1.0 test
+> node --test tests/*.test.js
+
+TAP version 13
+# (node:4985) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CSRF stale tab refreshes same-user token and retries friend accept once
+ok 1 - CSRF stale tab refreshes same-user token and retries friend accept once
+  ---
+  duration_ms: 2.981935
+  type: 'test'
+  ...
+# Subtest: CSRF revalidation never submits a friend action as another signed-in user
+ok 2 - CSRF revalidation never submits a friend action as another signed-in user
+  ---
+  duration_ms: 0.770674
+  type: 'test'
+  ...
+# Subtest: unrelated HTTP 403 is not retried, and displays actual status
+ok 3 - unrelated HTTP 403 is not retried, and displays actual status
+  ---
+  duration_ms: 0.624563
+  type: 'test'
+  ...
+# Subtest: real SQLite friend endpoint accepts and rejects requests only as recipient; sender cancellation stays valid
+ok 4 - real SQLite friend endpoint accepts and rejects requests only as recipient; sender cancellation stays valid
+  ---
+  duration_ms: 26.580776
+  type: 'test'
+  ...
+# (node:4986) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: REST + genuine WebSocket: 2 users, room isolation, seat lock, chat, movement, reconnection
+ok 5 - REST + genuine WebSocket: 2 users, room isolation, seat lock, chat, movement, reconnection
+  ---
+  duration_ms: 5093.578588
+  type: 'test'
+  ...
+# Subtest: real v5 HTTP and WebSocket server accepts exact Codespaces proxy hop and rejects outsider
+ok 6 - real v5 HTTP and WebSocket server accepts exact Codespaces proxy hop and rejects outsider
+  ---
+  duration_ms: 130.041836
+  type: 'test'
+  ...
+# Subtest: Codespaces local hop accepts only exact forwarded public domain
+ok 7 - Codespaces local hop accepts only exact forwarded public domain
+  ---
+  duration_ms: 2.57511
+  type: 'test'
+  ...
+# Subtest: rejects forged Origin and forwarded-domain variations
+ok 8 - rejects forged Origin and forwarded-domain variations
+  ---
+  duration_ms: 0.703383
+  type: 'test'
+  ...
+# Subtest: preserves original local and no-Origin compatibility
+ok 9 - preserves original local and no-Origin compatibility
+  ---
+  duration_ms: 1.930517
+  type: 'test'
+  ...
+# (node:5040) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# [study storage] checkpoint failed: SIMULATED_DATABASE_DISCONNECT
+# Subtest: SQLite schema, date records, reopen persistent file, profile and ranking privacy
+ok 10 - SQLite schema, date records, reopen persistent file, profile and ranking privacy
+  ---
+  duration_ms: 20.786307
+  type: 'test'
+  ...
+# Subtest: day boundary splits accrued time at Korea midnight and persists to correct day
+ok 11 - day boundary splits accrued time at Korea midnight and persists to correct day
+  ---
+  duration_ms: 31.520123
+  type: 'test'
+  ...
+# Subtest: server stop/resume/duplicate checkpoint and DB failure do not double count
+ok 12 - server stop/resume/duplicate checkpoint and DB failure do not double count
+  ---
+  duration_ms: 9.218076
+  type: 'test'
+  ...
+# Subtest: ranking deterministic tie break, top 20, empty dates and optional visibility semantics
+ok 13 - ranking deterministic tie break, top 20, empty dates and optional visibility semantics
+  ---
+  duration_ms: 7.081759
+  type: 'test'
+  ...
+# (node:5051) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: actual Node server exits, restarts, restores same guest token and persisted study history
+ok 14 - actual Node server exits, restarts, restores same guest token and persisted study history
+  ---
+  duration_ms: 385.356136
+  type: 'test'
+  ...
+# Subtest: camera starts near avatar, follow target aligned, and HTML supports closing login
+ok 15 - camera starts near avatar, follow target aligned, and HTML supports closing login
+  ---
+  duration_ms: 0.856203
+  type: 'test'
+  ...
+# Subtest: ceiling doubled; rear wall and glazing built as geometry; same 88 tables and 352 chairs
+ok 16 - ceiling doubled; rear wall and glazing built as geometry; same 88 tables and 352 chairs
+  ---
+  duration_ms: 0.307234
+  type: 'test'
+  ...
+# Subtest: server and client enforce matching front/rear walk bounds
+ok 17 - server and client enforce matching front/rear walk bounds
+  ---
+  duration_ms: 0.307415
+  type: 'test'
+  ...
+# Subtest: open floor uses a direct short waypoint and no right-angle detour
+ok 18 - open floor uses a direct short waypoint and no right-angle detour
+  ---
+  duration_ms: 0.645114
+  type: 'test'
+  ...
+# Subtest: obstacle rejects shortcut and preserves intermediate turns
+ok 19 - obstacle rejects shortcut and preserves intermediate turns
+  ---
+  duration_ms: 0.319392
+  type: 'test'
+  ...
+# Subtest: navigation does not allow shortcuts through diagonal obstacle corners
+ok 20 - navigation does not allow shortcuts through diagonal obstacle corners
+  ---
+  duration_ms: 0.11211
+  type: 'test'
+  ...
+# (node:5095) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# [origin-check] BLOCKED {"reason":"Origin host differs from request Host","receivedOrigin":"https://external.example","requestHost":"127.0.0.1:44739","forwardedHost":"(missing)","forwardedProto":"(missing)","loopbackPeer":true,"allowedOrigins":[]}
+# Subtest: security: same-origin checks, malformed handshakes, JSON/frame size and binary frame limits
+ok 21 - security: same-origin checks, malformed handshakes, JSON/frame size and binary frame limits
+  ---
+  duration_ms: 56.795683
+  type: 'test'
+  ...
+# Subtest: timer: server-only elapsed, pause/resume, background-like idle, rejoin and seat lock cleanup
+ok 22 - timer: server-only elapsed, pause/resume, background-like idle, rejoin and seat lock cleanup
+  ---
+  duration_ms: 7937.895931
+  type: 'test'
+  ...
+# Subtest: KST midnight accounting includes time elapsed after midnight even with delayed tick
+ok 23 - KST midnight accounting includes time elapsed after midnight even with delayed tick
+  ---
+  duration_ms: 0.421066
+  type: 'test'
+  ...
+# Subtest: restricted WebSocket transport: masked fragmentation, ping inside fragments, unmasked frame rejection
+ok 24 - restricted WebSocket transport: masked fragmentation, ping inside fragments, unmasked frame rejection
+  ---
+  duration_ms: 157.154267
+  type: 'test'
+  ...
+# (node:5106) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# [origin-check] BLOCKED {"reason":"Origin host differs from request Host","receivedOrigin":"https://not-our-site.example","requestHost":"127.0.0.1:36257","forwardedHost":"(missing)","forwardedProto":"(missing)","loopbackPeer":true,"allowedOrigins":[]}
+# Subtest: real HTTP+WebSocket: study is server-owned, ranking, privacy, rejoin, token isolation and NPC exclusion
+ok 25 - real HTTP+WebSocket: study is server-owned, ranking, privacy, rejoin, token isolation and NPC exclusion
+  ---
+  duration_ms: 8381.635517
+  type: 'test'
+  ...
+# (node:5117) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: v4 migration preserves study_daily, id, guest profile and restart persistence
+ok 26 - v4 migration preserves study_daily, id, guest profile and restart persistence
+  ---
+  duration_ms: 21.196436
+  type: 'test'
+  ...
+# Subtest: merging a second guest is atomic/idempotent, consumes old guest token, protects against stealing
+ok 27 - merging a second guest is atomic/idempotent, consumes old guest token, protects against stealing
+  ---
+  duration_ms: 17.118781
+  type: 'test'
+  ...
+# Subtest: mutual request / reject / cancel / accept, block and friend privacy
+ok 28 - mutual request / reject / cancel / accept, block and friend privacy
+  ---
+  duration_ms: 23.443775
+  type: 'test'
+  ...
+# Subtest: session expiry, token hash storage, revocation and private-room ACL
+ok 29 - session expiry, token hash storage, revocation and private-room ACL
+  ---
+  duration_ms: 17.253244
+  type: 'test'
+  ...
+# Subtest: friend ranking excludes excluded friend and NPC, respects KST study days and block state
+ok 30 - friend ranking excludes excluded friend and NPC, respects KST study days and block state
+  ---
+  duration_ms: 20.042862
+  type: 'test'
+  ...
+# (node:5128) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Google-ID-token mock boundary, ownership, CSRF, session revocation and stats
+ok 31 - Google-ID-token mock boundary, ownership, CSRF, session revocation and stats
+  ---
+  duration_ms: 69.1331
+  type: 'test'
+  ...
+# Subtest: friend API: code lookup, accept, presence privacy, friend ranking and join authorization
+ok 32 - friend API: code lookup, accept, presence privacy, friend ranking and join authorization
+  ---
+  duration_ms: 56.38665
+  type: 'test'
+  ...
+# Subtest: App-side account removal erases its study ledger and social links, not Firebase provider account
+ok 33 - App-side account removal erases its study ledger and social links, not Firebase provider account
+  ---
+  duration_ms: 20.585428
+  type: 'test'
+  ...
+# Subtest: actual TCP/WebSocket cookie auth: one active Google controller, explicit takeover, private room ACL
+ok 34 - actual TCP/WebSocket cookie auth: one active Google controller, explicit takeover, private room ACL
+  ---
+  duration_ms: 31.653697
+  type: 'test'
+  ...
+# Subtest: browser guest auth displays HTTP status and server reason instead of hiding it
+ok 35 - browser guest auth displays HTTP status and server reason instead of hiding it
+  ---
+  duration_ms: 21.171002
+  type: 'test'
+  ...
+# Subtest: browser guest auth shows a clear message if Codespaces proxy returns HTML
+ok 36 - browser guest auth shows a clear message if Codespaces proxy returns HTML
+  ---
+  duration_ms: 0.466635
+  type: 'test'
+  ...
+1..36
+# tests 36
+# suites 0
+# pass 36
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 14219.333923

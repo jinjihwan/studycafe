@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<meta name="theme-color" content="#111d31" />
+<title>SNU Library Inspired · 3D Study Room</title>
+<style>
+:root{color-scheme:dark;--panel:rgba(20,30,47,.78);--border:rgba(255,255,255,.20);--blue:#88c9ff;--mint:#8cecc6;--text:#f4f8ff}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101929;color:var(--text);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:not-allowed}
+#scene{display:block;position:fixed;inset:0;width:100%;height:100%;touch-action:none;outline:0}
+#labels{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.tag{position:absolute;left:0;top:0;z-index:2;pointer-events:none;transform:translate(-50%,-100%);will-change:transform;white-space:nowrap;text-align:center;filter:drop-shadow(0 2px 6px #0009)}
+.tag .bubble{display:none;margin:0 auto 7px;max-width:220px;overflow-wrap:anywhere;white-space:normal;padding:7px 11px;border-radius:13px;background:#f8fbff;color:#1c293c;font-size:12px;font-weight:650;box-shadow:0 5px 14px #0003}
+.tag .plate{display:inline-block;background:rgba(17,26,42,.88);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:5px 9px;font-size:11px;line-height:1.4;text-align:left}
+.tag .plate .clock{color:var(--mint);font-variant-numeric:tabular-nums}.tag .badge-npc{font-size:9px;vertical-align:1px;color:#ffc981;margin-right:4px}.tag.me .plate{border-color:#8acaff;box-shadow:0 0 0 1px #58bcf044}.tag.remote .plate{border-color:#e7bf8a}.tag.offline{opacity:.58}
+#topbar{position:fixed;top:max(12px,env(safe-area-inset-top));left:14px;right:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;pointer-events:none;z-index:3}
+.group{display:flex;align-items:center;gap:8px;pointer-events:auto}.glass{background:var(--panel);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:13px;box-shadow:0 7px 26px #0003}
+.brand{padding:10px 13px;display:flex;align-items:center;gap:10px;font-weight:750;font-size:14px;white-space:nowrap}.brand small{display:block;color:#c1d1e5;font-size:9px;font-weight:450;margin-top:2px}.count{padding:11px 12px;font-size:12px;color:#e6f0ff;white-space:nowrap}.room-pill{padding:11px 12px;font-size:11px;white-space:nowrap;color:#cce5ff}.count i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#70e4a7;margin-right:5px}
+.iconbtn{border:1px solid var(--border);color:#f3f7ff;background:var(--panel);padding:0 12px;height:40px;border-radius:12px;backdrop-filter:blur(12px);font-size:12px;white-space:nowrap}.iconbtn.active{background:#35658e;border-color:#a4d6ff}
+#bottom{position:fixed;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(95vw,760px);z-index:3;padding:10px 12px;pointer-events:auto}
+#status{font-size:12px;color:#dbe6f7;text-align:center;margin-bottom:7px;min-height:17px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.controls{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}
+.controls button,.controls input{border:1px solid rgba(255,255,255,.19);border-radius:9px;padding:9px 10px;background:#30445f;color:#fff;font-size:12px;min-height:36px}
+.controls button.primary{background:#4c83ad}.controls button:disabled{background:#384253}.controls input{background:#18283e;min-width:105px;flex:1 1 160px;max-width:230px;outline:none}.controls input:focus{border-color:#8dcaff}#timeDisplay{min-width:88px;display:inline-block;font-weight:750;color:#a8f0d5;font-variant-numeric:tabular-nums;text-align:center}
+#hints{position:fixed;left:15px;bottom:115px;font-size:11px;line-height:1.75;color:#eef5ff;text-shadow:0 1px 5px #000c;pointer-events:none;z-index:2}kbd{display:inline-block;background:#19263aa8;border:1px solid #fff5;border-radius:5px;padding:0px 5px;font-family:inherit}
+#loading{position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:20px;font-size:13px;color:#dce8f5;background:#132035;z-index:8}#toast{position:fixed;top:75px;left:50%;transform:translateX(-50%);border-radius:10px;background:rgba(15,26,42,.9);border:1px solid #fff4;padding:10px 16px;pointer-events:none;font-size:12px;opacity:0;transition:opacity .16s;z-index:6;max-width:90vw;text-align:center}
+#modal{position:fixed;inset:0;background:rgba(5,11,21,.68);display:none;align-items:center;justify-content:center;z-index:10;padding:16px;backdrop-filter:blur(5px)}
+#modal.visible{display:flex}.dialog{width:min(420px,100%);max-height:min(92vh,750px);overflow-y:auto;background:#1b2a40;border:1px solid #ffffff39;border-radius:18px;box-shadow:0 20px 70px #000a;padding:23px}
+.dialog h1{font-size:21px;margin:0 0 7px}.dialog p{font-size:12px;color:#c2d1e7;line-height:1.7}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:19px 0}.field{display:flex;flex-direction:column;gap:5px;font-size:11px;color:#c4d4e9}.field.full{grid-column:span 2}.field input,.field select{background:#121d30;border:1px solid #ffffff38;color:white;border-radius:9px;padding:10px;min-width:0;min-height:40px}.field input[type=color]{height:42px;padding:4px}.dialog .ok{width:100%;border:none;background:#8bcaff;color:#14283a;font-weight:800;border-radius:10px;padding:12px}.dialog .note{font-size:10px;margin-top:13px;color:#a6bad4}
+/* Opt-in diagnostics only (?perf=1); no alteration to the normal v2 UI. */
+#perfHud{position:fixed;top:100px;right:8px;z-index:4;pointer-events:none;
+  min-width:156px;padding:9px 11px;white-space:pre-line;font:11px/1.5 ui-monospace,monospace;
+  background:rgba(9,20,35,.85);border:1px solid #ffffff44;border-radius:10px;color:#bde9ff}
+@media(max-width:690px){#topbar{left:8px;right:8px;top:max(7px,env(safe-area-inset-top));gap:4px}.brand{font-size:11px;padding:9px;gap:5px}.brand small{font-size:8px}.count{display:block;font-size:10px;padding:9px 8px}.room-pill{font-size:10px;padding:9px 8px}#topbar{flex-wrap:wrap}#topbar>.group:first-child{width:100%;justify-content:space-between}#topbar>.group:last-child{margin-left:auto}.group{gap:4px}.iconbtn{padding:0 8px;height:36px;font-size:10px}.brand .symbol{display:none}#bottom{bottom:max(7px,env(safe-area-inset-bottom));padding:8px;width:calc(100vw - 12px)}.controls{gap:5px}.controls button,.controls input{padding:8px 7px;min-height:33px;font-size:11px}.controls input{flex:1 1 100px;min-width:82px;max-width:unset}#timeDisplay{min-width:70px;font-size:12px}#status{font-size:10px}#hints{left:10px;bottom:131px;font-size:10px}.tag .plate{font-size:10px;padding:4px 6px}.tag .bubble{font-size:10px;padding:5px 8px}}
+
+/* v5: auth and social views (all v4 Three.js geometry/camera styles retained). */
+#accountOverlay[hidden]{display:none!important}
+#accountOverlay{position:fixed;inset:0;z-index:40;background:#081426d9;backdrop-filter:blur(6px);display:grid;place-items:center;padding:16px;overflow:auto}
+#accountOverlay .dialog{width:min(420px,100%);position:relative;padding-top:50px}
+#accountClose{position:absolute;right:14px;top:12px;width:40px;height:40px;display:grid;place-items:center;border:1px solid #ffffff55;background:#334b66;color:#fff;border-radius:11px;font-size:24px;line-height:1;z-index:1;touch-action:manipulation}
+#accountClose:focus-visible{outline:3px solid #8acaff}.account-actions{display:grid;gap:10px;margin-top:20px}
+.account-actions .alt{background:#314c6d!important;color:#f2f7ff!important;border:1px solid #8da4bb55!important}
+.auth-error{margin:12px 0;padding:12px;background:#4b2733;color:#ffe4e4;border:1px solid #c97d8c;border-radius:10px;font-size:13px;line-height:1.5;overflow-wrap:anywhere}.auth-error[hidden]{display:none!important}
+.account-danger{border:1px solid #e39b9b66;color:#ffd2d2;background:#56333d;border-radius:10px;padding:11px}
+.friend-row{display:flex;gap:9px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-top:1px solid #77899d36;padding:12px 0}
+.friend-row:first-child{border-top:0}.friend-info{min-width:120px;flex:1;display:flex;flex-direction:column;gap:5px}.friend-info strong{font-size:13px;overflow-wrap:anywhere}.friend-info small{color:#aabed2;font-size:11px}
+.friend-action{border:1px solid #6c8fad66;background:#345779;color:#f5f9ff;border-radius:9px;padding:9px 11px;min-height:35px;font-size:12px}
+.friend-action.selected{background:#8ec9f7;color:#132d49}.friend-search{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.friend-code-input{min-width:130px;flex:1;border:1px solid #71849c;background:#10273b;color:#fff;border-radius:8px;padding:10px}
+.friend-setting{display:flex;gap:10px;align-items:center;padding:9px 0;font-size:12px}.friend-setting input{width:17px;height:17px;accent-color:#8acaff}
+.friend-switch{display:flex;gap:8px;margin-bottom:14px}
+@media(max-width:690px){#accountBtn{max-width:135px;overflow:hidden;text-overflow:ellipsis}.friend-row .friend-action{font-size:11px;padding:7px 8px}}
+/* v4: separate overlay. Existing v3 library CSS / meshes / camera unchanged. */
+#appNav[hidden]{display:none!important}
+#modal.visible{z-index:30}
+#appNav{position:fixed;z-index:14;top:77px;left:50%;transform:translateX(-50%);display:flex;gap:4px;max-width:calc(100% - 12px);padding:5px;background:#15263ddf;border:1px solid #7c9cb35c;border-radius:12px;backdrop-filter:blur(10px);box-shadow:0 8px 32px #0004}
+#appNav button{white-space:nowrap;flex-shrink:0;border:0;border-radius:8px;background:transparent;color:#d7e2f3;min-height:38px;padding:6px 12px;font:inherit;font-size:12px;cursor:pointer}
+#appNav button.selected{background:#84bded;color:#112743;font-weight:800}
+#appNav button:disabled{cursor:not-allowed;opacity:.43}
+#dashboard{position:fixed;z-index:12;inset:0;overflow:auto;background:#101a2bec;color:#f3f6fa;padding:140px max(18px,env(safe-area-inset-right)) 52px;overscroll-behavior:contain}
+#dashboard[hidden]{display:none!important}
+#dashboardBody{max-width:1030px;margin:0 auto}
+.panel-visible #topbar,.panel-visible #bottom,.panel-visible #hints,.panel-visible #labels{display:none!important}
+.panel-visible #appNav{top:13px}
+.panel-visible #dashboard{padding-top:79px}
+.dash-heading h2{font-size:25px;line-height:1.2;margin:0 0 8px}.dash-heading p{font-size:12px;color:#b6c6da;margin:0 0 18px}
+.dash-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.dash-metric{border:1px solid #54708a70;background:#21344a;border-radius:12px;min-width:0;padding:14px}
+.dash-metric span{display:block;font-size:12px;color:#c4d2e0;margin-bottom:8px}.dash-metric strong{display:block;font-size:clamp(16px,2vw,22px);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.dash-columns{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;margin-bottom:15px}
+.dash-card,.dash-privacy{border:1px solid #54708a70;background:#1b2c41;border-radius:13px;padding:16px;min-width:0}
+.dash-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.dash-title-row h3,.dash-card h3{font-size:16px;margin:0 0 14px}.dash-small{background:#2d4864;color:white;border:1px solid #637d97;border-radius:7px;font-size:22px;min-width:35px;min-height:32px;cursor:pointer}
+.dash-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.dash-calendar .weekday{font-weight:500;text-align:center;font-size:11px;color:#a8bbce;padding:8px 0}
+.dash-day{min-height:40px;border:1px solid #59718d40;border-radius:7px;background:#2b3d51;color:#eaf0f6;cursor:pointer;font-size:12px;position:relative}
+.dash-day.outside{opacity:.34}.dash-day.has-study:after{content:'';width:5px;height:5px;border-radius:50%;background:#75c4ad;position:absolute;bottom:4px;left:calc(50% - 2.5px)}.dash-day.chosen{outline:2px solid #8acaff;background:#395f7c}
+.dash-note,.dash-footer{font-size:12px;color:#b5c6d8;line-height:1.65;margin:12px 0 0}.dash-footer{margin:16px 0 10px}
+.dash-bars{height:205px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));align-items:stretch;gap:8px;margin-top:13px}
+.dash-bar{min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px}.dash-bar small{font-size:9px;white-space:nowrap;color:#b0d5e8}.dash-bar>span{font-size:11px;color:#b5c6d8}
+.dash-bar-track{flex:1;width:100%;max-width:38px;background:#10273c;border-radius:7px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}.dash-bar-fill{background:linear-gradient(0deg,#538fbf,#9bd9b8);border-radius:7px;min-height:0}
+.dash-privacy-label{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700}.dash-privacy-label input{width:20px;height:20px;accent-color:#86c8ff}
+.dash-ranking-summary{padding:14px;background:#213e53;border-radius:10px;margin-bottom:16px;font-size:13px;color:#dbf2fa}
+.dash-rank-list{display:grid;gap:7px}.dash-rank{display:flex;align-items:center;gap:12px;border:1px solid #49688271;border-radius:10px;background:#22344a;padding:10px 14px}.dash-rank.is-me{border-color:#85cdf4;background:#274b64}
+.dash-rank-num{width:28px;text-align:center;font-weight:800;font-size:16px}.dash-avatar{border-radius:12px;width:44px;height:44px;display:grid;place-items:center;font-size:25px;flex-shrink:0}.dash-rank-name{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}.dash-rank-name strong{font-size:14px;overflow-wrap:anywhere}.dash-rank-name small{font-size:11px;color:#b6cbdc}.dash-rank-time{font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}.dash-empty,.dash-loading{text-align:center;color:#c3d5e1;padding:35px 5px}
+@media(max-width:690px){
+ #appNav{top:auto!important;left:0;right:0;bottom:0;transform:none;max-width:none;width:100%;justify-content:space-around;border-radius:12px 12px 0 0;gap:0;padding:4px 2px calc(4px + env(safe-area-inset-bottom))}
+ #appNav button{font-size:11px;padding:6px 5px;min-height:43px;flex:1;white-space:normal}
+ body:not(.panel-visible) #bottom{bottom:calc(62px + env(safe-area-inset-bottom))}
+ body:not(.panel-visible) #hints{bottom:calc(187px + env(safe-area-inset-bottom))}
+ #dashboard{padding:20px 12px 90px!important}.dash-heading h2{font-size:21px}.dash-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dash-metric{padding:11px}.dash-metric strong{font-size:17px}.dash-columns{grid-template-columns:1fr;gap:10px}.dash-card{padding:12px}.dash-day{min-height:36px}.dash-rank{gap:8px;padding:8px}.dash-rank-name strong{font-size:12px}.dash-rank-name small{font-size:10px}.dash-rank-time{font-size:12px}
+}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<canvas id="scene" aria-label="마우스 또는 터치로 조작하는 3D 도서관"></canvas>
+<div id="labels"></div>
+<div id="loading">3D 도서관을 불러오는 중입니다.<br/>Three.js 다운로드를 위해 인터넷 연결이 필요합니다.</div>
+<header id="topbar"><div class="group"><div class="glass brand"><span class="symbol">▦</span><span>SNU Library Study<small>서울대 도서관에서 영감을 받은 비공식 3D 공간</small></span></div><div class="glass count" id="onlineCount"><i></i>실제 접속자 0명 · NPC 8명</div><div class="glass room-pill" id="roomBadge">방 main</div></div><div class="group"><button class="iconbtn active" id="followBtn" title="카메라 따라가기">따라가기 ON</button><button class="iconbtn" id="avatarBtn" title="캐릭터 변경">캐릭터</button><button class="iconbtn" id="inviteBtn" title="같은 방 초대 링크 복사">초대 링크</button><button class="iconbtn" id="accountBtn" title="계정">게스트 · 로그인</button><button class="iconbtn" id="helpBtn" title="조작법">도움말</button></div></header>
+<nav id="appNav" hidden role="tablist" aria-label="스터디룸 메뉴"><button type="button" role="tab" data-tab="library" aria-selected="true" class="selected">도서관</button><button type="button" role="tab" data-tab="records" aria-selected="false">내 기록</button><button type="button" role="tab" data-tab="ranking" aria-selected="false">랭킹</button><button type="button" role="tab" data-tab="friends" aria-selected="false">친구</button><button type="button" role="tab" disabled aria-disabled="true">커뮤니티 · 준비 중</button></nav>
+<section id="dashboard" hidden aria-label="공부 기록과 랭킹"><div id="dashboardBody"></div></section>
+<div id="hints"><div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 이동 · <kbd>Shift</kbd> 빠르게</div><div>바닥 클릭: 이동 · 의자 클릭: 앉기</div><div>드래그: 회전 · 휠/두 손가락: 확대·축소</div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="accountOverlay" hidden><div class="dialog" role="dialog" aria-modal="true" aria-label="계정 메뉴"><button type="button" id="accountClose" aria-label="도서관으로 돌아가기" title="닫기">×</button><h1>스터디룸에 오신 것을 환영합니다</h1><p id="accountStatus">게스트로 바로 입장하거나 Google 계정으로 기록을 연결할 수 있습니다.</p><p id="authError" class="auth-error" role="alert" hidden></p><div class="account-actions"><button id="googleLogin" class="ok">Google로 계속하기</button><button id="guestEnter" class="ok alt">게스트로 바로 입장</button><button id="logoutBtn" class="ok alt" hidden>Google 로그아웃</button><button id="deleteAccountBtn" class="account-danger" hidden>스터디룸 계정 데이터 삭제</button></div><p class="note">게스트 인증 정보가 삭제되면 이전 기록에 접근하지 못할 수 있습니다. Google 연결 시 기존 게스트 기록을 서버에서 안전하게 병합합니다.</p><p class="note">모바일 Google 팝업이 차단되면 브라우저 설정에서 팝업을 허용해 주세요.</p></div></div>
+<section id="bottom" class="glass" aria-label="공부 및 채팅 도구"><div id="status">빈 의자를 선택하면 해당 자리로 이동해 공부를 시작합니다.</div><div class="controls"><span style="font-size:10px;color:#c6d4ea">오늘</span><span id="timeDisplay">00:00:00</span><button id="pauseBtn" disabled>일시정지</button><button id="standBtn" disabled>자리에서 일어나기</button><input id="chatInput" maxlength="40" placeholder="실시간 채팅 (최대 40자)" aria-label="테스트 채팅"/><button id="sendBtn" class="primary">말하기</button></div></section>
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog"><h1 id="modalTitle">캐릭터 선택</h1><p>로우폴리 동물 캐릭터를 선택하고 도서관에 입장하세요. 선택 내용은 이 브라우저에 저장됩니다.</p><div class="fields"><label class="field full">닉네임<input id="nick" maxlength="15" value="공부하는토끼" /></label><label class="field">동물<select id="species"><option value="rabbit">토끼</option><option value="bear">곰</option><option value="cat">고양이</option><option value="dog">강아지</option></select></label><label class="field">기본 후드 색상<select id="gender"><option value="female">분홍색 기본</option><option value="male">하늘색 기본</option></select></label><label class="field full">후드 색상 직접 변경<input id="hood" type="color" value="#f39bc4" /></label></div><button id="enterBtn" class="ok">3D 도서관 입장</button><div class="note">게스트로 실시간 서버에 접속합니다. NPC는 NPC로 표시되며 실제 이용자 수에 포함되지 않습니다. 서울대학교 도서관 사진을 참고한 비공식 재현입니다.</div></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { NetworkClient } from './client/network.js';
+import { initDashboard } from './client/dashboard.js';
+import { AccountClient } from './client/account.js';
+import { createFriendsPanel } from './client/friends.js';
+import { smoothWaypoints } from './client/navigation-smooth.js';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. Config / DOM / persist  (이 HTML 파일만 수정해도 좌석과 NPC 확장 가능)
+// ─────────────────────────────────────────────────────────────────────────────
+const $ = s => document.querySelector(s);
+const CONFIG = {width:54, length:98, height:18.6, frontZ:-43, rearZ:55, frontWalkLimit:-37.5, rearWalkLimit:49, rows:11, columnsPerSide:4,
+  rowSpacing:5.85, columnSpacing:4.55, npcCount:8, navStep:.6};
+const D = {canvas:$('#scene'),labels:$('#labels'),status:$('#status'),time:$('#timeDisplay'),
+  pause:$('#pauseBtn'),stand:$('#standBtn'),modal:$('#modal'),follow:$('#followBtn'),
+  avatar:$('#avatarBtn'),chat:$('#chatInput'),send:$('#sendBtn')};
+const MOBILE = matchMedia('(pointer:coarse)').matches || innerWidth < 700;
+const query = new URLSearchParams(location.search);
+const PERF_ENABLED = query.get('perf')==='1';
+const LOW_QUALITY = query.get('quality')==='low'; // opt-in diagnostics; default rendering unchanged.
+const pixelRatio=()=>LOW_QUALITY?Math.min(devicePixelRatio,1):Math.min(devicePixelRatio,innerWidth<700?1.35:1.85);
+const STORAGE = 'snu-study-3d-demo-v1'; // v1 visual preferences are preserved
+const ROOM_ID = (()=>{const name=new URLSearchParams(location.search).get('room')||'main';return /^[a-z0-9][a-z0-9_-]{0,31}$/.test(name)?name:'main'})();
+$('#roomBadge').textContent='방 '+ROOM_ID;
+const COLORS = {male:'#8bcaff',female:'#f39bc4'};
+const fmt=ms=>{let s=Math.floor(Math.max(0,ms)/1000);return [Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(x=>String(x).padStart(2,'0')).join(':')};
+const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
+let saved={};try{saved=JSON.parse(localStorage.getItem(STORAGE)||'{}')}catch{}
+let prefs={nick:saved.nick||'공부하는토끼',species:saved.species||'rabbit',gender:saved.gender||'female',hood:saved.hood||COLORS.female};
+// Server is the SINGLE source of truth for daily study totals.
+// v1's localStorage study total is deliberately NOT imported.
+const study={day:'',totalMs:0,sampledAt:performance.now(),running:false,paused:false};
+function save(){try{localStorage.setItem(STORAGE,JSON.stringify(prefs))}catch{}}
+function currentStudyMs(){
+ const advancing=study.running&&!study.paused&&!!net?.connected;
+ return study.totalMs+(advancing?Math.max(0,performance.now()-study.sampledAt):0);
+}
+let toastTimer=0;
+function toast(message){$('#toast').textContent=message;$('#toast').style.opacity='1';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').style.opacity='0',2500)}
+function setStatus(message){D.status.textContent=message}
+function updateHUD(){D.time.textContent=fmt(currentStudyMs());D.pause.disabled=!study.running||!net?.connected;D.stand.disabled=!player?.seated||!net?.connected;D.pause.textContent=study.paused?'재개':'일시정지'}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. Three renderer, camera, lights
+// ─────────────────────────────────────────────────────────────────────────────
+const renderer=new THREE.WebGLRenderer({canvas:D.canvas,antialias:!MOBILE,powerPreference:'high-performance'});
+renderer.setPixelRatio(LOW_QUALITY?pixelRatio():Math.min(devicePixelRatio,MOBILE?1.35:1.85));
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.22;
+renderer.shadowMap.enabled=!MOBILE&&!LOW_QUALITY;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene();scene.background=new THREE.Color('#b3cfe0');scene.fog=new THREE.Fog('#b3cfe0',65,150);
+const camera=new THREE.PerspectiveCamera(MOBILE?66:58,innerWidth/innerHeight,.07,210);
+camera.position.set(4.2,6.0,42.2); // closer third-person framing at spawn (0, 35)
+const orbit=new OrbitControls(camera,D.canvas);
+orbit.target.set(0,1.45,33.7);orbit.enableDamping=true;orbit.dampingFactor=.075;
+orbit.enablePan=false;orbit.minDistance=2.7;orbit.maxDistance=42;
+orbit.minPolarAngle=.08;orbit.maxPolarAngle=Math.PI/2-.035;
+orbit.rotateSpeed=MOBILE?.65:.75;orbit.zoomSpeed=.9;orbit.update();
+scene.add(new THREE.HemisphereLight('#e5f5ff','#8a8a9f',2.1));
+const sun=new THREE.DirectionalLight('#fff3df',2.25);sun.position.set(-19,31,16);
+if(!MOBILE){sun.castShadow=true;sun.shadow.mapSize.set(1536,1536);sun.shadow.camera.left=-48;sun.shadow.camera.right=48;sun.shadow.camera.top=48;sun.shadow.camera.bottom=-48;sun.shadow.camera.near=1;sun.shadow.camera.far=130;sun.shadow.bias=-.0012;sun.shadow.normalBias=.035}
+scene.add(sun);
+const backFill=new THREE.DirectionalLight('#c8e4ff',.55);backFill.position.set(8,6,-30);scene.add(backFill);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. Reusable instanced geometry builder (백여 개 가구를 소수의 draw call로 렌더)
+// ─────────────────────────────────────────────────────────────────────────────
+const G={box:new THREE.BoxGeometry(1,1,1),cylinder:new THREE.CylinderGeometry(1,1,1,12),
+  sphere:new THREE.SphereGeometry(1,12,9)};
+const M={};
+function mat(key,color,options={}){M[key]=new THREE.MeshStandardMaterial({color,roughness:.79,metalness:.04,...options});return M[key]}
+mat('carpet','#22385b');mat('wood','#c69a61',{roughness:.67});mat('woodTrim','#9e7245');
+mat('steel','#717d89',{metalness:.58,roughness:.44});mat('steelLight','#9aabb9',{metalness:.53});
+mat('leg','#343d49',{metalness:.48});mat('chairFrame','#e7ebec');mat('chairBack','#636d7d');
+mat('chairSeat','#89919b');mat('ceiling','#d4d5d3');mat('grid','#b5bbc0');
+mat('white','#eff4f1');mat('windowFrame','#c8d3dc',{metalness:.30});mat('wall','#d2d7d8');
+mat('bookshelf','#967045');mat('bookshelfDark','#3c3c39');mat('plaster','#ece8df');
+mat('lamp','#4b5964',{metalness:.6});mat('green','#567b62');mat('tree','#678b6e');
+mat('mountain','#99b7b7');mat('campus','#d6d6c9');mat('black','#242b34');
+mat('paleGold','#d5c7a5');mat('led','#fffdf4',{emissive:'#fffcda',emissiveIntensity:1.3,roughness:.35});
+const bookColors=['#42637b','#8e5846','#63826b','#d1b16f','#74617e','#9a7e61','#8a9b9d','#7b493e','#aca7a0','#b3936b'];
+bookColors.forEach((c,i)=>mat('book'+i,c));
+class Batcher{
+ constructor(){this.items=new Map();this.tmp=new THREE.Object3D()}
+ add(g,m,p,s,quat){const key=g+':'+m;if(!this.items.has(key))this.items.set(key,[]);
+  const t=this.tmp;t.position.set(...p);t.scale.set(...s);t.quaternion.copy(quat||new THREE.Quaternion());t.updateMatrix();
+  this.items.get(key).push(t.matrix.clone())}
+ box(m,p,s,q){this.add('box',m,p,s,q)}
+ cylinder(m,p,s,q){this.add('cylinder',m,p,s,q)}
+ sphere(m,p,s){this.add('sphere',m,p,s)}
+ segment(m,a,b,t){const va=new THREE.Vector3(...a),vb=new THREE.Vector3(...b);const d=vb.clone().sub(va);
+  const q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());
+  this.box(m,va.add(vb).multiplyScalar(.5),[t,d.length(),t],q)}
+ flush(){for(const [key,items] of this.items){const [geo,material]=key.split(':');
+  const mesh=new THREE.InstancedMesh(G[geo],M[material],items.length);
+  for(let i=0;i<items.length;i++)mesh.setMatrixAt(i,items[i]);
+  mesh.instanceMatrix.needsUpdate=true;mesh.frustumCulled=false;
+  mesh.receiveShadow=['wood','carpet','chairSeat'].includes(material);mesh.castShadow=!MOBILE&&['wood','steel','leg','bookshelf'].includes(material);
+  scene.add(mesh)} this.items.clear()}
+}
+const batch=new Batcher();
+const obstacles=[];const seats=[];const seatHits=[];
+function obstacle(x,z,w,d){obstacles.push({x,z,w,d})}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 4. Building architecture, windows, trusses, LED ceiling, shelves
+// ─────────────────────────────────────────────────────────────────────────────
+function carpetTexture(){const c=document.createElement('canvas');c.width=c.height=256;const ctx=c.getContext('2d');
+ ctx.fillStyle='#30496e';ctx.fillRect(0,0,256,256);
+ // seeded reproducible flecks, no external image textures
+ let seed=721;const rand=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);
+ for(let i=0;i<18500;i++){const lum=Math.floor(25+rand()*38);ctx.fillStyle=`rgba(${lum},${lum+15},${lum+30},${.04+rand()*.18})`;
+  ctx.fillRect(rand()*256,rand()*256,.5+rand()*2,.5+rand()*2)}
+ const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
+ tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(15,25);tex.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),4);return tex}
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(CONFIG.width,CONFIG.length),
+  new THREE.MeshStandardMaterial({map:carpetTexture(),roughness:1}));
+floor.rotation.x=-Math.PI/2;floor.position.set(0,.005,(CONFIG.frontZ+CONFIG.rearZ)/2);floor.receiveShadow=true;scene.add(floor);
+function buildRoom(){const {width:W,length:L,height:H}=CONFIG;
+ // Ceiling and structural divisions: camera is INSIDE the architectural shell.
+ const centerZ=(CONFIG.frontZ+CONFIG.rearZ)/2;
+ batch.box('ceiling',[0,H,centerZ],[W+.6,.28,L+.2]);
+ batch.box('wall',[0,H/2,CONFIG.frontZ],[W,H,.48]);
+ for(const x of [-W/2,W/2]){
+  batch.box('wall',[x,.4,centerZ],[.42,.8,L]);
+  batch.box('steel',[x,H-.4,centerZ],[.6,.55,L]);
+  // Extended two-storey glazing: matches the doubled ceiling, including the rear foyer.
+  const winH=H-1.25;
+  for(let z=-38;z<=52;z+=4.7){
+   batch.box('windowFrame',[x,H/2,z],[.23,winH,.19]);
+   batch.box('windowFrame',[x,H*.34,z+2.3],[.23,.12,4.55]);
+   batch.box('windowFrame',[x,H*.68,z+2.3],[.23,.13,4.55]);
+   batch.box('paleGold',[x,H-.94,z+1.1],[.24,1.2,1.45]);
+  }
+ }
+ // Transparent glass panels are true 3D quads, so the exterior remains visible.
+ const glassMat=new THREE.MeshStandardMaterial({color:'#b9e2f3',transparent:true,opacity:.21,
+    metalness:.12,roughness:.18,side:THREE.DoubleSide,depthWrite:false});
+ for(const x of [-W/2,W/2])for(let z=-37.1;z<54;z+=4.7){
+   const glass=new THREE.Mesh(new THREE.PlaneGeometry(4.53,H-1.45),glassMat);
+   glass.rotation.y=Math.PI/2;glass.position.set(x,H/2,z);scene.add(glass)}
+ // The formerly open rear now has a real 3D glass/stone facade, not a sky backdrop.
+ const rz=CONFIG.rearZ;
+ batch.box('wall',[0,.64,rz],[W,1.28,.45]);
+ batch.box('wall',[0,H-.62,rz],[W,1.24,.45]);
+ for(let x=-25.2;x<=25.3;x+=4.2){
+   batch.box('windowFrame',[x,H/2,rz],[.19,H-1.1,.31]);
+   batch.box('windowFrame',[x+2.05,H*.35,rz],[4.07,.13,.3]);
+   batch.box('windowFrame',[x+2.05,H*.7,rz],[4.07,.13,.3]);
+   const glass=new THREE.Mesh(new THREE.PlaneGeometry(4.0,H-1.4),glassMat);
+   glass.position.set(x+2.05,H/2,rz-.16);scene.add(glass);
+ }
+ // Campus structures and greenery outside the new rear facade.
+ for(let i=0;i<9;i++){
+   const x=-24+i*6;
+   batch.box('campus',[x,3.0,rz+14+(i%3)*3],[4.5,5.8,4.2]);
+   batch.cylinder('woodTrim',[x,1.2,rz+5],[.19,2.4,.19]);
+   batch.sphere('tree',[x,3.3,rz+5],[1.7,2.0,1.8]);
+ }
+ // Quiet foyer behind the character; decorative furniture is not a new study seat.
+ for(const x of [-15,15]){
+   batch.box('wood',[x,.76,45.2],[5.0,.16,1.0]);
+   for(const dx of [-2,2])batch.box('leg',[x+dx,.35,45.2],[.11,.7,.12]);
+ }
+ // External foliage and low buildings are volumetric meshes, not a photo background.
+ for(let i=0;i<64;i++){
+  const z=-39+i*1.49;const x=i%2===0?-32.2:32.2;
+  const h=1.8+(i%6)*.35;
+  batch.cylinder('woodTrim',[x,.8,z],[.20,1.8,.20]);
+  batch.sphere(i%3===0?'green':'tree',[x,h,z],[2.3,h*.72,2.1]);
+  if(i%5===0)batch.box('campus',[x+(x>0?5:-5),2,z],[3.1,3.5,3.7]);
+ }
+ for(let i=0;i<8;i++)batch.sphere('mountain',[-62+i*18,3,-95],[14,9,15]);
+ // Repetitive LED panels and metal ceiling grid.
+ for(let z=-39;z<=53;z+=3.05){
+  batch.box('grid',[0,H-.19,z],[W,.055,.07]);
+  for(let x=-23.5;x<=23.5;x+=4.7){batch.box('led',[x,H-.292,z],[2.4,.045,.42])}
+ }
+ for(let x=-23.5;x<=23.5;x+=4.7)batch.box('grid',[x,H-.22,centerZ],[.07,.08,L]);
+ // Prominent inverted diagonal gray trusses like the supplied photographs.
+ for(const z of [-27,5,32,47])for(const side of [-1,1]){
+  const xb=side*25.6,xt=side*21.2;
+  batch.segment('steel',[xb,.2,z-3.3],[xt,H-.65,z+3.3],.7);
+  batch.segment('steel',[xb,.2,z+3.3],[xt,H-.65,z-3.3],.64);
+  batch.box('steelLight',[xt,H-.9,z],[1.2,.35,7]);
+ }
+ // Far wall bookshelves: lattice, alternating book colors, central patterned exit.
+ for(const side of [-1,1]){
+  const from=side<0?-23.4:7.0, to=side<0?-7.0:23.4;
+  for(let x=from;x<=to+.01;x+=2.45){
+   const cx=x+1.16;
+   batch.box('bookshelf',[cx,H/2,-42.23],[2.43,H-.9,.48]);
+   batch.box('bookshelfDark',[cx,H/2,-41.94],[2.23,H-1.1,.17]);
+   for(let level=0;level<16;level++){
+    const y=.7+level*1.03;
+    batch.box('bookshelf',[cx,y,-41.54],[2.4,.12,.68]);
+    for(let j=0;j<11;j++){
+     const xx=x+.13+j*.202,hh=.63+((j*7+level*11)%5)*.065;
+     batch.box('book'+((j*3+level*5+Math.floor(Math.abs(x)))%bookColors.length),
+      [xx,y+.12+hh/2,-41.60],[.125,hh,.29]);
+    }
+   }
+   batch.box('bookshelf',[x,H/2,-41.7],[.13,H-1,.9]);
+  }
+ }
+ for(let i=0;i<6;i++)for(let j=0;j<12;j++){
+  if((i+j)%3!==0)batch.box((i+j)%2?'paleGold':'white',[-5.9+i*2.16,2+j*1.24,-42.63],[1.2,1.18,.12]);
+ }
+ // Rear-end warm reading counter and patterned parapet.
+ batch.box('wood',[0,.83,-39.2],[4.3,.16,1.15]);
+ for(const x of [-1.8,1.8])batch.box('steel',[x,.42,-39.2],[.13,.8,.13]);
+ obstacle(0,-41.65,CONFIG.width,1.5);
+}
+buildRoom();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. Furniture, click targets, seat occupancy
+// ─────────────────────────────────────────────────────────────────────────────
+const seatProxyMaterial=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false,colorWrite:false});
+const seatProxyGeometry=new THREE.BoxGeometry(1.04,1.64,.94);
+function addChair(x,z,sign,tableId){
+ const id=seats.length, seat={id,x,z,sign,tableId,occupiedBy:null,proxy:null};seats.push(seat);
+ batch.box('chairFrame',[x,.61,z],[1.02,.16,1.02]);
+ batch.box('chairSeat',[x,.704,z],[.9,.085,.9]);
+ const backZ=z+sign*.455;
+ batch.box('chairFrame',[x,1.19,backZ],[1.09,1.01,.16]);
+ batch.box('chairBack',[x,1.19,backZ-sign*.098],[.89,.84,.08]);
+ batch.cylinder('steelLight',[x,.39,z],[.087,.51,.087]);
+ for(const deg of [0,72,144,216,288]){
+  const a=deg*Math.PI/180;
+  batch.segment('steelLight',[x,.16,z],[x+Math.cos(a)*.44,.16,z+Math.sin(a)*.44],.067);
+  batch.sphere('black',[x+Math.cos(a)*.43,.105,z+Math.sin(a)*.43],[.095,.085,.095]);
+ }
+ for(const sx of [-.49,.49]){
+  batch.box('chairFrame',[x+sx,.885,z],[.065,.07,.69]);
+  batch.box('steelLight',[x+sx,.79,z+sign*.27],[.065,.20,.07]);
+ }
+ const proxy=new THREE.Mesh(seatProxyGeometry,seatProxyMaterial);
+ proxy.position.set(x,.98,z+sign*.10);proxy.userData.seatId=id;
+ scene.add(proxy);seatHits.push(proxy);seat.proxy=proxy;
+ obstacle(x,z,.84,.79);
+ return seat;
+}
+function addTable(x,z,tableId){
+ const w=3.52,d=1.92;
+ batch.box('wood',[x,1.125,z],[w,.12,d]);
+ batch.box('woodTrim',[x,1.047,z],[w,.07,d]);
+ for(const dx of [-1.55,1.55])for(const dz of [-.78,.78]){
+   batch.box('leg',[x+dx,.515,z+dz],[.095,1.03,.095])}
+ // A thin modern desk lamp at the center of each desk.
+ batch.box('lamp',[x,1.22,z],[.28,.045,.19]);
+ batch.box('steelLight',[x,1.53,z],[.035,.63,.035]);
+ batch.box('lamp',[x,1.86,z-.24],[.82,.065,.17]);
+ batch.box('led',[x,1.82,z-.24],[.75,.016,.13]);
+ batch.box('black',[x,1.197,z+.62],[.29,.014,.105]); // power sockets
+ obstacle(x,z,w+.22,d+.16);
+ // Four chairs per table: 2 facing each side.
+ for(const sign of [-1,1])for(const dx of [-.91,.91])addChair(x+dx,z+sign*1.61,sign,tableId);
+}
+for(const side of [-1,1])for(let col=0;col<CONFIG.columnsPerSide;col++){
+ const x=side*(6.05+col*CONFIG.columnSpacing);
+ for(let row=0;row<CONFIG.rows;row++){
+  const z=-32.0+row*CONFIG.rowSpacing;
+  addTable(x,z,`${side}-${col}-${row}`);
+ }
+}
+batch.flush();
+const pickRay=new THREE.Raycaster();
+const pointer=new THREE.Vector2();
+const ring=new THREE.Mesh(new THREE.RingGeometry(.52,.61,40),new THREE.MeshBasicMaterial({color:'#a4ffc4',transparent:true,opacity:.85,side:THREE.DoubleSide,depthWrite:false}));
+ring.rotation.x=-Math.PI/2;ring.position.y=.045;ring.visible=false;scene.add(ring);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. A* navigation grid: tables, chairs and walls cannot be crossed
+// ─────────────────────────────────────────────────────────────────────────────
+class MinHeap{
+ constructor(){this.a=[]}
+ push(p,n){const a=this.a;let i=a.length;a.push({p,n});while(i>0){const k=(i-1)>>1;if(a[k].p<=p)break;a[i]=a[k];i=k}a[i]={p,n}}
+ pop(){const a=this.a;const top=a[0],last=a.pop();if(a.length){let i=0;while(i*2+1<a.length){let k=i*2+1;if(k+1<a.length&&a[k+1].p<a[k].p)k++;if(a[k].p>=last.p)break;a[i]=a[k];i=k}a[i]=last}return top.n}
+ get length(){return this.a.length}
+}
+class Navigator{
+ constructor(){this.step=CONFIG.navStep;this.xmin=-26;this.zmin=-40;this.nx=Math.ceil(52/this.step);this.nz=Math.ceil(92/this.step);this.block=new Uint8Array(this.nx*this.nz);
+  this.g=new Float32Array(this.block.length);this.parent=new Int32Array(this.block.length);
+  this.seen=new Uint32Array(this.block.length);this.closed=new Uint32Array(this.block.length);this.serial=0;
+  for(let z=0;z<this.nz;z++)for(let x=0;x<this.nx;x++){
+    const p=this.world(x,z);if(Math.abs(p.x)>25.0||p.z<CONFIG.frontWalkLimit||p.z>CONFIG.rearWalkLimit){this.block[this.id(x,z)]=1;continue}
+    for(const o of obstacles)if(Math.abs(p.x-o.x)<o.w/2+.32&&Math.abs(p.z-o.z)<o.d/2+.32){this.block[this.id(x,z)]=1;break}
+  }
+ }
+ id(x,z){return z*this.nx+x}
+ cell(x,z){return {x:clamp(Math.floor((x-this.xmin)/this.step),0,this.nx-1),z:clamp(Math.floor((z-this.zmin)/this.step),0,this.nz-1)}}
+ world(x,z){return {x:this.xmin+(x+.5)*this.step,z:this.zmin+(z+.5)*this.step}}
+ free(x,z){return x>=0&&z>=0&&x<this.nx&&z<this.nz&&!this.block[this.id(x,z)]}
+ isWalkable(x,z){const c=this.cell(x,z);return this.free(c.x,c.z)}
+ nearest(c){if(this.free(c.x,c.z))return c;
+  for(let r=1;r<=20;r++)for(let dz=-r;dz<=r;dz++)for(let dx=-r;dx<=r;dx++){
+   if(Math.abs(dx)!==r&&Math.abs(dz)!==r)continue;
+   const xx=c.x+dx,zz=c.z+dz;if(this.free(xx,zz))return {x:xx,z:zz}
+  }return null}
+ route(start,end){const sc=this.nearest(this.cell(start.x,start.z)),ec=this.nearest(this.cell(end.x,end.z));
+  if(!sc||!ec)return [];
+  const sid=this.id(sc.x,sc.z),eid=this.id(ec.x,ec.z);
+  if(sid===eid)return [this.world(ec.x,ec.z)];
+  const ticket=++this.serial,heap=new MinHeap();
+  this.seen[sid]=ticket;this.g[sid]=0;this.parent[sid]=-1;
+  heap.push(Math.hypot(ec.x-sc.x,ec.z-sc.z),sid);
+  const dirs=[[-1,0,1],[1,0,1],[0,-1,1],[0,1,1],[-1,-1,Math.SQRT2],[-1,1,Math.SQRT2],[1,-1,Math.SQRT2],[1,1,Math.SQRT2]];
+  let done=false,expanded=0;
+  while(heap.length&&expanded++<25000){
+   const id=heap.pop();if(this.closed[id]===ticket)continue;this.closed[id]=ticket;
+   if(id===eid){done=true;break}
+   const x=id%this.nx,z=Math.floor(id/this.nx);
+   for(const [dx,dz,cost] of dirs){const xx=x+dx,zz=z+dz;if(!this.free(xx,zz))continue;
+    if(dx&&dz&&(!this.free(x+dx,z)||!this.free(x,z+dz)))continue;
+    const ni=this.id(xx,zz);if(this.closed[ni]===ticket)continue;
+    const ng=this.g[id]+cost;if(this.seen[ni]===ticket&&this.g[ni]<=ng)continue;
+    this.g[ni]=ng;this.seen[ni]=ticket;this.parent[ni]=id;
+    heap.push(ng+Math.hypot(ec.x-xx,ec.z-zz),ni);
+   }
+  }
+  if(!done)return [];
+  let ids=[],p=eid;while(p!==-1){ids.push(p);p=this.parent[p]}ids.reverse();
+  // Compress collinear moves; prevents unnatural cell-by-cell animation.
+  const result=[];let prevDx=0,prevDz=0;
+  for(let i=0;i<ids.length;i++){
+   const cur=ids[i],next=ids[i+1];if(next===undefined){const c=this.world(cur%this.nx,Math.floor(cur/this.nx));result.push(c);break}
+   const dx=Math.sign(next%this.nx-cur%this.nx),dz=Math.sign(Math.floor(next/this.nx)-Math.floor(cur/this.nx));
+   if(i>0&&(dx!==prevDx||dz!==prevDz))result.push(this.world(cur%this.nx,Math.floor(cur/this.nx)));
+   prevDx=dx;prevDz=dz;
+  }
+  return smoothWaypoints(start,result,(x,z)=>this.isWalkable(x,z));
+ }
+}
+const nav=new Navigator();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. Mesh-based low-poly animals wearing three-dimensional hoodies
+// ─────────────────────────────────────────────────────────────────────────────
+const avatarGeo={sphere:new THREE.SphereGeometry(1,14,11),cone:new THREE.ConeGeometry(1,1,4),
+  box:new THREE.BoxGeometry(1,1,1),torus:new THREE.TorusGeometry(1,.105,7,24),
+  cylinder:new THREE.CylinderGeometry(1,1,1,10)};
+function mesh(parent,geo,material,pos,scale,rot){const a=new THREE.Mesh(avatarGeo[geo],material);
+ a.position.set(...pos);a.scale.set(...scale);if(rot)a.rotation.set(...rot);
+ a.castShadow=!MOBILE;a.receiveShadow=true;parent.add(a);return a}
+function animalModel(species,hood){
+ const group=new THREE.Group();
+ const furColor={rabbit:'#f4f0e9',bear:'#ad815f',cat:'#d5bba3',dog:'#e2c49f'}[species]||'#f4f0e9';
+ const fur=new THREE.MeshStandardMaterial({color:furColor,roughness:.85});
+ const hoodMat=new THREE.MeshStandardMaterial({color:hood,roughness:.87});
+ const shadowHood=new THREE.MeshStandardMaterial({color:hood,roughness:.90});
+ const inner=new THREE.MeshStandardMaterial({color:'#de9b9e',roughness:.89});
+ const dark=new THREE.MeshStandardMaterial({color:'#272b34',roughness:.8});
+ const mouth=new THREE.MeshStandardMaterial({color:'#8c6f6d'});
+ const white=new THREE.MeshStandardMaterial({color:'#fbfaf7'});
+ // Full torso + kangaroo pocket and loose hood, not a single colored sphere.
+ const body=new THREE.Group();group.add(body);
+ mesh(body,'sphere',hoodMat,[0,1.04,0],[.47,.59,.34]);
+ mesh(body,'sphere',hoodMat,[0,.78,.286],[.24,.18,.055]);
+ mesh(body,'sphere',shadowHood,[0,1.79,-.085],[.55,.57,.49]);
+ mesh(body,'sphere',fur,[0,1.8,.281],[.419,.402,.25]);
+ mesh(body,'torus',hoodMat,[0,1.79,.47],[.445,.47,.46]);
+ // Hood cords / drawstrings.
+ for(const x of [-.13,.13])mesh(body,'cylinder',white,[x,1.35,.343],[.023,.235,.023]);
+ // Feet, arms, cuffs and paws.
+ const legs=[];
+ for(const x of [-.23,.23]){
+   legs.push(mesh(body,'sphere',hoodMat,[x,.46,0],[.19,.36,.20]));
+   mesh(body,'sphere',fur,[x,.20,.14],[.21,.13,.26]);
+ }
+ const arms=[];
+ for(const x of [-.48,.48]){
+  const a=mesh(body,'sphere',hoodMat,[x,1.03,0],[.19,.43,.20], [0,0,x>0?-.19:.19]);arms.push(a);
+  mesh(body,'sphere',fur,[x*1.16,.70,.11],[.15,.15,.15]);
+ }
+ // Ears are DISTINCT per species and emerge from the hood.
+ if(species==='rabbit')for(const x of [-.27,.27]){
+   mesh(body,'sphere',fur,[x,2.53,-.04],[.19,.48,.145],[0,0,x*-.21]);
+   mesh(body,'sphere',inner,[x,2.57,.087],[.10,.34,.042],[0,0,x*-.21]);
+ }else if(species==='cat')for(const x of [-.33,.33]){
+   mesh(body,'cone',fur,[x,2.30,-.035],[.265,.44,.205],[0,0,x>0?-.25:.25]);
+   mesh(body,'cone',inner,[x,2.325,.116],[.125,.255,.06],[0,0,x>0?-.25:.25]);
+ }else if(species==='bear')for(const x of [-.39,.39]){
+   mesh(body,'sphere',fur,[x,2.24,-.07],[.24,.25,.18]);
+   mesh(body,'sphere',inner,[x,2.245,.082],[.12,.13,.07]);
+ }else if(species==='dog')for(const x of [-.49,.49]){
+   mesh(body,'sphere',fur,[x,1.86,-.05],[.21,.39,.16],[0,0,x>0?.32:-.32]);
+ }
+ for(const x of [-.166,.166])mesh(body,'sphere',dark,[x,1.854,.513],[.061,.073,.033]);
+ if(species==='dog')mesh(body,'sphere',white,[0,1.65,.48],[.265,.16,.13]);
+ mesh(body,'sphere',dark,[0,1.704,species==='dog'?.62:.54],[.082,.057,.044]);
+ mesh(body,'sphere',mouth,[0,1.592,.515],[.050,.023,.025]);
+ const anchor=new THREE.Object3D();anchor.position.set(0,species==='rabbit'?3.15:2.72,0);group.add(anchor);
+ return {root:group,body,arms,legs,headAnchor:anchor,hoodMat};
+}
+class Character{
+ constructor(opts){this.name=opts.name;this.isNpc=!!opts.npc;this.isRemote=!!opts.remote;this.species=opts.species;this.hood=opts.hood;
+  this.model=animalModel(opts.species,opts.hood);this.root=this.model.root;scene.add(this.root);
+  this.root.position.set(opts.x||0,0,opts.z||0);
+  this.route=[];this.routeIndex=0;this.arrive=null;this.seated=false;this.seat=null;this.walkPhase=Math.random()*6;
+  this.studyMs=opts.studyMs||0;this.studyActive=false;this.studySince=0;
+  this.bubbleUntil=0;this.stretchUntil=0;this.label=document.createElement('div');this.label.className='tag'+(this.isNpc?'':(this.isRemote?' remote':' me'));
+  this.label.innerHTML='<div class="bubble"></div><div class="plate"><div class="name"></div><div class="clock"></div></div>';
+  this.label.querySelector('.name').textContent=(this.isNpc?'NPC · ':'')+this.name;
+  D.labels.appendChild(this.label);
+ }
+ setAppearance(species,hood,name){const p=this.root.position.clone(),r=this.root.rotation.y,scale=this.root.scale.x;
+  scene.remove(this.root);this.species=species;this.hood=hood;this.model=animalModel(species,hood);this.root=this.model.root;
+  this.root.position.copy(p);this.root.rotation.y=r;this.root.scale.setScalar(scale);scene.add(this.root);
+  this.name=name;this.label.querySelector('.name').textContent=(this.isNpc?'NPC · ':'')+name;
+ }
+ go(target,then){const route=nav.route(this.root.position,target);
+  if(!route.length){if(!this.isNpc)toast('이동 가능한 경로를 찾지 못했습니다.');return false}
+  this.route=route;this.routeIndex=0;this.arrive=then||null;return true;
+ }
+ sit(seat){this.route=[];this.arrive=null;this.seated=true;this.seat=seat;seat.occupiedBy=this;
+  this.root.position.set(seat.x,.39,seat.z);this.root.scale.setScalar(.83);this.root.rotation.y=seat.sign===1?Math.PI:0;
+  if(this.isNpc){this.studyActive=true;this.studySince=Date.now()}else if(!this.isRemote){updateHUD();setStatus('공부 중 · 책상에서 공부하고 있습니다.')} }
+ stand(){if(!this.seated)return;
+  const s=this.seat;this.seat=null;this.seated=false;if(s?.occupiedBy===this)s.occupiedBy=null;
+  const around=nav.nearest(nav.cell(s.x,s.z+s.sign*2.63));
+  const p=around?nav.world(around.x,around.z):{x:s.x,z:s.z+s.sign*2.5};
+  this.root.position.set(p.x,0,p.z);this.root.scale.setScalar(1);
+  if(this.isNpc){if(this.studyActive)this.studyMs+=Date.now()-this.studySince;this.studyActive=false}
+  else if(!this.isRemote){updateHUD();setStatus('이동 중 · 다른 빈 좌석을 클릭하면 다시 공부할 수 있습니다.')}
+ }
+ say(message){const bubble=this.label.querySelector('.bubble');bubble.textContent=message.slice(0,40);
+  this.bubbleUntil=performance.now()+5000;bubble.style.display='block'}
+ update(dt,elapsed){if(this.routeIndex<this.route.length){
+   // Consume the entire frame's distance, including across waypoint boundaries.
+   // This avoids the visible one-frame pause and orthogonal-then-diagonal step.
+   let remaining=(this.isNpc?1.75:2.8)*dt;
+   let facing=null;
+   while(remaining>0&&this.routeIndex<this.route.length){
+    const point=this.route[this.routeIndex],dx=point.x-this.root.position.x,dz=point.z-this.root.position.z;
+    const distance=Math.hypot(dx,dz);
+    if(distance>1e-5)facing=Math.atan2(dx,dz);
+    if(distance<=remaining+.00001){
+      this.root.position.x=point.x;this.root.position.z=point.z;
+      remaining=Math.max(0,remaining-distance);this.routeIndex++;
+      if(this.routeIndex===this.route.length){
+       this.route=[];this.routeIndex=0;const fn=this.arrive;this.arrive=null;if(fn)fn();break;
+      }
+    }else{
+      this.root.position.x+=dx/distance*remaining;
+      this.root.position.z+=dz/distance*remaining;
+      remaining=0;
+    }
+   }
+   if(facing!==null){const angle=Math.atan2(Math.sin(facing-this.root.rotation.y),Math.cos(facing-this.root.rotation.y));
+    this.root.rotation.y+=angle*Math.min(1,dt*9);}
+   this.walkPhase+=dt*11;this.model.body.position.y=Math.sin(this.walkPhase)*.037;
+  }else{this.model.body.position.y=this.seated?Math.sin(elapsed*1.6+this.walkPhase)*.005:0}
+  // Brief stretching animation for NPCs; body and hood remain true 3D meshes.
+  const stretching=this.isNpc&&this.seated&&performance.now()<this.stretchUntil;
+  this.model.arms[0].rotation.z=stretching?-.88:.19;
+  this.model.arms[1].rotation.z=stretching?.88:-.19;
+ }
+ getTimer(){return (this.isNpc||this.isRemote)?this.studyMs+(this.studyActive?Math.max(0,Date.now()-this.studySince):0):currentStudyMs()}
+}
+let player=null;
+const NPC_SPECIES=['cat','bear','rabbit','dog','cat','rabbit','bear','dog'];
+const NPC_COLORS=['#8bcaff','#f39bc4','#aaa4dc','#a6ba94','#8bcaff','#f39bc4','#c8a995','#a9cce1'];
+const npcNames=['열공냥','독서곰','모닝토끼','필기왕','묵묵이','초코토끼','집중곰','도서관멍'];
+const npcList=[];
+const availableNpcSeats=seats.filter(s=>s.x<-5||s.x>5);
+const npcIndices=[27,88,115,159,190,242,300,338];
+for(let i=0;i<CONFIG.npcCount;i++){
+ const s=availableNpcSeats[npcIndices[i]%availableNpcSeats.length];
+ const npc=new Character({npc:true,name:npcNames[i],species:NPC_SPECIES[i],hood:NPC_COLORS[i],x:s.x,z:s.z,studyMs:60000*(12+i*19)});
+ npc.sit(s);npcList.push(npc)
+}
+player=new Character({name:prefs.nick,species:prefs.species,hood:prefs.hood,x:0,z:35});
+player.root.rotation.y=Math.PI;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 7B. Network integration. 3D objects above are unchanged from v1.
+// The Node server, not these local seat proxies, owns all real-user seat locks.
+// ─────────────────────────────────────────────────────────────────────────────
+const remotePlayers=new Map();const seatLocks=new Map();
+let selfId=null,net=null,pendingIntent=null,lastMoveSent=0;
+const account=new AccountClient({getGuestToken:()=>net?.token||localStorage.getItem('snu-study-guest-token-v2')||'',onToast:toast,onChange:()=>{
+ net?.stop();for(const id of [...remotePlayers.keys()])disposeRemote(id);selfId=null;
+ net=new NetworkClient({room:ROOM_ID,profile:currentProfile,onEvent:onServer,onStatus:(message)=>{if(!net.connected)setStatus(message);},isAccount:()=>account.signedIn,ensureAccount:()=>account.ensureSession()});net.start();dashboard.onReconnect();
+}});
+let friends;
+const dashboard=initDashboard({getToken:()=>account.signedIn?'account':net?.token,onToast:toast,
+ onFriends:()=>friends.showFriends().catch(e=>toast(e.message)),
+ onFriendRanking:()=>friends.showFriendRanking().catch(e=>toast(e.message)),
+ onHideFriends:()=>friends?.hide()});
+friends=createFriendsPanel({account,onToast:toast,onAllRanking:()=>dashboard.open('ranking')});
+const welcome=$('#accountOverlay');
+function closeAccountOverlay(){welcome.hidden=true;}
+$('#accountBtn').onclick=()=>{account.draw();welcome.hidden=false;};
+$('#accountClose').onclick=closeAccountOverlay;
+welcome.addEventListener('click',e=>{if(e.target===welcome)closeAccountOverlay()});
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!welcome.hidden){e.preventDefault();closeAccountOverlay()}});
+$('#guestEnter').onclick=()=>{welcome.hidden=true;localStorage.setItem('snu-v5-intro-seen','1');if(net&&!net.connected){setStatus('게스트 인증 및 서버 연결 확인 중…');net.start();}};
+$('#googleLogin').onclick=async()=>{await account.login();if(account.signedIn){welcome.hidden=true;localStorage.setItem('snu-v5-intro-seen','1');}};
+$('#logoutBtn').onclick=async()=>{await account.logout();welcome.hidden=true;};
+$('#deleteAccountBtn').onclick=async()=>{await account.deleteAccount();welcome.hidden=true;};
+
+function currentProfile(){return {nick:prefs.nick,species:prefs.species,hood:prefs.hood};}
+function applyStudyClock(record,day){
+ // Every snapshot resets this monotonic presentation anchor; browser frame
+ // throttling does NOT affect elapsed time, nor do local wall-clock adjustments.
+ study.day=day||study.day;
+ study.totalMs=Math.max(0,Number(record.studyMs)||0);
+ study.running=!!record.studying;study.paused=!!record.paused;
+ study.sampledAt=performance.now();
+ if(!study.running)study.paused=false;
+ updateHUD();
+}
+function updatePlayerCount(count){$('#onlineCount').innerHTML='<i></i>실제 접속자 '+Math.max(0,count||0)+'명 · NPC '+npcList.length+'명';}
+function setLocks(locks){seatLocks.clear();for(const lock of locks)seatLocks.set(lock.id,lock);}
+function applyLock(m){if(m.ownerId===null)seatLocks.delete(m.seatId);
+ else seatLocks.set(m.seatId,{id:m.seatId,ownerId:m.ownerId,phase:m.phase});}
+function disposeRemote(id){const obj=remotePlayers.get(id);if(!obj)return;
+ if(obj.seat?.occupiedBy===obj)obj.seat.occupiedBy=null;
+ scene.remove(obj.root);obj.label.remove();remotePlayers.delete(id);
+}
+function syncSelf(p,day){
+ if(p.species!==player.species||p.hood!==player.hood||p.nick!==player.name)
+    player.setAppearance(p.species,p.hood,p.nick);
+ // A server snapshot can override stale local optimistic state after a reconnect.
+ player.route=[];player.routeIndex=0;player.arrive=null;
+ if(player.seat?.occupiedBy===player)player.seat.occupiedBy=null;
+ player.seated=false;player.seat=null;player.root.scale.setScalar(1);
+ if(p.seatId!==null&&seats[p.seatId]){
+   player.sit(seats[p.seatId]);
+   setStatus(p.paused?'재접속 완료 · 좌석 복구됨, 타이머 일시정지':'공부 중 · 서버 좌석 점유 확인됨');
+ }else{player.root.position.set(p.x,0,p.z);player.root.rotation.y=p.yaw;}
+ applyStudyClock(p,day);
+}
+function updateRemoteRecord(p,initial=false){
+ if(p.id===selfId)return;
+ let obj=remotePlayers.get(p.id);
+ if(!obj){obj=new Character({remote:true,name:p.nick,species:p.species,hood:p.hood,x:p.x,z:p.z,studyMs:p.studyMs});
+   obj.root.rotation.y=p.yaw;remotePlayers.set(p.id,obj);initial=true;}
+ else if(obj.name!==p.nick||obj.species!==p.species||obj.hood!==p.hood)
+   obj.setAppearance(p.species,p.hood,p.nick);
+ obj.label.classList.toggle('offline',!p.online);
+ obj.label.querySelector('.name').textContent=p.nick+(p.online?'':' · 재연결 중');
+ obj.studyMs=p.studyMs||0;obj.studyActive=!!p.studying&&!p.paused;obj.studySince=Date.now();
+ if(p.seatId!==null&&seats[p.seatId]){
+   if(!obj.seated||obj.seat!==seats[p.seatId]){
+      if(obj.seat?.occupiedBy===obj)obj.seat.occupiedBy=null;
+      obj.seated=false;obj.seat=null;obj.sit(seats[p.seatId]);
+   }
+   obj.serverTarget=null;
+ }else{
+   if(obj.seated)obj.stand();
+   if(initial){obj.root.position.set(p.x,0,p.z);obj.root.rotation.y=p.yaw;}
+   obj.serverTarget={x:p.x,z:p.z,yaw:p.yaw};
+ }
+}
+function updateRemoteMovement(dt){for(const obj of remotePlayers.values()){
+  const target=obj.serverTarget;if(!target||obj.seated)continue;
+  const pos=obj.root.position,dx=target.x-pos.x,dz=target.z-pos.z,dist=Math.hypot(dx,dz);
+  const fraction=dist>4?1:Math.min(1,dt*10);
+  pos.x+=dx*fraction;pos.z+=dz*fraction;
+  obj.root.rotation.y+=Math.atan2(Math.sin(target.yaw-obj.root.rotation.y),Math.cos(target.yaw-obj.root.rotation.y))*Math.min(1,dt*12);
+  obj.walkPhase+=dt*11;obj.model.body.position.y=dist>.04?Math.sin(obj.walkPhase)*.035:0;
+ }}
+function onServer(m){
+ switch(m.t){
+ case 'welcome':{
+   selfId=m.id;pendingIntent=null;ring.visible=false;
+   setLocks(m.locks);updatePlayerCount(m.count);
+   for(const id of [...remotePlayers.keys()])disposeRemote(id);
+   const me=m.players.find(p=>p.id===selfId);
+   for(const p of m.players)if(p.id!==selfId)updateRemoteRecord(p,true);
+   if(me)syncSelf(me,m.day);
+   dashboard.onReconnect();
+   toast(m.resumed?'같은 방에 다시 연결되었습니다.':'방 '+m.room+'에 입장했습니다.');
+   break;
+ }
+ case 'player':{
+   if(typeof m.count==='number')updatePlayerCount(m.count);
+   const p=m.player;
+   if(p.id===selfId){
+      // The server sends this on confirmed sitting/standing/profile changes.
+      if((p.seatId??null)!==(player.seat?.id??null))syncSelf(p,m.day);
+      else {
+        if(player.name!==p.nick||player.species!==p.species||player.hood!==p.hood)
+           player.setAppearance(p.species,p.hood,p.nick);
+        applyStudyClock(p,m.day);
+        if(!player.seated&&!player.route.length&&Math.hypot(player.root.position.x-p.x,player.root.position.z-p.z)>1){player.root.position.set(p.x,0,p.z);}
+      }
+   } else updateRemoteRecord(p);
+   break;
+ }
+ case 'moved':{
+   const obj=remotePlayers.get(m.id);if(obj&&!obj.seated)obj.serverTarget={x:m.x,z:m.z,yaw:m.yaw};break;
+ }
+ case 'seat_lock':applyLock(m);break;
+ case 'seat_granted':{
+   if(m.seatId!==pendingIntent){net.send({t:'seat_cancel'});break;}
+   if(m.alreadySeated){pendingIntent=null;break;}
+   const s=seats[m.seatId];if(!s)return;
+   const approach={x:s.x,z:s.z+s.sign*2.62};
+   ring.visible=true;ring.position.set(approach.x,.045,approach.z);
+   const ok=player.go(approach,()=>{
+     ring.visible=false;
+     if(pendingIntent!==s.id)return;
+     pendingIntent=null;
+     // Position is delivered BEFORE seat_sit, so the server validates proximity.
+     sendPosition(true);net.send({t:'seat_sit',seatId:s.id});
+   });
+   if(!ok){ring.visible=false;net.send({t:'seat_cancel'});pendingIntent=null;}
+   else setStatus('좌석 예약 완료 · 서버가 착석을 확인할 때까지 이동합니다.');
+   break;
+ }
+ case 'clock':{
+   if(typeof m.count==='number')updatePlayerCount(m.count);
+   for(const p of m.players||[]){if(p.id===selfId)applyStudyClock(p,m.day);
+     else {const obj=remotePlayers.get(p.id);if(obj){obj.studyMs=p.studyMs||0;obj.studyActive=!!p.studying&&!p.paused;obj.studySince=Date.now();}}}
+   break;
+ }
+ case 'chat':{
+   const obj=m.id===selfId?player:remotePlayers.get(m.id);obj?.say(m.message);break;
+ }
+ case 'left':disposeRemote(m.id);if(typeof m.count==='number')updatePlayerCount(m.count);break;
+ case 'snapshot':{
+   // If a mobile tab was suspended halfway through approaching a reserved chair,
+   // cancel the local intention and release the server reservation safely.
+   if(pendingIntent!==null){pendingIntent=null;player.route=[];player.arrive=null;
+     ring.visible=false;net?.send({t:'seat_cancel'});}
+   setLocks(m.locks);updatePlayerCount(m.count);
+   const ids=new Set(m.players.map(p=>p.id));for(const id of [...remotePlayers.keys()])if(!ids.has(id))disposeRemote(id);
+   for(const p of m.players)if(p.id===selfId)syncSelf(p,m.day);else updateRemoteRecord(p);
+   dashboard.onReconnect();
+   break;
+ }
+ case 'correction':{
+   player.route=[];player.arrive=null;ring.visible=false;
+   player.root.position.set(m.x,0,m.z);player.root.rotation.y=m.yaw;
+   toast('서버가 이동 위치를 교정했습니다.');break;
+ }
+ case 'error':{
+   if(['seat_occupied','seat_expired','seat_not_reserved','not_near_seat','seat_unavailable'].includes(m.code)){
+     pendingIntent=null;player.route=[];player.arrive=null;ring.visible=false;
+     net.send({t:'seat_cancel'});
+   }
+   toast(m.message||'서버 요청 오류');break;
+ }
+ case 'offline':{
+   updatePlayerCount(0);pendingIntent=null;player.route=[];player.arrive=null;ring.visible=false;
+   // Never invent additional study time after losing authoritative server data.
+   study.paused=true;updateHUD();
+   setStatus('서버 재연결 중 · 좌석과 채팅은 일시 중단됩니다.');break;
+ }
+ }
+}
+function sendPosition(force=false){
+ if(!net?.connected||player.seated)return;
+ const now=performance.now();if(!force&&now-lastMoveSent<105)return;
+ lastMoveSent=now;
+ net.send({t:'move',x:player.root.position.x,z:player.root.position.z,yaw:player.root.rotation.y});
+}
+function abortPendingSeat(){if(pendingIntent!==null){pendingIntent=null;net?.send({t:'seat_cancel'});}}
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. Input: drag orbit / click-to-walk / chair-to-sit / WASD movement
+// ─────────────────────────────────────────────────────────────────────────────
+let follow=true;
+function followToggle(){follow=!follow;D.follow.classList.toggle('active',follow);D.follow.textContent='따라가기 '+(follow?'ON':'OFF');}
+D.follow.addEventListener('click',followToggle);
+function goToSeat(s){
+ if(!net?.connected){toast('서버에 연결되지 않았습니다.');return;}
+ if(s.occupiedBy?.isNpc){toast('NPC가 사용하는 좌석입니다.');return;}
+ const lock=seatLocks.get(s.id);
+ if(lock&&lock.ownerId!==selfId){toast('다른 사용자가 예약하거나 앉아 있는 자리입니다.');return;}
+ if(player.seated&&player.seat===s)return;
+ abortPendingSeat();ring.visible=false;player.route=[];player.arrive=null;
+ if(player.seated){net.send({t:'stand'});player.stand();}
+ pendingIntent=s.id;
+ if(!net.send({t:'seat_request',seatId:s.id}))pendingIntent=null;
+ else setStatus('서버에 좌석 점유를 요청하는 중…');
+}
+function goToFloor(p){
+ if(!net?.connected){toast('서버에 연결되지 않았습니다.');return;}
+ abortPendingSeat();if(player.seated){net.send({t:'stand'});player.stand();}
+ ring.visible=false;
+ const target={x:clamp(p.x,-24.8,24.8),z:clamp(p.z,CONFIG.frontWalkLimit+.22,CONFIG.rearWalkLimit-.2)};
+ if(player.go(target,()=>setStatus('이동 완료 · 빈 의자를 클릭해 공부를 시작하세요.')))setStatus('목적지로 이동 중…');
+}
+const down=new Map();let multitouch=false;
+D.canvas.addEventListener('pointerdown',e=>{down.set(e.pointerId,{x:e.clientX,y:e.clientY,time:performance.now()});if(down.size>1)multitouch=true});
+D.canvas.addEventListener('pointercancel',e=>down.delete(e.pointerId));
+D.canvas.addEventListener('pointerup',e=>{
+ const start=down.get(e.pointerId);down.delete(e.pointerId);
+ if(down.size>0)return;
+ if(multitouch){multitouch=false;return}
+ if(!start)return;
+ if(Math.hypot(e.clientX-start.x,e.clientY-start.y)>8||performance.now()-start.time>600)return;
+ const rect=D.canvas.getBoundingClientRect();pointer.set(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
+ pickRay.setFromCamera(pointer,camera);
+ const chairHits=pickRay.intersectObjects(seatHits,false);
+ const floorHits=pickRay.intersectObject(floor,false);
+ if(chairHits.length&&(!floorHits.length||chairHits[0].distance<floorHits[0].distance)){goToSeat(seats[chairHits[0].object.userData.seatId]);return}
+ if(floorHits.length)goToFloor(floorHits[0].point);
+});
+// Optional keyboard navigation, camera-relative; does not interfere with input fields.
+const keys=new Set();
+window.addEventListener('keydown',e=>{
+ if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;
+ if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift'].includes(e.key.toLowerCase())){keys.add(e.key.toLowerCase());if(e.key.toLowerCase().startsWith('arrow'))e.preventDefault()}
+});
+window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+window.addEventListener('blur',()=>keys.clear());
+const camForward=new THREE.Vector3(),camRight=new THREE.Vector3(),moveDirection=new THREE.Vector3();
+function keyboardMove(dt){const f=(keys.has('w')||keys.has('arrowup')?1:0)-(keys.has('s')||keys.has('arrowdown')?1:0);
+ const r=(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0);
+ if(!f&&!r||!net?.connected)return;
+ abortPendingSeat();if(player.seated){net.send({t:'stand'});player.stand();}player.route=[];player.arrive=null;ring.visible=false;
+ camera.getWorldDirection(camForward);camForward.y=0;camForward.normalize();camRight.set(-camForward.z,0,camForward.x);
+ moveDirection.copy(camForward).multiplyScalar(f).addScaledVector(camRight,r).normalize();
+ const dist=(keys.has('shift')?4.5:2.9)*dt;
+ const x=player.root.position.x+moveDirection.x*dist,z=player.root.position.z+moveDirection.z*dist;
+ if(nav.isWalkable(x,z)){player.root.position.x=x;player.root.position.z=z}
+ else if(nav.isWalkable(x,player.root.position.z))player.root.position.x=x;
+ else if(nav.isWalkable(player.root.position.x,z))player.root.position.z=z;
+ const turn=Math.atan2(moveDirection.x,moveDirection.z);
+ player.root.rotation.y+=Math.atan2(Math.sin(turn-player.root.rotation.y),Math.cos(turn-player.root.rotation.y))*Math.min(1,dt*12);
+ player.walkPhase+=dt*11;player.model.body.position.y=Math.sin(player.walkPhase)*.04;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. User interactions, NPC state machines, world-space HTML labels
+// ─────────────────────────────────────────────────────────────────────────────
+D.pause.onclick=()=>{if(!net?.connected){toast('서버 연결이 필요합니다.');return;}net.send({t:'pause',paused:!study.paused});};
+D.stand.onclick=()=>{if(!net?.connected)return;abortPendingSeat();if(player.seated){net.send({t:'stand'});player.stand();}ring.visible=false};
+function sendChat(){const msg=D.chat.value.trim();if(!msg)return;if(!net?.send({t:'chat',message:msg})){toast('서버에 연결되지 않았습니다.');return;}D.chat.value='';D.chat.blur()}
+D.send.onclick=sendChat;D.chat.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChat()}});
+$('#helpBtn').onclick=()=>toast('드래그 회전 · 휠/핀치 줌 · 바닥 클릭 이동 · 의자 클릭 앉기 · WASD 이동');
+$('#avatarBtn').onclick=()=>showModal();
+$('#inviteBtn').onclick=async()=>{const u=new URL(location.href);u.searchParams.set('room',ROOM_ID);u.hash='';
+ try{await navigator.clipboard.writeText(u.href);toast('같은 방 초대 링크를 복사했습니다.');}
+ catch{window.prompt('친구에게 이 주소를 전달하세요.',u.href);}};
+$('#species').value=prefs.species;$('#gender').value=prefs.gender;$('#nick').value=prefs.nick;$('#hood').value=prefs.hood;
+$('#gender').addEventListener('change',()=>{$('#hood').value=COLORS[$('#gender').value]});
+function showModal(){D.modal.classList.add('visible')}
+$('#enterBtn').onclick=()=>{
+ prefs={nick:$('#nick').value.trim().slice(0,15)||'공부하는토끼',species:$('#species').value,gender:$('#gender').value,hood:$('#hood').value};
+ player.setAppearance(prefs.species,prefs.hood,prefs.nick);save();net?.send({t:'profile',profile:currentProfile()});D.modal.classList.remove('visible');toast('캐릭터 설정을 저장했습니다.')
+};
+if(!saved.nick)showModal();
+window.addEventListener('beforeunload',save);
+// Hidden tabs DO NOT pause only the client clock. The server continues counting
+// while the socket is alive; true disconnect pauses on the server. Resync on return.
+document.addEventListener('visibilitychange',()=>{
+ save();if(!document.hidden){last=performance.now();resetPerfWindow();net?.refresh();}
+});
+window.addEventListener('pageshow',()=>{if(!document.hidden)net?.refresh()});
+let npcEventAt=performance.now()+12000;
+function updateNpcBehaviors(now){if(now<npcEventAt)return;npcEventAt=now+9000+Math.random()*8000;
+ const npc=npcList[Math.floor(Math.random()*npcList.length)];
+ if(npc.route.length)return;
+ if(npc.mode==='break'){
+  const s=npc.home;const dest={x:s.x,z:s.z+s.sign*2.62};
+  if(npc.go(dest,()=>{
+    const destSeat=(!s.occupiedBy||s.occupiedBy===npc)?s:seats.find(candidate=>!candidate.occupiedBy&&!seatLocks.has(candidate.id)&&Math.hypot(candidate.x-s.x,candidate.z-s.z)<9);
+    if(destSeat)npc.sit(destSeat);npc.mode='sitting';
+   }))npc.mode='returning';
+ }else if(npc.seated){
+  if(Math.random()<.40){npc.stretchUntil=performance.now()+2400;npc.say(['오늘도 집중!','잠깐 스트레칭해요.','열공 중이에요.','물 한 잔 마셔야지.'][Math.floor(Math.random()*4)])}
+  else{
+    const s=npc.seat;npc.home=s; // reserve seat for return via home, but vacate it physically.
+    npc.stand();npc.mode='walkingOut';
+    const dest={x:Math.random()>.5?1.4:-1.4,z:clamp(s.z+(Math.random()-.5)*11,-34,33)};
+    if(!npc.go(dest,()=>{npc.mode='break'})){npc.sit(s);npc.mode='sitting'}
+  }
+ }else if(npc.mode==='walkingOut')npc.mode='break';
+}
+const tempVec=new THREE.Vector3();const shown=[];
+function updateLabels(){shown.length=0;
+ for(const obj of [player,...remotePlayers.values(),...npcList]){
+  const tag=obj.label;obj.model.headAnchor.getWorldPosition(tempVec);
+  const d=camera.position.distanceTo(tempVec);tempVec.project(camera);
+  if(tempVec.z>1||tempVec.z< -1||Math.abs(tempVec.x)>1.16||Math.abs(tempVec.y)>1.16||(obj.isNpc&&d>43)||(obj.isRemote&&d>60)){
+   tag.style.display='none';continue}
+  const x=(tempVec.x*.5+.5)*innerWidth,y=(-tempVec.y*.5+.5)*innerHeight;
+  if((obj.isNpc||obj.isRemote)&&shown.some(p=>Math.abs(x-p.x)<80&&Math.abs(y-p.y)<34)){tag.style.display='none';continue}
+  shown.push({x,y});tag.style.display='block';tag.style.left=x+'px';tag.style.top=y+'px';
+  tag.querySelector('.clock').textContent='◷ '+fmt(obj.getTimer());
+  if(performance.now()>obj.bubbleUntil)tag.querySelector('.bubble').style.display='none';
+ }
+}
+// Lightweight frame diagnostics are enabled ONLY with ?perf=1.
+// FPS, p95 frame interval, CPU render duration and Three.js draw calls can help
+// investigate mobile stutter; they do NOT measure device temperature or GPU time.
+let perfHud=null,perfWindowStart=performance.now(),perfFrames=0,perfRenderCost=0;
+const perfIntervals=[];
+if(PERF_ENABLED){
+ perfHud=document.createElement('div');perfHud.id='perfHud';
+ perfHud.setAttribute('role','status');perfHud.textContent='성능 측정 시작…';
+ document.body.append(perfHud);
+}
+function resetPerfWindow(){perfWindowStart=performance.now();perfFrames=0;perfRenderCost=0;perfIntervals.length=0;}
+function measureFrame(interval,renderCost){
+ if(!PERF_ENABLED||document.hidden)return;
+ perfFrames++;perfRenderCost+=renderCost;
+ if(interval<1000)perfIntervals.push(interval);
+ const elapsed=performance.now()-perfWindowStart;
+ if(elapsed<1500)return;
+ const sorted=perfIntervals.slice().sort((a,b)=>a-b);
+ const p95=sorted[Math.min(sorted.length-1,Math.floor(sorted.length*.95))]||0;
+ const fps=perfFrames*1000/elapsed;
+ const info=renderer.info;
+ const warning=fps<25?'주의: 25 FPS 미만':fps<45?'관찰: 45 FPS 미만':'원활(표본 기준)';
+ perfHud.textContent=`FPS ${fps.toFixed(1)} · p95 ${p95.toFixed(1)}ms\nCPU render ${(perfRenderCost/perfFrames).toFixed(1)}ms\nDraw calls ${info.render.calls} · Triangles ${info.render.triangles}\nPixel ratio ${renderer.getPixelRatio().toFixed(2)} · ${LOW_QUALITY?'저화질':'기본화질'}\n${warning}`;
+ resetPerfWindow();
+}
+D.canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();setStatus('WebGL 연결이 끊어졌습니다. 장치 메모리/발열을 확인하세요.');});
+D.canvas.addEventListener('webglcontextrestored',()=>{toast('WebGL 컨텍스트가 복원되었습니다.');net?.refresh();});
+let last=performance.now(),elapsed=0,uiElapsed=0,saveElapsed=0;
+const targetFollow=new THREE.Vector3(),offsetFollow=new THREE.Vector3();
+function frame(now){requestAnimationFrame(frame);
+ const rawInterval=now-last;const dt=Math.min(.055,rawInterval/1000||.016);last=now;elapsed+=dt;uiElapsed+=dt;saveElapsed+=dt;
+ player.update(dt,elapsed);keyboardMove(dt);sendPosition();updateRemoteMovement(dt);
+ for(const npc of npcList)npc.update(dt,elapsed);
+ updateNpcBehaviors(now);
+ if(follow){targetFollow.set(player.root.position.x,1.35,player.root.position.z-1.3);
+  offsetFollow.subVectors(targetFollow,orbit.target).multiplyScalar(Math.min(1,dt*2.9));
+  orbit.target.add(offsetFollow);camera.position.add(offsetFollow)}
+ orbit.update();
+ // Camera cannot pass into the front bookshelf wall, rear facade, ceiling or side glazing.
+ // OrbitControls recalculates its spherical state from this camera position next frame.
+ camera.position.x=clamp(camera.position.x,-CONFIG.width/2+1.3,CONFIG.width/2-1.3);
+ camera.position.z=clamp(camera.position.z,CONFIG.frontZ+2.7,CONFIG.rearZ-1.7);
+ camera.position.y=clamp(camera.position.y,1.05,CONFIG.height-.95);
+ const drawStart=PERF_ENABLED?performance.now():0;renderer.render(scene,camera);
+ if(PERF_ENABLED)measureFrame(rawInterval,performance.now()-drawStart);
+ if(uiElapsed>.12){updateLabels();updateHUD();uiElapsed=0}
+ if(saveElapsed>6){save();saveElapsed=0}
+}
+requestAnimationFrame(frame);
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth<700?66:58;camera.updateProjectionMatrix();
+ renderer.setPixelRatio(pixelRatio());renderer.setSize(innerWidth,innerHeight)});
+updateHUD();$('#loading').remove();
+await account.initialize();
+net=new NetworkClient({room:ROOM_ID,profile:currentProfile,onEvent:onServer,
+ onStatus:(message)=>{if(!net.connected)setStatus(message);},isAccount:()=>account.signedIn,ensureAccount:()=>account.ensureSession()});
+net.start();
+if(!localStorage.getItem('snu-v5-intro-seen')&&!account.signedIn)welcome.hidden=false;
+const suggested=Number(query.get('suggestSeat'));
+if(query.has('suggestSeat')&&Number.isInteger(suggested)&&seats[suggested])setTimeout(()=>toast(`친구 주변 추천 좌석: ${suggested+1}번 의자를 터치해 주세요.`),3500);
+console.info('SNU Library 3D multiplayer initialized:',{tables:CONFIG.rows*CONFIG.columnsPerSide*2,seats:seats.length,npcs:npcList.length});
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+
+> snu-library-3d-studyroom@4.0.0 check
+> node --check server/index.js && node --check server/room.js && node --check server/store.js && node --check server/stats.js && node --check server/websocket.js && node --check client/network.js && node --check client/dashboard.js && node scripts/check-html.js && node scripts/check-project.js
+
+index.html module syntax: OK
+Project assets: OK (25 required files); imported local modules present

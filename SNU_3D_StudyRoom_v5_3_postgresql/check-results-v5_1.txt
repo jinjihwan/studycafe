@@ -1,0 +1,7 @@
+
+> snu-library-3d-studyroom@5.1.0 check
+> node --check server/accounts-store.js && node --check server/account-api.js && node --check server/firebase.js && node --check client/account.js && node --check client/friends.js && node --check server/index.js && node --check server/room.js && node --check server/store.js && node --check server/stats.js && node --check server/websocket.js && node --check client/navigation-smooth.js && node --check client/network.js && node --check client/dashboard.js && node scripts/check-html.js && node scripts/check-project.js && node --check scripts/import-v4.mjs
+
+index.html module syntax: OK
+Project assets: OK (40 required files); imported local modules present
+Private runtime asset present (ignored by git/archive): .guest-secret

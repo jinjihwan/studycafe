@@ -1,0 +1,91 @@
+
+> snu-library-3d-studyroom@4.0.0 test
+> node --test tests/*.test.js
+
+TAP version 13
+# (node:6474) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: REST + genuine WebSocket: 2 users, room isolation, seat lock, chat, movement, reconnection
+ok 1 - REST + genuine WebSocket: 2 users, room isolation, seat lock, chat, movement, reconnection
+  ---
+  duration_ms: 5093.234483
+  type: 'test'
+  ...
+# (node:6475) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# [study storage] checkpoint failed: SIMULATED_DATABASE_DISCONNECT
+# Subtest: SQLite schema, date records, reopen persistent file, profile and ranking privacy
+ok 2 - SQLite schema, date records, reopen persistent file, profile and ranking privacy
+  ---
+  duration_ms: 20.482618
+  type: 'test'
+  ...
+# Subtest: day boundary splits accrued time at Korea midnight and persists to correct day
+ok 3 - day boundary splits accrued time at Korea midnight and persists to correct day
+  ---
+  duration_ms: 8.236797
+  type: 'test'
+  ...
+# Subtest: server stop/resume/duplicate checkpoint and DB failure do not double count
+ok 4 - server stop/resume/duplicate checkpoint and DB failure do not double count
+  ---
+  duration_ms: 8.978775
+  type: 'test'
+  ...
+# Subtest: ranking deterministic tie break, top 20, empty dates and optional visibility semantics
+ok 5 - ranking deterministic tie break, top 20, empty dates and optional visibility semantics
+  ---
+  duration_ms: 10.107931
+  type: 'test'
+  ...
+# (node:6476) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: actual Node server exits, restarts, restores same guest token and persisted study history
+ok 6 - actual Node server exits, restarts, restores same guest token and persisted study history
+  ---
+  duration_ms: 427.815294
+  type: 'test'
+  ...
+# (node:6518) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: security: same-origin checks, malformed handshakes, JSON/frame size and binary frame limits
+ok 7 - security: same-origin checks, malformed handshakes, JSON/frame size and binary frame limits
+  ---
+  duration_ms: 56.904544
+  type: 'test'
+  ...
+# Subtest: timer: server-only elapsed, pause/resume, background-like idle, rejoin and seat lock cleanup
+ok 8 - timer: server-only elapsed, pause/resume, background-like idle, rejoin and seat lock cleanup
+  ---
+  duration_ms: 7938.463614
+  type: 'test'
+  ...
+# Subtest: KST midnight accounting includes time elapsed after midnight even with delayed tick
+ok 9 - KST midnight accounting includes time elapsed after midnight even with delayed tick
+  ---
+  duration_ms: 1.919025
+  type: 'test'
+  ...
+# Subtest: restricted WebSocket transport: masked fragmentation, ping inside fragments, unmasked frame rejection
+ok 10 - restricted WebSocket transport: masked fragmentation, ping inside fragments, unmasked frame rejection
+  ---
+  duration_ms: 155.561579
+  type: 'test'
+  ...
+# (node:6540) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: real HTTP+WebSocket: study is server-owned, ranking, privacy, rejoin, token isolation and NPC exclusion
+ok 11 - real HTTP+WebSocket: study is server-owned, ranking, privacy, rejoin, token isolation and NPC exclusion
+  ---
+  duration_ms: 8396.852798
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13083.642976
