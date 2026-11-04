@@ -14,7 +14,7 @@ test('three real-photo-referenced rooms are selectable, with correct names and v
  }
  assert.match(html,/function buildYonseiRoom\(\)/);
  assert.match(html,/if\(YONSEI_ROOM\)buildYonseiRoom\(\);else if\(KOREA_ROOM\)buildKoreaRoom\(\);else buildRoom\(\)/);
- assert.match(html,/for\(const x of \[-15,-8,8,15\]\)for\(let row=0;row<6;row\+\+\)/);
+ assert.match(html,/for\(let i=0;i<6;i\+\+\)addYonseiRoundDesk\(-29\+i\*12,i\)/);
  for(const material of ['ysConcrete','ysOak','ysGlass','ysPod','ysChair','ysLight'])
   assert.match(html,new RegExp(`mat\\('${material}'`));
  assert.match(html,/연세대학교 연세·삼성학술정보관/);
@@ -37,22 +37,24 @@ test('Seoul supports are rotated along Z, have separated ceiling tips and aligne
  assert.equal(isWalkable(0,0,'main'),true);
 });
 
-test('Yonsei is 24 two-sided desks, 48 seats, 8 NPCs and walkable seat approach points',()=>{
+test('Yonsei has photo-based 6 round + 8 single + 8 paired desks, 48 seats',()=>{
  const l=buildYonseiSeatsAndObstacles();
  assert.equal(l.seats.length,48);
  assert.equal(l.npcSeats.size,8);
- assert.equal(new Set(l.seats.map(s=>s.id)).size,48);
- assert.equal(new Set(l.seats.map(s=>`${s.x}:${Math.round((s.z-s.sign*1.55+27)/11)}`)).size,24);
- assert.equal(layoutForRoom('yonsei'),layoutForRoom('yonsei'));
+ assert.equal(l.seats.filter(s=>s.type==='round').length,24);
+ assert.equal(l.seats.filter(s=>s.type==='single').length,8);
+ assert.equal(l.seats.filter(s=>s.type==='pair').length,16);
+ assert.equal(new Set(l.seats.map(s=>s.group)).size,22);
+ assert.equal(layoutForRoom('yonsei').seats.length,l.seats.length);
  assert.notEqual(layoutForRoom('yonsei'),layoutForRoom('korea'));
  assert.notEqual(layoutForRoom('yonsei'),layoutForRoom('main'));
- for(const z of [-27,-16,-5,6,17,28,35])assert.equal(isWalkable(0,z,'yonsei'),true);
  for(const s of l.seats){
-  assert.equal(isWalkable(s.x,s.z+s.sign*2.62,'yonsei'),true,`seat ${s.id} approach blocked`);
-  assert.equal(isWalkable(s.x,s.z-s.sign*.3,'yonsei'),false,`seat ${s.id} not blocked`);
+  const a={x:s.x+s.dirX*s.approachDist,z:s.z+s.dirZ*s.approachDist};
+  assert.equal(isWalkable(a.x,a.z,'yonsei'),true,`seat ${s.id} approach blocked`);
+  assert.equal(isWalkable(s.x,s.z,'yonsei'),false,`seat ${s.id} chair not blocked`);
  }
- assert.match(html,/function addYonseiDesk\(x,z,deskId\)/);
- assert.match(html,/function addYonseiChair\(x,z,sign,deskId\)/);
+ assert.match(html,/function addYonseiSingleDesk\(z,i\)/);
+ assert.match(html,/function addYonseiPairDesk\(z,i\)/);
 });
 
 class Peer extends EventEmitter{

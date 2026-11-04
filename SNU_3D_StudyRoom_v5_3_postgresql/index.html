@@ -104,7 +104,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
 <section id="dashboard" hidden aria-label="공부 기록과 랭킹"><div id="dashboardBody"></div></section>
 <div id="hints"><div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 이동 · <kbd>Shift</kbd> 빠르게</div><div>바닥 클릭: 이동 · 의자 클릭: 앉기</div><div>드래그: 회전 · 휠/두 손가락: 확대·축소</div></div>
 <div id="toast" role="status" aria-live="polite"></div>
-<div id="librarySelect" hidden role="dialog" aria-modal="true" aria-labelledby="librarySelectTitle"><div class="dialog"><h1 id="librarySelectTitle">도서관 선택</h1><p>공부 기록과 친구 관계는 세 공간에서 동일하게 유지됩니다. 다른 도서관으로 이동하면 기존 좌석은 반납됩니다.</p><div class="library-cards"><button type="button" class="library-choice" data-library="main"><strong>서울대학교 중앙도서관</strong><small>파란 카펫 · 삼각 철골 · 현대식 공동 책상 · 48석</small></button><button type="button" class="library-choice" data-library="korea"><strong>고려대학교 중앙도서관</strong><small>붉은 커튼 · 고딕 아치 창 · 목재 책상과 독서등 · 48석</small></button><button type="button" class="library-choice" data-library="yonsei"><strong>연세대학교 연세·삼성학술정보관</strong><small>복층 유리 난간 · 파란 카펫 · 밝은 학습석 · 48석</small></button></div><button type="button" class="iconbtn" id="libraryClose">현재 도서관에 머물기</button><p class="note">세 공간 모두 대학교 공식 운영 서비스가 아닌 비공식 3D 재현입니다.</p></div></div><div id="accountOverlay" hidden><div class="dialog" role="dialog" aria-modal="true" aria-label="계정 메뉴"><button type="button" id="accountClose" aria-label="도서관으로 돌아가기" title="닫기">×</button><h1>계정 연결</h1><p id="accountStatus">게스트로 이용 중입니다. 친구 기능은 Google 로그인 후 사용할 수 있습니다.</p><p id="authError" class="auth-error" role="alert" hidden></p><div class="account-actions"><button id="googleLogin" class="ok">Google로 계속하기</button><button id="logoutBtn" class="ok alt" hidden>Google 로그아웃</button><button id="deleteAccountBtn" class="account-danger" hidden>스터디룸 계정 데이터 삭제</button></div><p class="note">게스트 인증 정보가 삭제되면 이전 기록에 접근하지 못할 수 있습니다. Google 연결 시 기존 게스트 기록을 서버에서 안전하게 병합합니다.</p><p class="note">모바일 Google 팝업이 차단되면 브라우저 설정에서 팝업을 허용해 주세요.</p></div></div>
+<div id="librarySelect" hidden role="dialog" aria-modal="true" aria-labelledby="librarySelectTitle"><div class="dialog"><h1 id="librarySelectTitle">도서관 선택</h1><p>공부 기록과 친구 관계는 세 공간에서 동일하게 유지됩니다. 다른 도서관으로 이동하면 기존 좌석은 반납됩니다.</p><div class="library-cards"><button type="button" class="library-choice" data-library="main"><strong>서울대학교 중앙도서관</strong><small>파란 카펫 · 삼각 철골 · 현대식 공동 책상 · 48석</small></button><button type="button" class="library-choice" data-library="korea"><strong>고려대학교 중앙도서관</strong><small>붉은 커튼 · 고딕 아치 창 · 목재 책상과 독서등 · 48석</small></button><button type="button" class="library-choice" data-library="yonsei"><strong>연세대학교 연세·삼성학술정보관</strong><small>정면 통창 · 원형 6개 · 1인 8개 · 2인 8개 · 48석</small></button></div><button type="button" class="iconbtn" id="libraryClose">현재 도서관에 머물기</button><p class="note">세 공간 모두 대학교 공식 운영 서비스가 아닌 비공식 3D 재현입니다.</p></div></div><div id="accountOverlay" hidden><div class="dialog" role="dialog" aria-modal="true" aria-label="계정 메뉴"><button type="button" id="accountClose" aria-label="도서관으로 돌아가기" title="닫기">×</button><h1>계정 연결</h1><p id="accountStatus">게스트로 이용 중입니다. 친구 기능은 Google 로그인 후 사용할 수 있습니다.</p><p id="authError" class="auth-error" role="alert" hidden></p><div class="account-actions"><button id="googleLogin" class="ok">Google로 계속하기</button><button id="logoutBtn" class="ok alt" hidden>Google 로그아웃</button><button id="deleteAccountBtn" class="account-danger" hidden>스터디룸 계정 데이터 삭제</button></div><p class="note">게스트 인증 정보가 삭제되면 이전 기록에 접근하지 못할 수 있습니다. Google 연결 시 기존 게스트 기록을 서버에서 안전하게 병합합니다.</p><p class="note">모바일 Google 팝업이 차단되면 브라우저 설정에서 팝업을 허용해 주세요.</p></div></div>
 <section id="bottom" class="glass" aria-label="공부 및 채팅 도구"><div id="status">빈 의자를 선택하면 해당 자리로 이동해 공부를 시작합니다.</div><div class="controls"><span style="font-size:10px;color:#c6d4ea">오늘</span><span id="timeDisplay">00:00:00</span><button id="pauseBtn" disabled>일시정지</button><button id="standBtn" disabled>자리에서 일어나기</button><input id="chatInput" maxlength="40" placeholder="실시간 채팅 (최대 40자)" aria-label="테스트 채팅"/><button id="sendBtn" class="primary">말하기</button></div></section>
 <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog"><h1 id="modalTitle">캐릭터 선택</h1><p>로우폴리 동물 캐릭터를 선택하고 도서관에 입장하세요. 선택 내용은 이 브라우저에 저장됩니다.</p><div class="fields"><label class="field full">닉네임<input id="nick" maxlength="15" value="공부하는토끼" /></label><label class="field">동물<select id="species"><option value="rabbit">토끼</option><option value="bear">곰</option><option value="cat">고양이</option><option value="dog">강아지</option></select></label><label class="field">기본 후드 색상<select id="gender"><option value="female">분홍색 기본</option><option value="male">하늘색 기본</option></select></label><label class="field full">후드 색상 직접 변경<input id="hood" type="color" value="#f39bc4" /></label></div><button id="enterBtn" class="ok">3D 도서관 입장</button><div class="note">게스트로 실시간 서버에 접속합니다. NPC는 NPC로 표시되며 실제 이용자 수에 포함되지 않습니다. 실제 대학 도서관 사진을 참고한 비공식 3D 공간입니다.</div></div></div>
 <script type="module">
@@ -453,8 +453,21 @@ function buildKoreaRoom(){
 function buildYonseiRoom(){
  const {width:W,length:L,height:H}=CONFIG,cz=(CONFIG.frontZ+CONFIG.rearZ)/2;
  batch.box('ysCeiling',[0,H-.10,cz],[W,.32,L]);
- batch.box('ysConcrete',[0,H/2,CONFIG.frontZ],[W,H,.50]);
+ // FRONT is an uninterrupted, daylight-filled window wall, never a bookshelf.
  batch.box('ysWall',[0,H/2,CONFIG.rearZ],[W,H,.50]);
+ batch.box('ysConcrete',[0,.62,CONFIG.frontZ],[W,1.24,.60]);
+ batch.box('ysConcrete',[0,H-.57,CONFIG.frontZ],[W,1.13,.60]);
+ for(let x=-22.9;x<=23;x+=5.75){
+   batch.box('ysConcrete',[x,H/2,CONFIG.frontZ],[.48,H-.9,.58]);
+   batch.box('ysRail',[x+2.88,H*.54,CONFIG.frontZ+.15],[5.63,.09,.24]);
+   batch.box('ysRail',[x+2.88,H*.28,CONFIG.frontZ+.15],[5.63,.08,.24]);
+   batch.box('ysGlass',[x+2.88,H/2,CONFIG.frontZ+.04],[5.50,H-1.35,.065]);
+ }
+ // Outside scenery stays beyond the front wall; it is not an obstacle.
+ for(let x=-19.8;x<=19.8;x+=6.6){
+   batch.box('campus',[x,2.4,CONFIG.frontZ-2.9],[4.5,4.8,.68]);
+   batch.sphere('tree',[x+1.5,4.9,CONFIG.frontZ-1.9],[1.65,2.1,1.2]);
+ }
  // Tall, daylit glazed walls and repeated structural piers.
  const glassMat=new THREE.MeshStandardMaterial({color:'#bcdfe8',transparent:true,opacity:.25,
   roughness:.17,metalness:.09,side:THREE.DoubleSide,depthWrite:false});
@@ -484,20 +497,8 @@ function buildYonseiRoom(){
   batch.box('ysLight',[0,H-.43,z+1.40],[W-3,.055,.20]);
   for(const x of [-16,-8,0,8,16])batch.box('ysLight',[x,H-.47,z+3],[2.95,.045,.55]);
  }
- // Bookshelves and glass-clad information hub at the far end.
- for(const side of [-1,1]){
-  for(let x=side<0?-21:6.5;x<(side<0?-6:21);x+=2.7){
-   batch.box('ysOakDark',[x,6.15,-38.23],[2.52,11.95,.68]);
-   batch.box('ysOak',[x,6.15,-37.88],[2.27,11.65,.08]);
-   for(let row=1;row<=10;row++){
-    batch.box('ysOakDark',[x,row*1.1,-37.70],[2.36,.11,.45]);
-    for(let b=0;b<6;b++)batch.box('book'+((row+b*3)%bookColors.length),[x-1+b*.36,row*1.1+.36,-37.53],[.24,.65,.28]);
-   }
-  }
- }
- batch.box('ysOak',[0,.88,-36],[4.0,.18,1.52]);
- batch.box('ysPod',[0,1.48,-36.55],[4.0,1.05,.15]);
- for(const x of [-1.65,1.65])batch.box('ysOakDark',[x,.46,-36],[.12,.91,.12]);
+ // The photo's front elevation is glass: do not add bookcases or a counter here.
+ // Frosted mezzanine railing and gallery remain to suggest the two-level atrium.
  // Decorative suspended wide lighting sails above each side of the reading zone.
  for(const x of [-12.1,12.1])for(const z of [-21,4,26]){
   batch.box('ysOak',[x,H-1.25,z],[5.4,.12,1.20]);
@@ -582,39 +583,70 @@ function addKoreaDesk(x,z,tableId){
  obstacle(x,z,w+.22,d+.16);
  for(const sign of [-1,1])addKoreaChair(x,z+sign*1.55,sign,tableId);
 }
-// Cream 2-sided study pods, black mesh chairs and shaded workstation lighting.
-function addYonseiChair(x,z,sign,deskId){
- const id=seats.length,seat={id,x,z,sign,tableId:deskId,occupiedBy:null,proxy:null};seats.push(seat);
- batch.box('ysChair',[x,.66,z],[.90,.14,.88]);
- batch.box('ysChairBack',[x,1.22,z+sign*.46],[.91,1.14,.13]);
- batch.cylinder('ysRail',[x,.35,z],[.105,.65,.105]);
- for(const dir of [-1,1])batch.box('ysChair',[x+dir*.34,.10,z],[.68,.10,.12]);
+// V6.2: individual chairs may face +/-X or +/-Z. `dir` points out from desk.
+function addYonseiChair(x,z,dirX,dirZ,deskId,type){
+ const id=seats.length;
+ const seat={id,x,z,sign:dirZ||dirX,dirX,dirZ,yaw:Math.atan2(-dirX,-dirZ),
+   approachDist:1.35,tableId:deskId,type,occupiedBy:null,proxy:null};
+ seats.push(seat);
+ batch.box('ysChair',[x,.66,z],[.88,.14,.88]);
+ const backX=x+dirX*.46,backZ=z+dirZ*.46;
+ batch.box('ysChairBack',[backX,1.20,backZ],dirX?[.13,1.10,.91]:[.91,1.10,.13]);
+ batch.cylinder('ysRail',[x,.36,z],[.10,.61,.10]);
+ for(const d of [-1,1]){
+   if(dirX)batch.box('ysChair',[x,.10,z+d*.34],[.12,.10,.69]);
+   else batch.box('ysChair',[x+d*.34,.10,z],[.69,.10,.12]);
+ }
  const proxy=new THREE.Mesh(seatProxyGeometry,seatProxyMaterial);
- proxy.position.set(x,.98,z+sign*.10);proxy.userData.seatId=id;
+ proxy.position.set(x+dirX*.10,.98,z+dirZ*.10);proxy.userData.seatId=id;
  scene.add(proxy);seatHits.push(proxy);seat.proxy=proxy;
  obstacle(x,z,.84,.79);
  return seat;
 }
-function addYonseiDesk(x,z,deskId){
- const w=3.3,d=2.18;
- batch.box('ysDesk',[x,1.09,z],[w,.12,d]);
- batch.box('ysPod',[x,1.52,z],[w-.15,.83,.10]); // middle reading divider
- for(const dx of [-1.52,1.52])for(const sign of [-1,1]){
-  batch.box('ysPod',[x+dx,1.40,z+sign*.59],[.095,.67,1.03]);
-  batch.box('ysOakDark',[x+dx,.54,z],[.12,1.04,.15]);
+function addYonseiRoundDesk(z,i){
+ const x=-14.0;
+ batch.cylinder('ysDesk',[x,1.11,z],[1.35,.13,1.35]);
+ batch.cylinder('ysOakDark',[x,.56,z],[.19,1.10,.19]);
+ batch.cylinder('ysPod',[x,1.47,z],[.42,.61,.42]);
+ batch.cylinder('ysRail',[x,1.82,z],[.52,.055,.52]);
+ batch.cylinder('ysLight',[x,1.89,z],[.45,.045,.45]);
+ // Four radial cream privacy panels divide the circular computer station.
+ for(const angle of [0,Math.PI/2,Math.PI,3*Math.PI/2]){
+   const px=x+Math.cos(angle)*.76,pz=z+Math.sin(angle)*.76;
+   const q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-angle);
+   batch.box('ysPod',[px,1.43,pz],[.94,.55,.065],q);
  }
- for(const sign of [-1,1]){
-  batch.box('ysRail',[x,1.90,z+sign*.43],[.06,.40,.06]);
-  batch.box('ysLight',[x,2.10,z+sign*.49],[2.60,.055,.22]);
-  addYonseiChair(x,z+sign*1.55,sign,deskId);
- }
- obstacle(x,z,w+.22,d+.16);
+ obstacle(x,z,2.72,2.72);
+ for(const [dx,dz] of [[0,-1],[1,0],[0,1],[-1,0]])
+   addYonseiChair(x+dx*2,z+dz*2,dx,dz,`round-${i}`,'round');
+}
+function addYonseiSingleDesk(z,i){
+ const x=-2.6;
+ batch.box('ysDesk',[x,1.12,z],[1.75,.12,1.56]);
+ batch.box('ysPod',[x-.84,1.46,z],[.08,.65,1.48]);
+ for(const dz of [-.73,.73])batch.box('ysPod',[x,1.46,z+dz],[1.65,.65,.07]);
+ for(const dx of [-.74,.74])for(const dz of [-.59,.59])
+   batch.box('ysOakDark',[x+dx,.53,z+dz],[.10,1.06,.10]);
+ batch.box('ysLight',[x-.32,1.79,z],[.88,.05,.07]);
+ obstacle(x,z,1.88,1.75);
+ addYonseiChair(x+1.67,z,1,0,`single-${i}`,'single');
+}
+function addYonseiPairDesk(z,i){
+ const x=12.2;
+ batch.box('ysDesk',[x,1.12,z],[2.72,.12,1.70]);
+ // Divider in the middle: users face each other across this desk.
+ batch.box('ysPod',[x,1.45,z],[.08,.62,1.59]);
+ for(const dx of [-1.24,1.24])for(const dz of [-.69,.69])
+   batch.box('ysOakDark',[x+dx,.53,z+dz],[.11,1.06,.11]);
+ for(const dx of [-.64,.64])batch.box('ysLight',[x+dx,1.77,z],[.75,.06,.09]);
+ obstacle(x,z,2.86,1.87);
+ addYonseiChair(x-1.90,z,-1,0,`pair-${i}`,'pair');
+ addYonseiChair(x+1.90,z,1,0,`pair-${i}`,'pair');
 }
 if(YONSEI_ROOM){
- for(const x of [-15,-8,8,15])for(let row=0;row<6;row++){
-  const z=-27+row*11;
-  addYonseiDesk(x,z,`yonsei-${x}-${row}`);
- }
+ for(let i=0;i<6;i++)addYonseiRoundDesk(-29+i*12,i);
+ for(let i=0;i<8;i++)addYonseiSingleDesk(-29+i*9,i);
+ for(let i=0;i<8;i++)addYonseiPairDesk(-29+i*9,i);
 }else if(KOREA_ROOM){
  for(const x of [-14,-7,7,14])for(let row=0;row<6;row++){
   const z=-27+row*11;
@@ -801,12 +833,13 @@ class Character{
   this.route=route;this.routeIndex=0;this.arrive=then||null;return true;
  }
  sit(seat){this.route=[];this.arrive=null;this.seated=true;this.seat=seat;seat.occupiedBy=this;
-  this.root.position.set(seat.x,.39,seat.z);this.root.scale.setScalar(.83);this.root.rotation.y=seat.sign===1?Math.PI:0;
+  this.root.position.set(seat.x,.39,seat.z);this.root.scale.setScalar(.83);this.root.rotation.y=seatYaw(seat);
   if(this.isNpc){this.studyActive=true;this.studySince=Date.now()}else if(!this.isRemote){updateHUD();setStatus('공부 중 · 책상에서 공부하고 있습니다.')} }
  stand(){if(!this.seated)return;
   const s=this.seat;this.seat=null;this.seated=false;if(s?.occupiedBy===this)s.occupiedBy=null;
-  const around=nav.nearest(nav.cell(s.x,s.z+s.sign*2.63));
-  const p=around?nav.world(around.x,around.z):{x:s.x,z:s.z+s.sign*2.5};
+  const exit=seatApproach(s,s.approachDist??2.63);
+  const around=nav.nearest(nav.cell(exit.x,exit.z));
+  const p=around?nav.world(around.x,around.z):exit;
   this.root.position.set(p.x,0,p.z);this.root.scale.setScalar(1);
   if(this.isNpc){if(this.studyActive)this.studyMs+=Date.now()-this.studySince;this.studyActive=false}
   else if(!this.isRemote){updateHUD();setStatus('이동 중 · 다른 빈 좌석을 클릭하면 다시 공부할 수 있습니다.')}
@@ -848,12 +881,18 @@ class Character{
 let player=null;
 const NPC_SPECIES=['cat','bear','rabbit','dog','cat','rabbit','bear','dog'];
 const NPC_COLORS=['#8bcaff','#f39bc4','#aaa4dc','#a6ba94','#8bcaff','#f39bc4','#c8a995','#a9cce1'];
+// Seat movement/rotation works for single west-facing and round-table chairs.
+function seatApproach(s,dist=s.approachDist??2.62){
+ return {x:s.x+(s.dirX??0)*dist,z:s.z+(s.dirZ??s.sign)*dist};
+}
+function seatYaw(s){return s.yaw??(s.sign===1?Math.PI:0);}
 const npcNames=['열공냥','독서곰','모닝토끼','필기왕','묵묵이','초코토끼','집중곰','도서관멍'];
 const npcList=[];
-const availableNpcSeats=seats.filter(s=>s.x<-5||s.x>5);
+// Server reserves exactly these seat IDs in EACH library. Do not reindex by location:
+// Yonsei's west-facing single desks are at x≈-1 and must keep their original IDs.
 const npcIndices=[2,8,14,20,26,32,38,44]; // 8 distinct NPC seats among 48
 for(let i=0;i<CONFIG.npcCount;i++){
- const s=availableNpcSeats[npcIndices[i]%availableNpcSeats.length];
+ const s=seats[npcIndices[i]];
  const npc=new Character({npc:true,name:npcNames[i],species:NPC_SPECIES[i],hood:NPC_COLORS[i],x:s.x,z:s.z,studyMs:60000*(12+i*19)});
  npc.sit(s);npcList.push(npc)
 }
@@ -1008,7 +1047,7 @@ function onServer(m){
    if(m.seatId!==pendingIntent){net.send({t:'seat_cancel'});break;}
    if(m.alreadySeated){pendingIntent=null;break;}
    const s=seats[m.seatId];if(!s)return;
-   const approach={x:s.x,z:s.z+s.sign*2.62};
+   const approach=seatApproach(s);
    // Mark the selected chair, NOT the approach waypoint behind it.
    ring.visible=true;ring.position.set(s.x,.805,s.z);
    const ok=player.go(approach,()=>{
@@ -1175,7 +1214,7 @@ function updateNpcBehaviors(now){if(now<npcEventAt)return;npcEventAt=now+9000+Ma
  const npc=npcList[Math.floor(Math.random()*npcList.length)];
  if(npc.route.length)return;
  if(npc.mode==='break'){
-  const s=npc.home;const dest={x:s.x,z:s.z+s.sign*2.62};
+  const s=npc.home;const dest=seatApproach(s);
   if(npc.go(dest,()=>{
     const destSeat=(!s.occupiedBy||s.occupiedBy===npc)?s:seats.find(candidate=>!candidate.occupiedBy&&!seatLocks.has(candidate.id)&&Math.hypot(candidate.x-s.x,candidate.z-s.z)<9);
     if(destSeat)npc.sit(destSeat);npc.mode='sitting';
@@ -1266,7 +1305,7 @@ if(profileComplete)net.start();
 welcome.hidden=true;
 const suggested=Number(query.get('suggestSeat'));
 if(query.has('suggestSeat')&&Number.isInteger(suggested)&&seats[suggested])setTimeout(()=>toast(`친구 주변 추천 좌석: ${suggested+1}번 의자를 터치해 주세요.`),3500);
-console.info('Multilibrary 3D study room initialized:',{room:ROOM_ID,tables:KOREA_ROOM||YONSEI_ROOM?24:CONFIG.rows*CONFIG.columnsPerSide*2,seats:seats.length,npcs:npcList.length});
+console.info('Multilibrary 3D study room initialized:',{room:ROOM_ID,tables:YONSEI_ROOM?22:KOREA_ROOM?24:CONFIG.rows*CONFIG.columnsPerSide*2,seats:seats.length,npcs:npcList.length});
 </script>
 </body>
 </html>

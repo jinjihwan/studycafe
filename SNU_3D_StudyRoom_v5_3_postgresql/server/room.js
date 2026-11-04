@@ -58,21 +58,43 @@ export function buildKoreaSeatsAndObstacles(){
  }
  return {seats,obstacles,npcSeats:new Set([2,8,14,20,26,32,38,44])};
 }
-// Yonsei-Samsung Library: 24 cream double-sided study pods (48 chairs).
-// Exactly mirrors the YONSEI_ROOM furniture positions in index.html.
+// Yonsei-Samsung Library V6.2, modeled after the user-supplied atrium photograph:
+// left: SIX circular 4-person desks (24); centre: EIGHT west-facing single desks (8);
+// right: EIGHT face-to-face two-person desks (16); total exactly 48 seats.
+// Geometry/order must mirror addYonseiRoundDesk/addYonseiSingleDesk/addYonseiPairDesk.
 export function buildYonseiSeatsAndObstacles(){
  const seats=[],obstacles=[{x:0,z:-37.65,w:48,d:1.5}];
- for(const x of [-15,-8,8,15])for(let row=0;row<6;row++){
-  const z=-27+row*11;
-  obstacles.push({x,z,w:3.52,d:2.34});
-  for(const sign of [-1,1]){
-   const cz=z+sign*1.55;
-   seats.push({id:seats.length,x,z:cz,sign});
-   obstacles.push({x,z:cz,w:.84,d:.79});
-  }
+ const add=(x,z,dirX,dirZ,group,type)=>{
+   const seat={id:seats.length,x,z,sign:dirZ||dirX,dirX,dirZ,
+     yaw:Math.atan2(-dirX,-dirZ),approachDist:1.35,group,type};
+   seats.push(seat);obstacles.push({x,z,w:.84,d:.79});
+ };
+ // Long row of circular, four-way computer stations along the left glazing.
+ for(let i=0;i<6;i++){
+   const x=-14.0,z=-29+i*12;
+   obstacles.push({x,z,w:2.72,d:2.72});
+   for(const [dx,dz] of [[0,-1],[1,0],[0,1],[-1,0]])add(x+dx*2,z+dz*2,dx,dz,`round-${i}`,'round');
+ }
+ // Individual cream booths face LEFT (toward the window/circular desks).
+ for(let i=0;i<8;i++){
+   const x=-2.6,z=-29+i*9;
+   obstacles.push({x,z,w:1.88,d:1.75});
+   add(x+1.67,z,1,0,`single-${i}`,'single');
+ }
+ // Paired booths face each other across their shared desktop on the RIGHT.
+ for(let i=0;i<8;i++){
+   const x=12.2,z=-29+i*9;
+   obstacles.push({x,z,w:2.86,d:1.87});
+   add(x-1.90,z,-1,0,`pair-${i}`,'pair');
+   add(x+1.90,z,1,0,`pair-${i}`,'pair');
  }
  return {seats,obstacles,npcSeats:new Set([2,8,14,20,26,32,38,44])};
 }
+// All clients and the authoritative server use the same outbound approach vector.
+export function seatApproach(s,dist=s.approachDist??2.62){
+ return {x:s.x+(s.dirX??0)*dist,z:s.z+(s.dirZ??s.sign)*dist};
+}
+export function seatYaw(s){return s.yaw??(s.sign===1?Math.PI:0);}
 const layout=buildSeatsAndObstacles();
 const koreaLayout=buildKoreaSeatsAndObstacles();
 const yonseiLayout=buildYonseiSeatsAndObstacles();
@@ -303,9 +325,9 @@ export class Rooms {
     if(!Number.isInteger(seatId)||p.pendingSeatId!==seatId) return this.error(c.peer,'seat_not_reserved','이 좌석의 예약을 확인할 수 없습니다.',seatId);
     const lock=room.locks.get(seatId),s=layoutForRoom(room.id).seats[seatId];
     if(!lock||lock.id!==p.id||lock.phase!=='reserved'||lock.expiresAt<Date.now())return this.error(c.peer,'seat_expired','좌석 예약이 만료되었습니다.',seatId);
-    const approach={x:s.x,z:s.z+s.sign*2.62};
+    const approach=seatApproach(s);
     if(Math.hypot(p.x-approach.x,p.z-approach.z)>2.3)return this.error(c.peer,'not_near_seat','좌석 근처로 이동한 후 착석할 수 있습니다.',seatId);
-    p.seatId=seatId;p.pendingSeatId=null;p.x=s.x;p.z=s.z;p.yaw=s.sign===1?Math.PI:0;
+    p.seatId=seatId;p.pendingSeatId=null;p.x=s.x;p.z=s.z;p.yaw=seatYaw(s);
     lock.phase='seated';lock.expiresAt=Infinity;
     this.ensureDay(p);p.studying=true;p.paused=false;p.lastAccruedAt=Date.now();
     this.broadcast(room,{t:'seat_lock',seatId,ownerId:p.id,phase:'seated'});
@@ -325,7 +347,7 @@ export class Rooms {
     p.seatId=null;p.pendingSeatId=null;
     if(room.locks.get(sid)?.id===p.id){room.locks.delete(sid);this.broadcast(room,{t:'seat_lock',seatId:sid,ownerId:null,phase:null});}
     // Server assigns a legal walkable emergence position; never trust a client teleport from a chair.
-    const target={x:s.x,z:s.z+s.sign*2.63};
+    const target=seatApproach(s,s.approachDist??2.63);
     const candidate=this.nearWalkable(target.x,target.z,room.id);
     p.x=candidate.x;p.z=candidate.z;p.lastMoveAt=Date.now();
     this.broadcast(room,{t:'player',player:this.public(p),count:this.members(room)});
