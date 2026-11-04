@@ -19,12 +19,10 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
 .group{display:flex;align-items:center;gap:8px;pointer-events:auto}.glass{background:var(--panel);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:13px;box-shadow:0 7px 26px #0003}
 .brand{padding:10px 13px;display:flex;align-items:center;gap:10px;font-weight:750;font-size:14px;white-space:nowrap}.brand small{display:block;color:#c1d1e5;font-size:9px;font-weight:450;margin-top:2px}.count{padding:11px 12px;font-size:12px;color:#e6f0ff;white-space:nowrap}.room-pill{padding:11px 12px;font-size:11px;white-space:nowrap;color:#cce5ff}#switchLibraryBtn{background:#6a3944;border-color:#d19da0}#librarySelect[hidden]{display:none!important}#librarySelect{position:fixed;inset:0;z-index:43;background:#071323d9;display:grid;place-items:center;padding:16px;backdrop-filter:blur(6px)}#librarySelect .dialog{width:min(480px,100%)}.library-cards{display:grid;gap:10px;margin:18px 0}.library-choice{display:block;width:100%;padding:16px;border-radius:12px;text-align:left;color:#edf5ff;background:#26394f;border:1px solid #647c95;line-height:1.6}.library-choice strong{display:block;font-size:16px}.library-choice small{display:block;color:#b8d4e3;font-size:11px}.library-choice:disabled{border-color:#77c9ae;opacity:1;background:#29504b}.library-choice:focus-visible{outline:3px solid #a4d6ff}.count i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#70e4a7;margin-right:5px}
 .iconbtn{border:1px solid var(--border);color:#f3f7ff;background:var(--panel);padding:0 12px;height:40px;border-radius:12px;backdrop-filter:blur(12px);font-size:12px;white-space:nowrap}.iconbtn.active{background:#35658e;border-color:#a4d6ff}
-#bottom{position:fixed;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(95vw,760px);z-index:3;padding:10px 12px;pointer-events:auto}
-#status{font-size:12px;color:#dbe6f7;text-align:center;margin-bottom:7px;min-height:17px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
-.controls{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}
+#bottom{position:fixed;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(95vw,480px);z-index:3;padding:9px 10px;pointer-events:auto}
+.controls{display:flex;align-items:center;gap:7px;flex-wrap:nowrap}
 .controls button,.controls input{border:1px solid rgba(255,255,255,.19);border-radius:9px;padding:9px 10px;background:#30445f;color:#fff;font-size:12px;min-height:36px}
-.controls button.primary{background:#4c83ad}.controls button:disabled{background:#384253}.controls input{background:#18283e;min-width:105px;flex:1 1 160px;max-width:230px;outline:none}.controls input:focus{border-color:#8dcaff}#timeDisplay{min-width:88px;display:inline-block;font-weight:750;color:#a8f0d5;font-variant-numeric:tabular-nums;text-align:center}
-#hints{position:fixed;left:15px;bottom:115px;font-size:11px;line-height:1.75;color:#eef5ff;text-shadow:0 1px 5px #000c;pointer-events:none;z-index:2}kbd{display:inline-block;background:#19263aa8;border:1px solid #fff5;border-radius:5px;padding:0px 5px;font-family:inherit}
+.controls button.primary{background:#4c83ad}.controls button:disabled{background:#384253}.controls input{background:#18283e;min-width:0;flex:1;outline:none}.controls input:focus{border-color:#8dcaff}
 #loading{position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:20px;font-size:13px;color:#dce8f5;background:#132035;z-index:8}#toast{position:fixed;top:75px;left:50%;transform:translateX(-50%);border-radius:10px;background:rgba(15,26,42,.9);border:1px solid #fff4;padding:10px 16px;pointer-events:none;font-size:12px;opacity:0;transition:opacity .16s;z-index:6;max-width:90vw;text-align:center}
 #modal{position:fixed;inset:0;background:rgba(5,11,21,.68);display:none;align-items:center;justify-content:center;z-index:10;padding:16px;backdrop-filter:blur(5px)}
 #modal.visible{display:flex}.dialog{width:min(420px,100%);max-height:min(92vh,750px);overflow-y:auto;background:#1b2a40;border:1px solid #ffffff39;border-radius:18px;box-shadow:0 20px 70px #000a;padding:23px}
@@ -33,7 +31,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
 #perfHud{position:fixed;top:100px;right:8px;z-index:4;pointer-events:none;
   min-width:156px;padding:9px 11px;white-space:pre-line;font:11px/1.5 ui-monospace,monospace;
   background:rgba(9,20,35,.85);border:1px solid #ffffff44;border-radius:10px;color:#bde9ff}
-@media(max-width:690px){#topbar{left:8px;right:8px;top:max(7px,env(safe-area-inset-top));gap:4px}.brand{font-size:11px;padding:9px;gap:5px}.brand small{font-size:8px}.count{display:block;font-size:10px;padding:9px 8px}.room-pill{font-size:10px;padding:9px 8px}#topbar{flex-wrap:wrap}#topbar>.group:first-child{width:100%;justify-content:space-between}#topbar>.group:last-child{margin-left:auto}.group{gap:4px}.iconbtn{padding:0 8px;height:36px;font-size:10px}.brand .symbol{display:none}#bottom{bottom:max(7px,env(safe-area-inset-bottom));padding:8px;width:calc(100vw - 12px)}.controls{gap:5px}.controls button,.controls input{padding:8px 7px;min-height:33px;font-size:11px}.controls input{flex:1 1 100px;min-width:82px;max-width:unset}#timeDisplay{min-width:70px;font-size:12px}#status{font-size:10px}#hints{left:10px;bottom:131px;font-size:10px}.tag .plate{font-size:10px;padding:4px 6px}.tag .bubble{font-size:10px;padding:5px 8px}}
+@media(max-width:690px){#topbar{left:8px;right:8px;top:max(7px,env(safe-area-inset-top));gap:4px}.brand{font-size:11px;padding:9px;gap:5px}.brand small{font-size:8px}.count{display:block;font-size:10px;padding:9px 8px}.room-pill{font-size:10px;padding:9px 8px}#topbar{flex-wrap:wrap}#topbar>.group:first-child{width:100%;justify-content:space-between}#topbar>.group:last-child{margin-left:auto}.group{gap:4px}.iconbtn{padding:0 8px;height:36px;font-size:10px}.brand .symbol{display:none}#bottom{bottom:max(7px,env(safe-area-inset-bottom));padding:8px;width:calc(100vw - 12px)}.controls{gap:5px}.controls button,.controls input{padding:8px 7px;min-height:33px;font-size:11px}.controls input{flex:1;min-width:0;max-width:none}.tag .plate{font-size:10px;padding:4px 6px}.tag .bubble{font-size:10px;padding:5px 8px}}
 
 /* v5: auth and social views (all v4 Three.js geometry/camera styles retained). */
 #accountOverlay[hidden]{display:none!important}
@@ -62,7 +60,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
 #dashboard{position:fixed;z-index:12;inset:0;overflow:auto;background:#101a2bec;color:#f3f6fa;padding:140px max(18px,env(safe-area-inset-right)) 52px;overscroll-behavior:contain}
 #dashboard[hidden]{display:none!important}
 #dashboardBody{max-width:1030px;margin:0 auto}
-.panel-visible #topbar,.panel-visible #bottom,.panel-visible #hints,.panel-visible #labels{display:none!important}
+.panel-visible #topbar,.panel-visible #bottom,.panel-visible #labels{display:none!important}
 .panel-visible #appNav{top:13px}
 .panel-visible #dashboard{padding-top:79px}
 .dash-heading h2{font-size:25px;line-height:1.2;margin:0 0 8px}.dash-heading p{font-size:12px;color:#b6c6da;margin:0 0 18px}
@@ -87,8 +85,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
  #appNav{top:auto!important;left:0;right:0;bottom:0;transform:none;max-width:none;width:100%;justify-content:space-around;border-radius:12px 12px 0 0;gap:0;padding:4px 2px calc(4px + env(safe-area-inset-bottom))}
  #appNav button{font-size:11px;padding:6px 5px;min-height:43px;flex:1;white-space:normal}
  body:not(.panel-visible) #bottom{bottom:calc(62px + env(safe-area-inset-bottom))}
- body:not(.panel-visible) #hints{bottom:calc(187px + env(safe-area-inset-bottom))}
- #dashboard{padding:20px 12px 90px!important}.dash-heading h2{font-size:21px}.dash-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dash-metric{padding:11px}.dash-metric strong{font-size:17px}.dash-columns{grid-template-columns:1fr;gap:10px}.dash-card{padding:12px}.dash-day{min-height:36px}.dash-rank{gap:8px;padding:8px}.dash-rank-name strong{font-size:12px}.dash-rank-name small{font-size:10px}.dash-rank-time{font-size:12px}
+  #dashboard{padding:20px 12px 90px!important}.dash-heading h2{font-size:21px}.dash-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dash-metric{padding:11px}.dash-metric strong{font-size:17px}.dash-columns{grid-template-columns:1fr;gap:10px}.dash-card{padding:12px}.dash-day{min-height:36px}.dash-rank{gap:8px;padding:8px}.dash-rank-name strong{font-size:12px}.dash-rank-name small{font-size:10px}.dash-rank-time{font-size:12px}
 }
 </style>
 <script type="importmap">
@@ -99,14 +96,13 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
 <canvas id="scene" aria-label="마우스 또는 터치로 조작하는 3D 도서관"></canvas>
 <div id="labels"></div>
 <div id="loading">3D 도서관을 불러오는 중입니다.<br/>Three.js 다운로드를 위해 인터넷 연결이 필요합니다.</div>
-<header id="topbar"><div class="group"><div class="glass brand"><span class="symbol">▦</span><span id="libraryBrand">대학 도서관 스터디카페<small id="librarySubtitle">실제 열람실을 참고한 비공식 3D 공간</small></span></div><div class="glass count" id="onlineCount"><i></i>실제 접속자 0명 · NPC 8명</div><div class="glass room-pill" id="roomBadge">서울대 도서관</div></div><div class="group"><button class="iconbtn" id="switchLibraryBtn" type="button">도서관 변경</button><button class="iconbtn active" id="followBtn" title="카메라 따라가기">따라가기 ON</button><button class="iconbtn" id="avatarBtn" title="캐릭터 변경">캐릭터</button><button class="iconbtn" id="inviteBtn" title="같은 방 초대 링크 복사">초대 링크</button><button class="iconbtn" id="accountBtn" title="계정">게스트 · 로그인</button><button class="iconbtn" id="helpBtn" title="조작법">도움말</button></div></header>
+<header id="topbar"><div class="group"><div class="glass brand"><span class="symbol">▦</span><span id="libraryBrand">대학 도서관 스터디카페</span></div><div class="glass count" id="onlineCount"><i></i>실제 접속자 0명 · NPC 8명</div><div class="glass room-pill" id="roomBadge">서울대 도서관</div></div><div class="group"><button class="iconbtn" id="switchLibraryBtn" type="button">도서관 변경</button><button class="iconbtn" id="avatarBtn" title="캐릭터 변경">캐릭터</button><button class="iconbtn" id="inviteBtn" title="같은 방 초대 링크 복사">초대 링크</button><button class="iconbtn" id="accountBtn" title="계정">게스트 · 로그인</button></div></header>
 <nav id="appNav" hidden role="tablist" aria-label="스터디룸 메뉴"><button type="button" role="tab" data-tab="library" aria-selected="true" class="selected">도서관</button><button type="button" role="tab" data-tab="records" aria-selected="false">내 기록</button><button type="button" role="tab" data-tab="ranking" aria-selected="false">랭킹</button><button type="button" role="tab" data-tab="friends" aria-selected="false">친구</button><button type="button" role="tab" disabled aria-disabled="true">커뮤니티 · 준비 중</button></nav>
 <section id="dashboard" hidden aria-label="공부 기록과 랭킹"><div id="dashboardBody"></div></section>
-<div id="hints"><div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 이동 · <kbd>Shift</kbd> 빠르게</div><div>바닥 클릭: 이동 · 의자 클릭: 앉기</div><div>드래그: 회전 · 휠/두 손가락: 확대·축소</div></div>
 <div id="toast" role="status" aria-live="polite"></div>
-<div id="librarySelect" hidden role="dialog" aria-modal="true" aria-labelledby="librarySelectTitle"><div class="dialog"><h1 id="librarySelectTitle">도서관 선택</h1><p>공부 기록과 친구 관계는 세 공간에서 동일하게 유지됩니다. 다른 도서관으로 이동하면 기존 좌석은 반납됩니다.</p><div class="library-cards"><button type="button" class="library-choice" data-library="main"><strong>서울대학교 중앙도서관</strong><small>파란 카펫 · 삼각 철골 · 현대식 공동 책상 · 48석</small></button><button type="button" class="library-choice" data-library="korea"><strong>고려대학교 중앙도서관</strong><small>붉은 커튼 · 고딕 아치 창 · 목재 책상과 독서등 · 48석</small></button><button type="button" class="library-choice" data-library="yonsei"><strong>연세대학교 연세·삼성학술정보관</strong><small>정면 통창 · 원형 6개 · 1인 8개 · 2인 8개 · 48석</small></button></div><button type="button" class="iconbtn" id="libraryClose">현재 도서관에 머물기</button><p class="note">세 공간 모두 대학교 공식 운영 서비스가 아닌 비공식 3D 재현입니다.</p></div></div><div id="accountOverlay" hidden><div class="dialog" role="dialog" aria-modal="true" aria-label="계정 메뉴"><button type="button" id="accountClose" aria-label="도서관으로 돌아가기" title="닫기">×</button><h1>계정 연결</h1><p id="accountStatus">게스트로 이용 중입니다. 친구 기능은 Google 로그인 후 사용할 수 있습니다.</p><p id="authError" class="auth-error" role="alert" hidden></p><div class="account-actions"><button id="googleLogin" class="ok">Google로 계속하기</button><button id="logoutBtn" class="ok alt" hidden>Google 로그아웃</button><button id="deleteAccountBtn" class="account-danger" hidden>스터디룸 계정 데이터 삭제</button></div><p class="note">게스트 인증 정보가 삭제되면 이전 기록에 접근하지 못할 수 있습니다. Google 연결 시 기존 게스트 기록을 서버에서 안전하게 병합합니다.</p><p class="note">모바일 Google 팝업이 차단되면 브라우저 설정에서 팝업을 허용해 주세요.</p></div></div>
-<section id="bottom" class="glass" aria-label="공부 및 채팅 도구"><div id="status">빈 의자를 선택하면 해당 자리로 이동해 공부를 시작합니다.</div><div class="controls"><span style="font-size:10px;color:#c6d4ea">오늘</span><span id="timeDisplay">00:00:00</span><button id="pauseBtn" disabled>일시정지</button><button id="standBtn" disabled>자리에서 일어나기</button><input id="chatInput" maxlength="40" placeholder="실시간 채팅 (최대 40자)" aria-label="테스트 채팅"/><button id="sendBtn" class="primary">말하기</button></div></section>
-<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog"><h1 id="modalTitle">캐릭터 선택</h1><p>로우폴리 동물 캐릭터를 선택하고 도서관에 입장하세요. 선택 내용은 이 브라우저에 저장됩니다.</p><div class="fields"><label class="field full">닉네임<input id="nick" maxlength="15" value="공부하는토끼" /></label><label class="field">동물<select id="species"><option value="rabbit">토끼</option><option value="bear">곰</option><option value="cat">고양이</option><option value="dog">강아지</option></select></label><label class="field">기본 후드 색상<select id="gender"><option value="female">분홍색 기본</option><option value="male">하늘색 기본</option></select></label><label class="field full">후드 색상 직접 변경<input id="hood" type="color" value="#f39bc4" /></label></div><button id="enterBtn" class="ok">3D 도서관 입장</button><div class="note">게스트로 실시간 서버에 접속합니다. NPC는 NPC로 표시되며 실제 이용자 수에 포함되지 않습니다. 실제 대학 도서관 사진을 참고한 비공식 3D 공간입니다.</div></div></div>
+<div id="librarySelect" hidden role="dialog" aria-modal="true" aria-labelledby="librarySelectTitle"><div class="dialog"><h1 id="librarySelectTitle">도서관 선택</h1><p>공부 기록과 친구 관계는 세 공간에서 동일하게 유지됩니다. 다른 도서관으로 이동하면 기존 좌석은 반납됩니다.</p><div class="library-cards"><button type="button" class="library-choice" data-library="main"><strong>서울대학교 중앙도서관</strong><small>48석</small></button><button type="button" class="library-choice" data-library="korea"><strong>고려대학교 중앙도서관</strong><small>48석</small></button><button type="button" class="library-choice" data-library="yonsei"><strong>연세대학교 연세·삼성학술정보관</strong><small>48석</small></button></div><button type="button" class="iconbtn" id="libraryClose">현재 도서관에 머물기</button></div></div><div id="accountOverlay" hidden><div class="dialog" role="dialog" aria-modal="true" aria-label="계정 메뉴"><button type="button" id="accountClose" aria-label="도서관으로 돌아가기" title="닫기">×</button><h1>계정 연결</h1><p id="accountStatus">게스트로 이용 중입니다. 친구 기능은 Google 로그인 후 사용할 수 있습니다.</p><p id="authError" class="auth-error" role="alert" hidden></p><div class="account-actions"><button id="googleLogin" class="ok">Google로 계속하기</button><button id="logoutBtn" class="ok alt" hidden>Google 로그아웃</button><button id="deleteAccountBtn" class="account-danger" hidden>스터디룸 계정 데이터 삭제</button></div><p class="note">게스트 인증 정보가 삭제되면 이전 기록에 접근하지 못할 수 있습니다. Google 연결 시 기존 게스트 기록을 서버에서 안전하게 병합합니다.</p><p class="note">모바일 Google 팝업이 차단되면 브라우저 설정에서 팝업을 허용해 주세요.</p></div></div>
+<section id="bottom" class="glass" aria-label="실시간 채팅"><div class="controls"><input id="chatInput" maxlength="40" placeholder="실시간 채팅 (최대 40자)" aria-label="실시간 채팅 입력"/><button id="sendBtn" class="primary">말하기</button></div></section>
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog"><h1 id="modalTitle">캐릭터 선택</h1><p>로우폴리 동물 캐릭터를 선택하고 도서관에 입장하세요. 선택 내용은 이 브라우저에 저장됩니다.</p><div class="fields"><label class="field full">닉네임<input id="nick" maxlength="15" value="공부하는토끼" /></label><label class="field">동물<select id="species"><option value="rabbit">토끼</option><option value="bear">곰</option><option value="cat">고양이</option><option value="dog">강아지</option></select></label><label class="field">기본 후드 색상<select id="gender"><option value="female">분홍색 기본</option><option value="male">하늘색 기본</option></select></label><label class="field full">후드 색상 직접 변경<input id="hood" type="color" value="#f39bc4" /></label></div><button id="enterBtn" class="ok">3D 도서관 입장</button><div class="note">게스트로 실시간 서버에 접속합니다. NPC는 NPC로 표시되며 실제 이용자 수에 포함되지 않습니다.</div></div></div>
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -115,6 +111,7 @@ import { initDashboard } from './client/dashboard.js';
 import { AccountClient } from './client/account.js';
 import { createFriendsPanel } from './client/friends.js';
 import { smoothWaypoints } from './client/navigation-smooth.js';
+import { advanceWalkState } from './client/walk-animation.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. Config / DOM / persist  (이 HTML 파일만 수정해도 좌석과 NPC 확장 가능)
@@ -134,8 +131,7 @@ if(ADMISSION){const scrub=new URL(location.href);scrub.searchParams.delete('admi
 const BASE_LIBRARY=KOREA_ROOM?'korea':YONSEI_ROOM?'yonsei':'main';
 const CONFIG = {width:48, length:88, height:16.2, frontZ:-39, rearZ:49, frontWalkLimit:-33.5, rearWalkLimit:44, rows:4, columnsPerSide:1,
   rowSpacing:17.4, columnSpacing:4.55, npcCount:8, navStep:.6};
-const D = {canvas:$('#scene'),labels:$('#labels'),status:$('#status'),time:$('#timeDisplay'),
-  pause:$('#pauseBtn'),stand:$('#standBtn'),modal:$('#modal'),follow:$('#followBtn'),
+const D = {canvas:$('#scene'),labels:$('#labels'),modal:$('#modal'),
   avatar:$('#avatarBtn'),chat:$('#chatInput'),send:$('#sendBtn')};
 const MOBILE = matchMedia('(pointer:coarse)').matches || innerWidth < 700;
 const PERF_ENABLED = query.get('perf')==='1';
@@ -143,14 +139,13 @@ const LOW_QUALITY = query.get('quality')==='low'; // opt-in diagnostics; default
 const pixelRatio=()=>LOW_QUALITY?Math.min(devicePixelRatio,1):Math.min(devicePixelRatio,innerWidth<700?1.35:1.85);
 const STORAGE = 'snu-study-3d-demo-v1'; // v1 visual preferences are preserved
 const LIBRARY_META={
- main:{badge:'서울대 도서관',brand:'서울대학교 중앙도서관',subtitle:'서울대 열람실 참고 · 비공식 3D 재현',short:'서울대'},
- korea:{badge:'고려대 도서관',brand:'고려대학교 중앙도서관',subtitle:'고려대 중앙도서관 참고 · 비공식 3D 재현',short:'고려대'},
- yonsei:{badge:'연세대 도서관',brand:'연세대학교 연세·삼성학술정보관',subtitle:'연세·삼성학술정보관 참고 · 비공식 3D 재현',short:'연세대'}
+ main:{badge:'서울대 도서관',brand:'서울대학교 중앙도서관',short:'서울대'},
+ korea:{badge:'고려대 도서관',brand:'고려대학교 중앙도서관',short:'고려대'},
+ yonsei:{badge:'연세대 도서관',brand:'연세대학교 연세·삼성학술정보관',short:'연세대'}
 };
 const libraryMeta=LIBRARY_META[BASE_LIBRARY];
 $('#roomBadge').textContent=libraryMeta.badge + (!PRIMARY_ROOM?' · '+ROOM_ID.split('-').at(-1)+'번 방':' · 1번 방');
 $('#libraryBrand').firstChild.textContent=libraryMeta.brand;
-$('#librarySubtitle').textContent=libraryMeta.subtitle;
 document.title=libraryMeta.short+' 도서관 · 3D 스터디카페';
 const COLORS = {male:'#8bcaff',female:'#f39bc4'};
 const fmt=ms=>{let s=Math.floor(Math.max(0,ms)/1000);return [Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(x=>String(x).padStart(2,'0')).join(':')};
@@ -170,8 +165,11 @@ function currentStudyMs(){
 }
 let toastTimer=0;
 function toast(message){$('#toast').textContent=message;$('#toast').style.opacity='1';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').style.opacity='0',2500)}
-function setStatus(message){D.status.textContent=message}
-function updateHUD(){D.time.textContent=fmt(currentStudyMs());D.pause.disabled=!study.running||!net?.connected;D.stand.disabled=!player?.seated||!net?.connected;D.pause.textContent=study.paused?'재개':'일시정지'}
+// Preserve connection/seat status internally without occupying interface space.
+let statusMessage='';
+function setStatus(message){statusMessage=message}
+// Study time is displayed above the avatar by updateLabels(), not a second HUD.
+function updateHUD(){}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. Three renderer, camera, lights
@@ -788,13 +786,17 @@ function animalModel(species,hood){
  // Feet, arms, cuffs and paws.
  const legs=[];
  for(const x of [-.23,.23]){
-   legs.push(mesh(body,'sphere',hoodMat,[x,.46,0],[.19,.36,.20]));
-   mesh(body,'sphere',fur,[x,.20,.14],[.21,.13,.26]);
+  // Hinges rotate existing clothing and feet as a single limb.
+  const hip=new THREE.Group();hip.position.set(x,.72,0);body.add(hip);legs.push(hip);
+  mesh(hip,'sphere',hoodMat,[0,-.26,0],[.19,.36,.20]);
+  mesh(hip,'sphere',fur,[0,-.52,.14],[.21,.13,.26]);
  }
  const arms=[];
  for(const x of [-.48,.48]){
-  const a=mesh(body,'sphere',hoodMat,[x,1.03,0],[.19,.43,.20], [0,0,x>0?-.19:.19]);arms.push(a);
-  mesh(body,'sphere',fur,[x*1.16,.70,.11],[.15,.15,.15]);
+  const shoulder=new THREE.Group();shoulder.position.set(x,1.30,0);body.add(shoulder);arms.push(shoulder);
+  shoulder.rotation.z=x>0?-.19:.19;
+  mesh(shoulder,'sphere',hoodMat,[0,-.27,0],[.19,.43,.20]);
+  mesh(shoulder,'sphere',fur,[x*.16,-.60,.11],[.15,.15,.15]);
  }
  // Ears are DISTINCT per species and emerge from the hood.
  if(species==='rabbit')for(const x of [-.27,.27]){
@@ -820,12 +822,25 @@ class Character{
  constructor(opts){this.name=opts.name;this.isNpc=!!opts.npc;this.isRemote=!!opts.remote;this.species=opts.species;this.hood=opts.hood;
   this.model=animalModel(opts.species,opts.hood);this.root=this.model.root;scene.add(this.root);
   this.root.position.set(opts.x||0,0,opts.z||0);
-  this.route=[];this.routeIndex=0;this.arrive=null;this.seated=false;this.seat=null;this.walkPhase=Math.random()*6;
+  this.route=[];this.routeIndex=0;this.arrive=null;this.seated=false;this.seat=null;
+  this.walkState={phase:0,blend:0};this.lastWalkX=this.root.position.x;this.lastWalkZ=this.root.position.z;
   this.studyMs=opts.studyMs||0;this.studyActive=false;this.studySince=0;
   this.bubbleUntil=0;this.stretchUntil=0;this.label=document.createElement('div');this.label.className='tag'+(this.isNpc?'':(this.isRemote?' remote':' me'));
   this.label.innerHTML='<div class="bubble"></div><div class="plate"><div class="name"></div><div class="clock"></div></div>';
   this.label.querySelector('.name').textContent=(this.isNpc?'NPC · ':'')+this.name;
   D.labels.appendChild(this.label);
+ }
+ resetWalkSample(){this.lastWalkX=this.root.position.x;this.lastWalkZ=this.root.position.z;}
+ animateLocomotion(dt,elapsed){
+  const dx=this.root.position.x-this.lastWalkX,dz=this.root.position.z-this.lastWalkZ;
+  this.resetWalkSample();
+  const {swing,bob}=advanceWalkState(this.walkState,Math.hypot(dx,dz),dt,this.seated);
+  this.model.legs[0].rotation.x=swing;this.model.legs[1].rotation.x=-swing;
+  this.model.arms[0].rotation.x=-swing*.85;this.model.arms[1].rotation.x=swing*.85;
+  this.model.body.position.y=this.seated?Math.sin(elapsed*1.6)*.005:bob;
+  const stretching=this.isNpc&&this.seated&&performance.now()<this.stretchUntil;
+  this.model.arms[0].rotation.z=stretching?-.88:.19;
+  this.model.arms[1].rotation.z=stretching?.88:-.19;
  }
  setAppearance(species,hood,name){const p=this.root.position.clone(),r=this.root.rotation.y,scale=this.root.scale.x;
   scene.remove(this.root);this.species=species;this.hood=hood;this.model=animalModel(species,hood);this.root=this.model.root;
@@ -837,14 +852,14 @@ class Character{
   this.route=route;this.routeIndex=0;this.arrive=then||null;return true;
  }
  sit(seat){this.route=[];this.arrive=null;this.seated=true;this.seat=seat;seat.occupiedBy=this;
-  this.root.position.set(seat.x,.39,seat.z);this.root.scale.setScalar(.83);this.root.rotation.y=seatYaw(seat);
+  this.root.position.set(seat.x,.39,seat.z);this.root.scale.setScalar(.83);this.root.rotation.y=seatYaw(seat);this.resetWalkSample();
   if(this.isNpc){this.studyActive=true;this.studySince=Date.now()}else if(!this.isRemote){updateHUD();setStatus('공부 중 · 책상에서 공부하고 있습니다.')} }
  stand(){if(!this.seated)return;
   const s=this.seat;this.seat=null;this.seated=false;if(s?.occupiedBy===this)s.occupiedBy=null;
   const exit=seatApproach(s,s.approachDist??2.63);
   const around=nav.nearest(nav.cell(exit.x,exit.z));
   const p=around?nav.world(around.x,around.z):exit;
-  this.root.position.set(p.x,0,p.z);this.root.scale.setScalar(1);
+  this.root.position.set(p.x,0,p.z);this.root.scale.setScalar(1);this.resetWalkSample();
   if(this.isNpc){if(this.studyActive)this.studyMs+=Date.now()-this.studySince;this.studyActive=false}
   else if(!this.isRemote){updateHUD();setStatus('이동 중 · 다른 빈 좌석을 클릭하면 다시 공부할 수 있습니다.')}
  }
@@ -873,12 +888,8 @@ class Character{
    }
    if(facing!==null){const angle=Math.atan2(Math.sin(facing-this.root.rotation.y),Math.cos(facing-this.root.rotation.y));
     this.root.rotation.y+=angle*Math.min(1,dt*9);}
-   this.walkPhase+=dt*11;this.model.body.position.y=Math.sin(this.walkPhase)*.037;
-  }else{this.model.body.position.y=this.seated?Math.sin(elapsed*1.6+this.walkPhase)*.005:0}
-  // Brief stretching animation for NPCs; body and hood remain true 3D meshes.
-  const stretching=this.isNpc&&this.seated&&performance.now()<this.stretchUntil;
-  this.model.arms[0].rotation.z=stretching?-.88:.19;
-  this.model.arms[1].rotation.z=stretching?.88:-.19;
+  }
+  // One animation pass after ALL movement sources (path, keys, remote, NPC).
  }
  getTimer(){return (this.isNpc||this.isRemote)?this.studyMs+(this.studyActive?Math.max(0,Date.now()-this.studySince):0):currentStudyMs()}
 }
@@ -977,12 +988,12 @@ function syncNpcStates(states){
    npc.studyActive=false;
    npc.npcTarget=null;npc.root.rotation.y=state.yaw;
   }else{
-   if(npc.seated){npc.stand();npc.root.position.set(state.x,0,state.z);}
+   if(npc.seated){npc.stand();npc.root.position.set(state.x,0,state.z);npc.resetWalkSample();}
    // A vacant-looking chair is still reserved for its home NPC.
    seat.occupiedBy=npc;
    npc.route=[];npc.arrive=null;
    npc.npcTarget={x:state.x,z:state.z,yaw:state.yaw};
-   if(!npc.npcSynced){npc.root.position.set(state.x,0,state.z);npc.root.rotation.y=state.yaw;}
+   if(!npc.npcSynced){npc.root.position.set(state.x,0,state.z);npc.root.rotation.y=state.yaw;npc.resetWalkSample();}
   }
   npc.stretchUntil=state.kind==='stretch'?performance.now()+1300:0;
   if(state.kind==='stretch'&&npc.npcLastKind!=='stretch')npc.say(npcStretchWords[state.id%npcStretchWords.length]);
@@ -994,8 +1005,8 @@ function updateNpcVisuals(dt){for(const npc of npcList){
  const t=npc.npcTarget,p=npc.root.position,dx=t.x-p.x,dz=t.z-p.z,dist=Math.hypot(dx,dz);
  const k=dist>3?1:Math.min(1,dt*8);
  p.x+=dx*k;p.z+=dz*k;
+ if(dist>3)npc.resetWalkSample();
  npc.root.rotation.y+=Math.atan2(Math.sin(t.yaw-npc.root.rotation.y),Math.cos(t.yaw-npc.root.rotation.y))*Math.min(1,dt*10);
- if(dist>.035){npc.walkPhase+=dt*10;npc.model.body.position.y=Math.sin(npc.walkPhase)*.035;}
  }}
 function setLocks(locks){seatLocks.clear();for(const lock of locks)seatLocks.set(lock.id,lock);}
 function applyLock(m){if(m.ownerId===null)seatLocks.delete(m.seatId);
@@ -1015,6 +1026,7 @@ function syncSelf(p,day){
    player.sit(seats[p.seatId]);
    setStatus(p.paused?'재접속 완료 · 좌석 복구됨, 타이머 일시정지':'공부 중 · 서버 좌석 점유 확인됨');
  }else{player.root.position.set(p.x,0,p.z);player.root.rotation.y=p.yaw;}
+ player.resetWalkSample();
  applyStudyClock(p,day);
 }
 function updateRemoteRecord(p,initial=false){
@@ -1042,10 +1054,11 @@ function updateRemoteRecord(p,initial=false){
 function updateRemoteMovement(dt){for(const obj of remotePlayers.values()){
   const target=obj.serverTarget;if(!target||obj.seated)continue;
   const pos=obj.root.position,dx=target.x-pos.x,dz=target.z-pos.z,dist=Math.hypot(dx,dz);
-  const fraction=dist>4?1:Math.min(1,dt*10);
+  const jumped=dist>4;
+  const fraction=jumped?1:Math.min(1,dt*10);
   pos.x+=dx*fraction;pos.z+=dz*fraction;
+  if(jumped)obj.resetWalkSample();
   obj.root.rotation.y+=Math.atan2(Math.sin(target.yaw-obj.root.rotation.y),Math.cos(target.yaw-obj.root.rotation.y))*Math.min(1,dt*12);
-  obj.walkPhase+=dt*11;obj.model.body.position.y=dist>.04?Math.sin(obj.walkPhase)*.035:0;
  }}
 function onServer(m){
  if(m.t==='room_exit_ok'&&switchingTo){const url=switchingTo;switchingTo=null;location.assign(url);return;}
@@ -1071,7 +1084,7 @@ function onServer(m){
         if(player.name!==p.nick||player.species!==p.species||player.hood!==p.hood)
            player.setAppearance(p.species,p.hood,p.nick);
         applyStudyClock(p,m.day);
-        if(!player.seated&&!player.route.length&&Math.hypot(player.root.position.x-p.x,player.root.position.z-p.z)>1){player.root.position.set(p.x,0,p.z);}
+        if(!player.seated&&!player.route.length&&Math.hypot(player.root.position.x-p.x,player.root.position.z-p.z)>1){player.root.position.set(p.x,0,p.z);player.resetWalkSample();}
       }
    } else updateRemoteRecord(p);
    break;
@@ -1122,7 +1135,7 @@ function onServer(m){
  }
  case 'correction':{
    player.route=[];player.arrive=null;ring.visible=false;
-   player.root.position.set(m.x,0,m.z);player.root.rotation.y=m.yaw;
+   player.root.position.set(m.x,0,m.z);player.root.rotation.y=m.yaw;player.resetWalkSample();
    toast('서버가 이동 위치를 교정했습니다.');break;
  }
  case 'error':{
@@ -1150,9 +1163,6 @@ function abortPendingSeat(){if(pendingIntent!==null){pendingIntent=null;net?.sen
 // ─────────────────────────────────────────────────────────────────────────────
 // 8. Input: drag orbit / click-to-walk / chair-to-sit / WASD movement
 // ─────────────────────────────────────────────────────────────────────────────
-let follow=true;
-function followToggle(){follow=!follow;D.follow.classList.toggle('active',follow);D.follow.textContent='따라가기 '+(follow?'ON':'OFF');}
-D.follow.addEventListener('click',followToggle);
 function goToSeat(s){
  showTapRipple(s.x,s.z,true);
  if(!net?.connected){toast('서버에 연결되지 않았습니다.');return;}
@@ -1171,7 +1181,7 @@ function goToFloor(p){
  abortPendingSeat();if(player.seated){net.send({t:'stand'});player.stand();}
  ring.visible=false;
  const target={x:clamp(p.x,-21.8,21.8),z:clamp(p.z,CONFIG.frontWalkLimit+.22,CONFIG.rearWalkLimit-.2)};
- if(player.go(target,()=>setStatus('이동 완료 · 빈 의자를 클릭해 공부를 시작하세요.')))setStatus('목적지로 이동 중…');
+ player.go(target);
 }
 const down=new Map();let multitouch=false;
 D.canvas.addEventListener('pointerdown',e=>{down.set(e.pointerId,{x:e.clientX,y:e.clientY,time:performance.now()});if(down.size>1)multitouch=true});
@@ -1211,17 +1221,13 @@ function keyboardMove(dt){const f=(keys.has('w')||keys.has('arrowup')?1:0)-(keys
  else if(nav.isWalkable(player.root.position.x,z))player.root.position.z=z;
  const turn=Math.atan2(moveDirection.x,moveDirection.z);
  player.root.rotation.y+=Math.atan2(Math.sin(turn-player.root.rotation.y),Math.cos(turn-player.root.rotation.y))*Math.min(1,dt*12);
- player.walkPhase+=dt*11;player.model.body.position.y=Math.sin(player.walkPhase)*.04;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 9. User interactions, NPC state machines, world-space HTML labels
 // ─────────────────────────────────────────────────────────────────────────────
-D.pause.onclick=()=>{if(!net?.connected){toast('서버 연결이 필요합니다.');return;}net.send({t:'pause',paused:!study.paused});};
-D.stand.onclick=()=>{if(!net?.connected)return;abortPendingSeat();if(player.seated){net.send({t:'stand'});player.stand();}ring.visible=false};
 function sendChat(){const msg=D.chat.value.trim();if(!msg)return;if(!net?.send({t:'chat',message:msg})){toast('서버에 연결되지 않았습니다.');return;}D.chat.value='';D.chat.blur()}
 D.send.onclick=sendChat;D.chat.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChat()}});
-$('#helpBtn').onclick=()=>toast('드래그 회전 · 휠/핀치 줌 · 바닥 클릭 이동 · 의자 클릭 앉기 · WASD 이동');
 $('#avatarBtn').onclick=()=>showModal();
 $('#inviteBtn').onclick=async()=>{const u=new URL(location.href);u.searchParams.set('room',ROOM_ID);u.searchParams.delete('auto');u.hash='';
  try{await navigator.clipboard.writeText(u.href);toast('같은 방 초대 링크를 복사했습니다.');}
@@ -1296,9 +1302,14 @@ function frame(now){requestAnimationFrame(frame);
  player.update(dt,elapsed);keyboardMove(dt);sendPosition();updateRemoteMovement(dt);updateTapRipples(dt);
  for(const npc of npcList)npc.update(dt,elapsed);
  updateNpcVisuals(dt);
- if(follow){targetFollow.set(player.root.position.x,1.35,player.root.position.z-1.3);
-  offsetFollow.subVectors(targetFollow,orbit.target).multiplyScalar(Math.min(1,dt*2.9));
-  orbit.target.add(offsetFollow);camera.position.add(offsetFollow)}
+ // Animate from actual displacement: mouse pathing, keyboard, remote interpolation and NPC sync.
+ player.animateLocomotion(dt,elapsed);
+ for(const obj of remotePlayers.values())obj.animateLocomotion(dt,elapsed);
+ for(const npc of npcList)npc.animateLocomotion(dt,elapsed);
+ // Follow the avatar unconditionally; orbit/zoom controls remain usable.
+ targetFollow.set(player.root.position.x,1.35,player.root.position.z-1.3);
+ offsetFollow.subVectors(targetFollow,orbit.target).multiplyScalar(Math.min(1,dt*2.9));
+ orbit.target.add(offsetFollow);camera.position.add(offsetFollow);
  orbit.update();
  // Camera cannot pass into the front bookshelf wall, rear facade, ceiling or side glazing.
  // OrbitControls recalculates its spherical state from this camera position next frame.

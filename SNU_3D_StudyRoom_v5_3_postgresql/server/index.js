@@ -22,7 +22,7 @@ import {createSQLiteBackup} from '../scripts/backup-sqlite.mjs';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
 const root=path.resolve(here,'..');
-const allow=new Map([['/','index.html'],['/index.html','index.html'],['/client/network.js','client/network.js'],['/client/dashboard.js','client/dashboard.js'],['/client/account.js','client/account.js'],['/client/friends.js','client/friends.js'],['/client/navigation-smooth.js','client/navigation-smooth.js']]);
+const allow=new Map([['/','index.html'],['/index.html','index.html'],['/client/network.js','client/network.js'],['/client/dashboard.js','client/dashboard.js'],['/client/account.js','client/account.js'],['/client/friends.js','client/friends.js'],['/client/navigation-smooth.js','client/navigation-smooth.js'],['/client/walk-animation.js','client/walk-animation.js']]);
 const state=statePaths(root);
 assertExistingProductionData(state);
 const secretFile=state.secret;

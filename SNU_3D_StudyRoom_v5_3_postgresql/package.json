@@ -1,6 +1,6 @@
 {
   "name": "snu-library-3d-studyroom",
-  "version": "6.4.0-auto-rooms-sharding.1",
+  "version": "6.5.0-ui-walk.1",
   "private": true,
   "type": "module",
   "description": "Three photo-referenced university libraries (SNU, Korea, Yonsei) with isolated WebSocket rooms and PostgreSQL study records",
