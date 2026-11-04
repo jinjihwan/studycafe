@@ -12,11 +12,11 @@ test('48 authoritative seats remain eight 6-chair tables with clear central path
  for(const z of [-27,-9.6,7.8,25.2,35])assert.equal(isWalkable(0,z),true);
  assert.equal(isWalkable(24,0),false);
 });
-test('photo-style triangular legs meet at apex instead of crossed X',()=>{
- assert.match(html,/const innerX=side\*13\.0, outerX=side\*22\.2, apexX=side\*17\.6/);
- assert.match(html,/\[innerX,\.25,z\],\[apexX,H-\.55,z\]/);
- assert.match(html,/\[outerX,\.25,z\],\[apexX,H-\.55,z\]/);
- assert.doesNotMatch(html,/\[innerX,\.25,z\],\[outerX,H-\.5,z\]/);
+test('Seoul triangular supports rotated into depth, tips separated and no visible apex',()=>{
+ assert.match(html,/const x=side\*17\.6, gap=\.92, spread=4\.60/);
+ assert.match(html,/const footZ=z\+dir\*spread, tipZ=z\+dir\*gap/);
+ assert.match(html,/batch\.segment\('steel',\[x,\.25,footZ\],\[x,H-\.63,tipZ\],\.91\)/);
+ assert.doesNotMatch(html,/const innerX=side\*13\.0, outerX=side\*22\.2, apexX=side\*17\.6/);
 });
 test('floor and chair taps emit exact location ripples; chair marker not behind chair',()=>{
  assert.match(html,/function showTapRipple\(x,z,chair=false\)/);

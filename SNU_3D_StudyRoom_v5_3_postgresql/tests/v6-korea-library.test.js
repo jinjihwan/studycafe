@@ -9,7 +9,7 @@ const social=readFileSync(new URL('../server/account-api.js',import.meta.url),'u
 
 test('Korea Grand Reading Hall renders distinct historic design and library chooser',()=>{
   assert.match(html,/function buildKoreaRoom\(\)/);
-  assert.match(html,/if\(KOREA_ROOM\)buildKoreaRoom\(\);else buildRoom\(\)/);
+  assert.match(html,/if\(YONSEI_ROOM\)buildYonseiRoom\(\);else if\(KOREA_ROOM\)buildKoreaRoom\(\);else buildRoom\(\)/);
   assert.match(html,/for\(const x of \[-12,0,12\]\)for\(let n=0;n<9;n\+\+\)/); // 27 chandeliers
   for(const material of ['kuCurtain','kuWood','kuBrass','kuPlaster','kuStone'])assert.match(html,new RegExp(`mat\\('${material}'`));
   assert.match(html,/data-library="main"/);assert.match(html,/data-library="korea"/);

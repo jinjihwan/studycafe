@@ -18,7 +18,7 @@ test('camera starts near avatar, follow target aligned, and HTML supports closin
  assert.match(serverIndex,/\['\/client\/navigation-smooth\.js','client\/navigation-smooth\.js'\]/);
  assert.match(html,/camera\.position\.z=clamp\(camera\.position\.z,CONFIG\.frontZ\+2\.7,CONFIG\.rearZ-1\.7\)/);
 });
-test('compact ceiling, glazing, triangular A-frame and exact 8 tables with 48 seats',()=>{
+test('compact ceiling, glazing, rotated separated support and exact 8 tables with 48 seats',()=>{
  assert.match(html,/height:16\.2, frontZ:-39, rearZ:49/);
  assert.match(html,/const rz=CONFIG\.rearZ;/);
  assert.match(html,/new THREE\.PlaneGeometry\(3\.85,H-1\.4\)/);
@@ -30,8 +30,8 @@ test('compact ceiling, glazing, triangular A-frame and exact 8 tables with 48 se
  assert.ok(layout.seats.every(s=>Math.abs(s.x)<11 && Math.abs(s.x)>5));
  assert.match(html,/rows:4, columnsPerSide:1/);
  assert.match(html,/for\(const dx of \[-1\.68,0,1\.68\]\)addChair/);
- assert.match(html,/batch\.segment\('steel',\[innerX,\.25,z\],\[apexX,H-\.55,z\],1\.02\)/);
- assert.match(html,/batch\.segment\('steel',\[outerX,\.25,z\],\[apexX,H-\.55,z\],1\.02\)/);
+ assert.match(html,/batch\.segment\('steel',\[x,\.25,footZ\],\[x,H-\.63,tipZ\],\.91\)/);
+ assert.match(html,/const footZ=z\+dir\*spread, tipZ=z\+dir\*gap/);
  assert.match(html,/npcCount:8/);
 });
 test('server and client enforce matching front/rear walk bounds',()=>{
@@ -75,5 +75,6 @@ test('eight six-seat tables stay aligned between browser and server; central ais
  assert.equal(layout.npcSeats.size,8);
  assert.ok(!layout.npcSeats.has(0));
  for(const z of [-27,-9.6,7.8,25.2,35])assert.equal(isWalkable(0,z),true);
- for(const z of [-25,-7,11,29]){assert.equal(isWalkable(13,z),false);assert.equal(isWalkable(22.2,z),false);}
+ for(const z of [-25,-7,11,29])for(const side of [-1,1])for(const dir of [-1,1])
+   assert.equal(isWalkable(side*17.6,z+dir*4.60),false);
 });

@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
 <meta name="theme-color" content="#111d31" />
-<title>3D 대학 도서관 스터디카페 · 서울대 / 고려대</title>
+<title>3D 대학 도서관 스터디카페 · 서울대 / 고려대 / 연세대</title>
 <style>
 :root{color-scheme:dark;--panel:rgba(20,30,47,.78);--border:rgba(255,255,255,.20);--blue:#88c9ff;--mint:#8cecc6;--text:#f4f8ff}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101929;color:var(--text);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
@@ -104,7 +104,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
 <section id="dashboard" hidden aria-label="공부 기록과 랭킹"><div id="dashboardBody"></div></section>
 <div id="hints"><div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 이동 · <kbd>Shift</kbd> 빠르게</div><div>바닥 클릭: 이동 · 의자 클릭: 앉기</div><div>드래그: 회전 · 휠/두 손가락: 확대·축소</div></div>
 <div id="toast" role="status" aria-live="polite"></div>
-<div id="librarySelect" hidden role="dialog" aria-modal="true" aria-labelledby="librarySelectTitle"><div class="dialog"><h1 id="librarySelectTitle">도서관 선택</h1><p>공부 기록과 친구 관계는 두 공간에서 동일하게 유지됩니다. 다른 도서관으로 이동하면 기존 좌석은 반납됩니다.</p><div class="library-cards"><button type="button" class="library-choice" data-library="main"><strong>서울대학교 중앙도서관</strong><small>파란 카펫 · 삼각 철골 · 현대식 공동 책상 · 48석</small></button><button type="button" class="library-choice" data-library="korea"><strong>고려대학교 중앙도서관(대학원)</strong><small>붉은 커튼 · 고딕 아치 창 · 목재 책상과 독서등 · 48석</small></button></div><button type="button" class="iconbtn" id="libraryClose">현재 도서관에 머물기</button><p class="note">두 공간 모두 대학교 공식 운영 서비스가 아닌 비공식 3D 재현입니다.</p></div></div><div id="accountOverlay" hidden><div class="dialog" role="dialog" aria-modal="true" aria-label="계정 메뉴"><button type="button" id="accountClose" aria-label="도서관으로 돌아가기" title="닫기">×</button><h1>계정 연결</h1><p id="accountStatus">게스트로 이용 중입니다. 친구 기능은 Google 로그인 후 사용할 수 있습니다.</p><p id="authError" class="auth-error" role="alert" hidden></p><div class="account-actions"><button id="googleLogin" class="ok">Google로 계속하기</button><button id="logoutBtn" class="ok alt" hidden>Google 로그아웃</button><button id="deleteAccountBtn" class="account-danger" hidden>스터디룸 계정 데이터 삭제</button></div><p class="note">게스트 인증 정보가 삭제되면 이전 기록에 접근하지 못할 수 있습니다. Google 연결 시 기존 게스트 기록을 서버에서 안전하게 병합합니다.</p><p class="note">모바일 Google 팝업이 차단되면 브라우저 설정에서 팝업을 허용해 주세요.</p></div></div>
+<div id="librarySelect" hidden role="dialog" aria-modal="true" aria-labelledby="librarySelectTitle"><div class="dialog"><h1 id="librarySelectTitle">도서관 선택</h1><p>공부 기록과 친구 관계는 세 공간에서 동일하게 유지됩니다. 다른 도서관으로 이동하면 기존 좌석은 반납됩니다.</p><div class="library-cards"><button type="button" class="library-choice" data-library="main"><strong>서울대학교 중앙도서관</strong><small>파란 카펫 · 삼각 철골 · 현대식 공동 책상 · 48석</small></button><button type="button" class="library-choice" data-library="korea"><strong>고려대학교 중앙도서관</strong><small>붉은 커튼 · 고딕 아치 창 · 목재 책상과 독서등 · 48석</small></button><button type="button" class="library-choice" data-library="yonsei"><strong>연세대학교 연세·삼성학술정보관</strong><small>복층 유리 난간 · 파란 카펫 · 밝은 학습석 · 48석</small></button></div><button type="button" class="iconbtn" id="libraryClose">현재 도서관에 머물기</button><p class="note">세 공간 모두 대학교 공식 운영 서비스가 아닌 비공식 3D 재현입니다.</p></div></div><div id="accountOverlay" hidden><div class="dialog" role="dialog" aria-modal="true" aria-label="계정 메뉴"><button type="button" id="accountClose" aria-label="도서관으로 돌아가기" title="닫기">×</button><h1>계정 연결</h1><p id="accountStatus">게스트로 이용 중입니다. 친구 기능은 Google 로그인 후 사용할 수 있습니다.</p><p id="authError" class="auth-error" role="alert" hidden></p><div class="account-actions"><button id="googleLogin" class="ok">Google로 계속하기</button><button id="logoutBtn" class="ok alt" hidden>Google 로그아웃</button><button id="deleteAccountBtn" class="account-danger" hidden>스터디룸 계정 데이터 삭제</button></div><p class="note">게스트 인증 정보가 삭제되면 이전 기록에 접근하지 못할 수 있습니다. Google 연결 시 기존 게스트 기록을 서버에서 안전하게 병합합니다.</p><p class="note">모바일 Google 팝업이 차단되면 브라우저 설정에서 팝업을 허용해 주세요.</p></div></div>
 <section id="bottom" class="glass" aria-label="공부 및 채팅 도구"><div id="status">빈 의자를 선택하면 해당 자리로 이동해 공부를 시작합니다.</div><div class="controls"><span style="font-size:10px;color:#c6d4ea">오늘</span><span id="timeDisplay">00:00:00</span><button id="pauseBtn" disabled>일시정지</button><button id="standBtn" disabled>자리에서 일어나기</button><input id="chatInput" maxlength="40" placeholder="실시간 채팅 (최대 40자)" aria-label="테스트 채팅"/><button id="sendBtn" class="primary">말하기</button></div></section>
 <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog"><h1 id="modalTitle">캐릭터 선택</h1><p>로우폴리 동물 캐릭터를 선택하고 도서관에 입장하세요. 선택 내용은 이 브라우저에 저장됩니다.</p><div class="fields"><label class="field full">닉네임<input id="nick" maxlength="15" value="공부하는토끼" /></label><label class="field">동물<select id="species"><option value="rabbit">토끼</option><option value="bear">곰</option><option value="cat">고양이</option><option value="dog">강아지</option></select></label><label class="field">기본 후드 색상<select id="gender"><option value="female">분홍색 기본</option><option value="male">하늘색 기본</option></select></label><label class="field full">후드 색상 직접 변경<input id="hood" type="color" value="#f39bc4" /></label></div><button id="enterBtn" class="ok">3D 도서관 입장</button><div class="note">게스트로 실시간 서버에 접속합니다. NPC는 NPC로 표시되며 실제 이용자 수에 포함되지 않습니다. 실제 대학 도서관 사진을 참고한 비공식 3D 공간입니다.</div></div></div>
 <script type="module">
@@ -127,6 +127,7 @@ const $ = s => document.querySelector(s);
 const query = new URLSearchParams(location.search);
 const ROOM_ID = (()=>{const name=query.get('room')||'main';return /^[a-z0-9][a-z0-9_-]{0,31}$/.test(name)?name:'main'})();
 const KOREA_ROOM=ROOM_ID==='korea';
+const YONSEI_ROOM=ROOM_ID==='yonsei';
 const CONFIG = {width:48, length:88, height:16.2, frontZ:-39, rearZ:49, frontWalkLimit:-33.5, rearWalkLimit:44, rows:4, columnsPerSide:1,
   rowSpacing:17.4, columnSpacing:4.55, npcCount:8, navStep:.6};
 const D = {canvas:$('#scene'),labels:$('#labels'),status:$('#status'),time:$('#timeDisplay'),
@@ -137,10 +138,16 @@ const PERF_ENABLED = query.get('perf')==='1';
 const LOW_QUALITY = query.get('quality')==='low'; // opt-in diagnostics; default rendering unchanged.
 const pixelRatio=()=>LOW_QUALITY?Math.min(devicePixelRatio,1):Math.min(devicePixelRatio,innerWidth<700?1.35:1.85);
 const STORAGE = 'snu-study-3d-demo-v1'; // v1 visual preferences are preserved
-$('#roomBadge').textContent=KOREA_ROOM?'고려대 대열람실':ROOM_ID==='main'?'서울대 도서관':'방 '+ROOM_ID;
-$('#libraryBrand').firstChild.textContent=KOREA_ROOM?'고려대 대열람실':'서울대 중앙도서관';
-$('#librarySubtitle').textContent=KOREA_ROOM?'고려대 중앙도서관(대학원) 참고 · 비공식 재현':'서울대 중앙도서관 참고 · 비공식 재현';
-document.title=(KOREA_ROOM?'고려대':'서울대')+' 도서관 · 3D 스터디카페';
+const LIBRARY_META={
+ main:{badge:'서울대 도서관',brand:'서울대학교 중앙도서관',subtitle:'서울대 열람실 참고 · 비공식 3D 재현',short:'서울대'},
+ korea:{badge:'고려대 도서관',brand:'고려대학교 중앙도서관',subtitle:'고려대 중앙도서관 참고 · 비공식 3D 재현',short:'고려대'},
+ yonsei:{badge:'연세대 도서관',brand:'연세대학교 연세·삼성학술정보관',subtitle:'연세·삼성학술정보관 참고 · 비공식 3D 재현',short:'연세대'}
+};
+const libraryMeta=LIBRARY_META[ROOM_ID]||LIBRARY_META.main;
+$('#roomBadge').textContent=libraryMeta.badge;
+$('#libraryBrand').firstChild.textContent=libraryMeta.brand;
+$('#librarySubtitle').textContent=libraryMeta.subtitle;
+document.title=libraryMeta.short+' 도서관 · 3D 스터디카페';
 const COLORS = {male:'#8bcaff',female:'#f39bc4'};
 const fmt=ms=>{let s=Math.floor(Math.max(0,ms)/1000);return [Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(x=>String(x).padStart(2,'0')).join(':')};
 const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
@@ -206,6 +213,14 @@ mat('kuCurtain','#7a2437',{roughness:.92});mat('kuCurtainShadow','#541c2c');mat(
 mat('kuStone','#d8c6ac');mat('kuWindow','#9cbac7',{roughness:.30,metalness:.16});
 mat('kuLamp','#fff3d8',{emissive:'#e6c7a0',emissiveIntensity:.62});
 mat('kuLampShade','#e6ca93',{emissive:'#b78d53',emissiveIntensity:.35});
+// Yonsei-Samsung Library: photo-referenced blue-carpeted, bright atrium and reading pods.
+mat('ysConcrete','#bfc6c8',{roughness:.87});mat('ysWall','#e9e7e2');
+mat('ysOak','#c89b64',{roughness:.63});mat('ysOakDark','#936d45');
+mat('ysGlass','#b9dfe9',{metalness:.12,roughness:.17,transparent:true,opacity:.32,depthWrite:false});
+mat('ysRail','#aebbc3',{metalness:.48,roughness:.35});mat('ysPod','#ebe2c9');
+mat('ysPodEdge','#c1b496');mat('ysDesk','#b99465');mat('ysChair','#3c4857');
+mat('ysChairBack','#596678');mat('ysCeiling','#d8c1a0');
+mat('ysLight','#fffbed',{emissive:'#fff5d9',emissiveIntensity:1.15});
 mat('led','#fffdf4',{emissive:'#fffcda',emissiveIntensity:1.3,roughness:.35});
 const bookColors=['#42637b','#8e5846','#63826b','#d1b16f','#74617e','#9a7e61','#8a9b9d','#7b493e','#aca7a0','#b3936b'];
 bookColors.forEach((c,i)=>mat('book'+i,c));
@@ -319,18 +334,19 @@ function buildRoom(){const {width:W,length:L,height:H}=CONFIG;
   for(let x=-21;x<=21;x+=4.2){batch.box('led',[x,H-.292,z],[2.25,.045,.42])}
  }
  for(let x=-21;x<=21;x+=4.2)batch.box('grid',[x,H-.22,centerZ],[.07,.08,L]);
- // Photo-inspired triangular frames: TWO diagonal structural legs converge
- // at the ceiling apex (A / inverted-V silhouette). They NEVER cross into X.
- // Four paired frames along the window walls preserve the clear central aisle.
+ // Rotated 90 degrees around Y from the original front-facing A frame.
+ // Viewed down the central aisle, braces overlap into a straight '1' silhouette;
+ // from the side, two diagonal feet lean towards DIFFERENT, separated high tips.
+ // Each tip independently supports a longitudinal ceiling beam: no apex joint.
  for(const z of [-25,-7,11,29])for(const side of [-1,1]){
-  const innerX=side*13.0, outerX=side*22.2, apexX=side*17.6;
-  batch.segment('steel',[innerX,.25,z],[apexX,H-.55,z],1.02);
-  batch.segment('steel',[outerX,.25,z],[apexX,H-.55,z],1.02);
-  batch.box('steelLight',[apexX,H-.48,z],[1.50,.78,1.32]); // top connection
-  batch.box('steelLight',[side*17.6,H-.24,z],[9.8,.28,1.25]); // ceiling connection
-  for(const footX of [innerX,outerX]){
-   batch.box('steel',[footX,.24,z],[1.42,.48,1.42]);
-   obstacle(footX,z,1.8,1.65); // both feet mirror server/room.js
+  const x=side*17.6, gap=.92, spread=4.60;
+  batch.box('steelLight',[x,H-.23,z],[1.38,.40,11.0]); // roof beam, not a shared brace apex
+  for(const dir of [-1,1]){
+   const footZ=z+dir*spread, tipZ=z+dir*gap;
+   batch.segment('steel',[x,.25,footZ],[x,H-.63,tipZ],.91);
+   batch.box('steel',[x,.24,footZ],[1.46,.48,1.48]);
+   batch.box('steelLight',[x,H-.51,tipZ],[1.26,.35,.95]); // separate contact pad
+   obstacle(x,footZ,1.8,1.65); // same coordinates on server
   }
  }
  // Far wall bookshelves: lattice, alternating book colors, central patterned exit.
@@ -431,7 +447,65 @@ function buildKoreaRoom(){
  }
  obstacle(0,-37.65,CONFIG.width,1.5);
 }
-if(KOREA_ROOM)buildKoreaRoom();else buildRoom();
+// The Yonsei-Samsung Library interior, modeled procedurally from study-hall
+// photographs: blue carpet, light oak mezzanine, glass railings, tall concrete
+// columns and cream individual reading pods. No external photo is embedded.
+function buildYonseiRoom(){
+ const {width:W,length:L,height:H}=CONFIG,cz=(CONFIG.frontZ+CONFIG.rearZ)/2;
+ batch.box('ysCeiling',[0,H-.10,cz],[W,.32,L]);
+ batch.box('ysConcrete',[0,H/2,CONFIG.frontZ],[W,H,.50]);
+ batch.box('ysWall',[0,H/2,CONFIG.rearZ],[W,H,.50]);
+ // Tall, daylit glazed walls and repeated structural piers.
+ const glassMat=new THREE.MeshStandardMaterial({color:'#bcdfe8',transparent:true,opacity:.25,
+  roughness:.17,metalness:.09,side:THREE.DoubleSide,depthWrite:false});
+ for(const side of [-1,1]){
+  const x=side*(W/2-.10);
+  batch.box('ysConcrete',[x,.75,cz],[.35,1.50,L]);
+  batch.box('ysConcrete',[x,H-.65,cz],[.45,1.30,L]);
+  for(let z=-34;z<=44;z+=7.2){
+   batch.box('ysConcrete',[x,H/2,z],[.64,H-1.15,.65]);
+   batch.box('ysRail',[x,H*.51,z+3.55],[.25,.15,6.85]);
+   const glass=new THREE.Mesh(new THREE.PlaneGeometry(6.65,H-1.35),glassMat);
+   glass.rotation.y=Math.PI/2;glass.position.set(x,H/2,z+3.55);scene.add(glass);
+  }
+  // Raised gallery decoration on both long walls; not a selectable floor or seat.
+  const galleryX=side*22.25,railX=side*20.55;
+  batch.box('ysOak',[galleryX,9.25,cz],[3.3,.25,L-9]);
+  batch.box('ysOakDark',[railX,10.70,cz],[.20,.17,L-10]);
+  batch.box('ysGlass',[railX,9.98,cz],[.12,1.42,L-10]);
+  for(let z=-33;z<=43;z+=6.6){
+   batch.box('ysRail',[railX,10.0,z],[.15,1.60,.14]);
+   batch.box('ysConcrete',[side*22.7,5.6,z],[1.05,11.2,.98]);
+  }
+ }
+ // Warm wood inset ceiling, LED strips, and deep atrium perspective.
+ for(let z=-35;z<=45;z+=4.45){
+  batch.box('ysOak',[0,H-.31,z],[W,.22,.36]);
+  batch.box('ysLight',[0,H-.43,z+1.40],[W-3,.055,.20]);
+  for(const x of [-16,-8,0,8,16])batch.box('ysLight',[x,H-.47,z+3],[2.95,.045,.55]);
+ }
+ // Bookshelves and glass-clad information hub at the far end.
+ for(const side of [-1,1]){
+  for(let x=side<0?-21:6.5;x<(side<0?-6:21);x+=2.7){
+   batch.box('ysOakDark',[x,6.15,-38.23],[2.52,11.95,.68]);
+   batch.box('ysOak',[x,6.15,-37.88],[2.27,11.65,.08]);
+   for(let row=1;row<=10;row++){
+    batch.box('ysOakDark',[x,row*1.1,-37.70],[2.36,.11,.45]);
+    for(let b=0;b<6;b++)batch.box('book'+((row+b*3)%bookColors.length),[x-1+b*.36,row*1.1+.36,-37.53],[.24,.65,.28]);
+   }
+  }
+ }
+ batch.box('ysOak',[0,.88,-36],[4.0,.18,1.52]);
+ batch.box('ysPod',[0,1.48,-36.55],[4.0,1.05,.15]);
+ for(const x of [-1.65,1.65])batch.box('ysOakDark',[x,.46,-36],[.12,.91,.12]);
+ // Decorative suspended wide lighting sails above each side of the reading zone.
+ for(const x of [-12.1,12.1])for(const z of [-21,4,26]){
+  batch.box('ysOak',[x,H-1.25,z],[5.4,.12,1.20]);
+  batch.box('ysLight',[x,H-1.36,z],[5.15,.08,.86]);
+ }
+ obstacle(0,-37.65,CONFIG.width,1.5);
+}
+if(YONSEI_ROOM)buildYonseiRoom();else if(KOREA_ROOM)buildKoreaRoom();else buildRoom();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 5. Furniture, click targets, seat occupancy
@@ -508,7 +582,40 @@ function addKoreaDesk(x,z,tableId){
  obstacle(x,z,w+.22,d+.16);
  for(const sign of [-1,1])addKoreaChair(x,z+sign*1.55,sign,tableId);
 }
-if(KOREA_ROOM){
+// Cream 2-sided study pods, black mesh chairs and shaded workstation lighting.
+function addYonseiChair(x,z,sign,deskId){
+ const id=seats.length,seat={id,x,z,sign,tableId:deskId,occupiedBy:null,proxy:null};seats.push(seat);
+ batch.box('ysChair',[x,.66,z],[.90,.14,.88]);
+ batch.box('ysChairBack',[x,1.22,z+sign*.46],[.91,1.14,.13]);
+ batch.cylinder('ysRail',[x,.35,z],[.105,.65,.105]);
+ for(const dir of [-1,1])batch.box('ysChair',[x+dir*.34,.10,z],[.68,.10,.12]);
+ const proxy=new THREE.Mesh(seatProxyGeometry,seatProxyMaterial);
+ proxy.position.set(x,.98,z+sign*.10);proxy.userData.seatId=id;
+ scene.add(proxy);seatHits.push(proxy);seat.proxy=proxy;
+ obstacle(x,z,.84,.79);
+ return seat;
+}
+function addYonseiDesk(x,z,deskId){
+ const w=3.3,d=2.18;
+ batch.box('ysDesk',[x,1.09,z],[w,.12,d]);
+ batch.box('ysPod',[x,1.52,z],[w-.15,.83,.10]); // middle reading divider
+ for(const dx of [-1.52,1.52])for(const sign of [-1,1]){
+  batch.box('ysPod',[x+dx,1.40,z+sign*.59],[.095,.67,1.03]);
+  batch.box('ysOakDark',[x+dx,.54,z],[.12,1.04,.15]);
+ }
+ for(const sign of [-1,1]){
+  batch.box('ysRail',[x,1.90,z+sign*.43],[.06,.40,.06]);
+  batch.box('ysLight',[x,2.10,z+sign*.49],[2.60,.055,.22]);
+  addYonseiChair(x,z+sign*1.55,sign,deskId);
+ }
+ obstacle(x,z,w+.22,d+.16);
+}
+if(YONSEI_ROOM){
+ for(const x of [-15,-8,8,15])for(let row=0;row<6;row++){
+  const z=-27+row*11;
+  addYonseiDesk(x,z,`yonsei-${x}-${row}`);
+ }
+}else if(KOREA_ROOM){
  for(const x of [-14,-7,7,14])for(let row=0;row<6;row++){
   const z=-27+row*11;
   addKoreaDesk(x,z,`korea-${x}-${row}`);
@@ -777,7 +884,7 @@ function libraryURL(room){const url=new URL(location.href);url.searchParams.set(
  url.searchParams.delete('suggestSeat');return url.href;}
 function openLibraryChooser(){chooser.hidden=false;chooser.querySelectorAll('[data-library]').forEach(btn=>{
   const same=btn.dataset.library===ROOM_ID;btn.disabled=same&&!!net?.connected;
-  btn.querySelector('strong').textContent=(btn.dataset.library==='main'?'서울대학교 중앙도서관':'고려대학교 중앙도서관(대학원)')+(same?' · 현재 위치':'');
+  btn.querySelector('strong').textContent=(LIBRARY_META[btn.dataset.library]?.brand||'도서관')+(same?' · 현재 위치':'');
  });}
 function closeLibraryChooser(){chooser.hidden=true;if(profileComplete&&!net?.connected&&!switchingTo)net?.start();}
 $('#switchLibraryBtn').addEventListener('click',openLibraryChooser);
@@ -1159,7 +1266,7 @@ if(profileComplete)net.start();
 welcome.hidden=true;
 const suggested=Number(query.get('suggestSeat'));
 if(query.has('suggestSeat')&&Number.isInteger(suggested)&&seats[suggested])setTimeout(()=>toast(`친구 주변 추천 좌석: ${suggested+1}번 의자를 터치해 주세요.`),3500);
-console.info('Multilibrary 3D study room initialized:',{room:ROOM_ID,tables:KOREA_ROOM?24:CONFIG.rows*CONFIG.columnsPerSide*2,seats:seats.length,npcs:npcList.length});
+console.info('Multilibrary 3D study room initialized:',{room:ROOM_ID,tables:KOREA_ROOM||YONSEI_ROOM?24:CONFIG.rows*CONFIG.columnsPerSide*2,seats:seats.length,npcs:npcList.length});
 </script>
 </body>
 </html>

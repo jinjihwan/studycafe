@@ -33,9 +33,11 @@ export function buildSeatsAndObstacles() {
       obstacles.push({x:cx,z:cz,w:.84,d:.79});
     }
   }
-  // BOTH feet of each photo-inspired triangular A-frame block walking.
+  // Photo-inspired Y-rotated pair of separated diagonal supports.
+  // Each column has two floor feet at different z, directly mirroring the client.
   for(const z of [-25,-7,11,29])for(const side of [-1,1]){
-    for(const footX of [side*13.0,side*22.2])obstacles.push({x:footX,z,w:1.8,d:1.65});
+    const x=side*17.6;
+    for(const dir of [-1,1])obstacles.push({x,z:z+dir*4.60,w:1.8,d:1.65});
   }
   const npcIndices=[2,8,14,20,26,32,38,44];
   const npcSeats=new Set(npcIndices);
@@ -56,9 +58,25 @@ export function buildKoreaSeatsAndObstacles(){
  }
  return {seats,obstacles,npcSeats:new Set([2,8,14,20,26,32,38,44])};
 }
+// Yonsei-Samsung Library: 24 cream double-sided study pods (48 chairs).
+// Exactly mirrors the YONSEI_ROOM furniture positions in index.html.
+export function buildYonseiSeatsAndObstacles(){
+ const seats=[],obstacles=[{x:0,z:-37.65,w:48,d:1.5}];
+ for(const x of [-15,-8,8,15])for(let row=0;row<6;row++){
+  const z=-27+row*11;
+  obstacles.push({x,z,w:3.52,d:2.34});
+  for(const sign of [-1,1]){
+   const cz=z+sign*1.55;
+   seats.push({id:seats.length,x,z:cz,sign});
+   obstacles.push({x,z:cz,w:.84,d:.79});
+  }
+ }
+ return {seats,obstacles,npcSeats:new Set([2,8,14,20,26,32,38,44])};
+}
 const layout=buildSeatsAndObstacles();
 const koreaLayout=buildKoreaSeatsAndObstacles();
-export const layoutForRoom=roomId=>roomId==='korea'?koreaLayout:layout;
+const yonseiLayout=buildYonseiSeatsAndObstacles();
+export const layoutForRoom=roomId=>roomId==='yonsei'?yonseiLayout:roomId==='korea'?koreaLayout:layout;
 export const LAYOUT_SEATS=layout.seats;
 export const NPC_SEATS=layout.npcSeats;
 export function isWalkable(x,z,roomId='main') {
