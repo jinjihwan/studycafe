@@ -69,7 +69,7 @@ test('REST + genuine WebSocket: 2 users, room isolation, seat lock, chat, moveme
  A.send({t:'move',x:100,z:100,yaw:0});await A.wait(m=>m.t==='correction');
  A.send({t:'move',x:.45,z:35,yaw:0});await B.wait(m=>m.t==='moved'&&m.id===a.id&&m.x===.45);
  // Walk to a real free chair (server checks proximity before seating).
- const seat=LAYOUT_SEATS.find(s=>s.x>5&&s.x<6&&s.z>27&&s.sign===1&&!NPC_SEATS.has(s.id));
+ const seat=LAYOUT_SEATS.find(s=>s.x>5&&s.x<6&&s.z>25&&s.sign===1&&!NPC_SEATS.has(s.id));
  assert.ok(seat,'Expect an available front-row seat');
  const approach={x:seat.x,z:seat.z+seat.sign*2.62};
  A.send({t:'seat_request',seatId:seat.id});await A.wait(m=>m.t==='seat_granted'&&m.seatId===seat.id);

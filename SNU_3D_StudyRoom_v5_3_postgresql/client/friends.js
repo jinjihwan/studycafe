@@ -12,7 +12,7 @@ export function createFriendsPanel({account,onToast,onAllRanking}){
  const checkbox=(label,checked,key)=>{const wrap=elem('label','friend-setting'),input=elem('input');input.type='checkbox';input.checked=checked;wrap.append(input,elem('span','',label));input.onchange=async()=>{input.disabled=true;try{await action('/api/friends/privacy',{[key]:input.checked});onToast('공개 설정을 저장했습니다.');}catch(e){input.checked=!input.checked;onToast(e.message);}finally{input.disabled=false;}};return wrap;};
  async function render(){
   if(!active||tab!=='friends')return;
-  if(!account.signedIn){panel.replaceChildren(head('친구','Google 계정으로 로그인하면 친구 코드와 친구 목록을 사용할 수 있습니다.'),elem('p','dash-empty','게스트도 기존 도서관, 공부 기록, 전체 랭킹을 계속 이용할 수 있습니다.'));return;}
+  if(!account.signedIn){showGoogleLoginPrompt('친구');return;}
   panel.replaceChildren(elem('p','dash-loading','친구 정보를 조회하는 중…'));
   const data=await account.request('/api/friends/list');lastFriends=Date.now();
   const root=document.createDocumentFragment();root.append(head('친구','상호 수락한 친구만 활동 상태와 합류 정보를 볼 수 있습니다.'));
@@ -70,8 +70,20 @@ export function createFriendsPanel({account,onToast,onAllRanking}){
    item.append(elem('b','dash-rank-num',String(r.rank)),head,elem('span','dash-rank-name',r.nick+(r.isMe?' (나)':'')),elem('b','dash-rank-time',fmt(r.ms)));list.append(item);}
   root.append(list);panel.replaceChildren(root);
  }
+ function showGoogleLoginPrompt(title){
+  const root=document.createDocumentFragment();
+  root.append(head(title,'친구 기능은 Google 계정으로 로그인해야 사용할 수 있습니다.'));
+  const gate=elem('section','dash-card');
+  gate.append(elem('p','dash-note','지금은 게스트로 이용 중입니다. 공부와 전체 랭킹은 게스트 상태에서도 계속 사용할 수 있습니다.'));
+  gate.append(button('Google 로그인하고 친구 기능 사용',async()=>{
+   await account.login(); // popup starts ONLY from the user's click
+   if(!account.signedIn)return;
+   if(tab==='friends')await render();else await ranking();
+  }));
+  root.append(gate);panel.replaceChildren(root);
+ }
  async function showFriends(){active=true;tab='friends';await render();}
- async function showFriendRanking(){active=true;tab='friend-ranking';if(!account.signedIn){panel.replaceChildren(head('친구 랭킹','Google 로그인이 필요합니다.'));return;}await ranking();}
+ async function showFriendRanking(){active=true;tab='friend-ranking';if(!account.signedIn){showGoogleLoginPrompt('친구 랭킹');return;}await ranking();}
  function refresh(){if(!active||document.hidden)return;if(tab==='friends'&&Date.now()-lastFriends>20000)void render().catch(e=>onToast(e.message));
   if(tab==='friend-ranking'&&Date.now()-lastRank>30000)void ranking().catch(e=>onToast(e.message));}
  document.addEventListener('visibilitychange',refresh);setInterval(refresh,30000);

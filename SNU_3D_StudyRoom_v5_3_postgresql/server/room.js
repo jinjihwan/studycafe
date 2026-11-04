@@ -22,10 +22,10 @@ const MAX_MESSAGES_PER_SECOND = 35;
 
 
 export function buildSeatsAndObstacles() {
-  const seats = [], obstacles = [{x:0,z:-41.65,w:54,d:1.5}];
+  const seats = [], obstacles = [{x:0,z:-37.65,w:48,d:1.5}];
   // Client index.html must have precisely the same 8-table/48-seat geometry.
   for (const side of [-1,1]) for (let col=0;col<1;col++) for (let row=0;row<4;row++) {
-    const x=side*(7.30+col*4.55), z=-30+row*19.4;
+    const x=side*(7.30+col*4.55), z=-27+row*17.4;
     obstacles.push({x,z,w:5.97,d:2.28});
     for (const sign of [-1,1]) for (const dx of [-1.68,0,1.68]) {
       const cx=x+dx, cz=z+sign*1.62;
@@ -33,9 +33,9 @@ export function buildSeatsAndObstacles() {
       obstacles.push({x:cx,z:cz,w:.84,d:.79});
     }
   }
-  // Diagonal steel X-brace floor anchors occupy walkable space near the side walls.
-  for(const z of [-29,-7,15,37])for(const side of [-1,1]){
-    obstacles.push({x:side*14.0,z,w:2.2,d:1.8});
+  // BOTH feet of each photo-inspired triangular A-frame block walking.
+  for(const z of [-25,-7,11,29])for(const side of [-1,1]){
+    for(const footX of [side*13.0,side*22.2])obstacles.push({x:footX,z,w:1.8,d:1.65});
   }
   const npcIndices=[2,8,14,20,26,32,38,44];
   const npcSeats=new Set(npcIndices);
@@ -47,10 +47,10 @@ export const NPC_SEATS=layout.npcSeats;
 export function isWalkable(x,z) {
   if (!Number.isFinite(x)||!Number.isFinite(z)) return false;
   // Exact same 0.6-unit grid discretisation used by the front-end Navigator.
-  const gx=Math.floor((x+26)/.6), gz=Math.floor((z+40)/.6);
-  if (gx<0||gx>=Math.ceil(52/.6)||gz<0||gz>=Math.ceil(92/.6)) return false;
-  const px=-26+(gx+.5)*.6, pz=-40+(gz+.5)*.6;
-  if(Math.abs(px)>25||pz< -37.5||pz>49) return false;
+  const gx=Math.floor((x+23)/.6), gz=Math.floor((z+37)/.6);
+  if (gx<0||gx>=Math.ceil(46/.6)||gz<0||gz>=Math.ceil(82/.6)) return false;
+  const px=-23+(gx+.5)*.6, pz=-37+(gz+.5)*.6;
+  if(Math.abs(px)>22||pz< -33.5||pz>44) return false;
   return !layout.obstacles.some(o=>Math.abs(px-o.x)<o.w/2+.32&&Math.abs(pz-o.z)<o.d/2+.32);
 }
 

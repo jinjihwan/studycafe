@@ -47,8 +47,8 @@ async function sitPlayer(client,seat){
 test('real HTTP+WebSocket: study is server-owned, ranking, privacy, rejoin, token isolation and NPC exclusion',{timeout:35000},async()=>{
  const a=await session(),b=await session();
  const A=await connect(a,'A 연구자'),B=await connect(b,'B 연구자');
- const s1=LAYOUT_SEATS.find(s=>s.x>5&&s.x<6&&s.z>27&&s.sign===1&&!NPC_SEATS.has(s.id));
- const s2=LAYOUT_SEATS.find(s=>s.x>6&&s.x<8&&s.z>27&&s.sign===1&&!NPC_SEATS.has(s.id));
+ const s1=LAYOUT_SEATS.find(s=>s.x>5&&s.x<6&&s.z>25&&s.sign===1&&!NPC_SEATS.has(s.id));
+ const s2=LAYOUT_SEATS.find(s=>s.x>6&&s.x<8&&s.z>25&&s.sign===1&&!NPC_SEATS.has(s.id));
  assert.ok(s1&&s2);await sitPlayer(A,s1);await nap(1400);await sitPlayer(B,s2);await nap(400);
  let rank=await api(a,'/api/ranking?limit=20');assert.equal(rank.status,200);
  assert.equal(rank.body.day,koreaDay());assert.equal(rank.body.count,2);

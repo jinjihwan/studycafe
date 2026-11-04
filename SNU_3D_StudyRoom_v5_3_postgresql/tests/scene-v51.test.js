@@ -18,29 +18,30 @@ test('camera starts near avatar, follow target aligned, and HTML supports closin
  assert.match(serverIndex,/\['\/client\/navigation-smooth\.js','client\/navigation-smooth\.js'\]/);
  assert.match(html,/camera\.position\.z=clamp\(camera\.position\.z,CONFIG\.frontZ\+2\.7,CONFIG\.rearZ-1\.7\)/);
 });
-test('ceiling, glazing, diagonal X support and exact 8 tables with 48 seats',()=>{
- assert.match(html,/height:18\.6, frontZ:-43, rearZ:55/);
+test('compact ceiling, glazing, triangular A-frame and exact 8 tables with 48 seats',()=>{
+ assert.match(html,/height:16\.2, frontZ:-39, rearZ:49/);
  assert.match(html,/const rz=CONFIG\.rearZ;/);
- assert.match(html,/new THREE\.PlaneGeometry\(4\.0,H-1\.4\)/);
+ assert.match(html,/new THREE\.PlaneGeometry\(3\.85,H-1\.4\)/);
  assert.match(html,/for\(let row=0;row<CONFIG\.rows;row\+\+\)/);
  const layout=buildSeatsAndObstacles();
  assert.equal(layout.seats.length,48);
  assert.equal(layout.npcSeats.size,8);
- assert.equal(new Set(layout.seats.map(s=>`${Math.sign(s.x)}:${Math.round((s.z+30)/19.4)}`)).size,8);
+ assert.equal(new Set(layout.seats.map(s=>`${Math.sign(s.x)}:${Math.round((s.z+27)/17.4)}`)).size,8);
  assert.ok(layout.seats.every(s=>Math.abs(s.x)<11 && Math.abs(s.x)>5));
  assert.match(html,/rows:4, columnsPerSide:1/);
  assert.match(html,/for\(const dx of \[-1\.68,0,1\.68\]\)addChair/);
- assert.match(html,/batch\.segment\('steel',\[innerX,\.25,z\],\[outerX,H-\.5,z\],1\.02\)/);
+ assert.match(html,/batch\.segment\('steel',\[innerX,\.25,z\],\[apexX,H-\.55,z\],1\.02\)/);
+ assert.match(html,/batch\.segment\('steel',\[outerX,\.25,z\],\[apexX,H-\.55,z\],1\.02\)/);
  assert.match(html,/npcCount:8/);
 });
 test('server and client enforce matching front/rear walk bounds',()=>{
- assert.match(server,/pz< -37\.5\|\|pz>49/);
- assert.equal(isWalkable(0,-38.1),false);
- assert.equal(isWalkable(0,-36.5),true);
- assert.equal(isWalkable(0,48),true);
- assert.equal(isWalkable(0,50),false);
- assert.match(html,/frontWalkLimit:-37\.5, rearWalkLimit:49/);
- assert.match(html,/const target=\{x:clamp\(p\.x,-24\.8,24\.8\),z:clamp\(p\.z,CONFIG\.frontWalkLimit\+\.22,CONFIG\.rearWalkLimit-\.2\)\}/);
+ assert.match(server,/pz< -33\.5\|\|pz>44/);
+ assert.equal(isWalkable(0,-35.1),false);
+ assert.equal(isWalkable(0,-32.5),true);
+ assert.equal(isWalkable(0,43),true);
+ assert.equal(isWalkable(0,46),false);
+ assert.match(html,/frontWalkLimit:-33\.5, rearWalkLimit:44/);
+ assert.match(html,/const target=\{x:clamp\(p\.x,-21\.8,21\.8\),z:clamp\(p\.z,CONFIG\.frontWalkLimit\+\.22,CONFIG\.rearWalkLimit-\.2\)\}/);
 });
 test('open floor uses a direct short waypoint and no right-angle detour',()=>{
  const raw=[{x:2,z:1},{x:4,z:2},{x:6,z:4}];
@@ -67,12 +68,12 @@ test('eight six-seat tables stay aligned between browser and server; central ais
  const ids=layout.seats.map(s=>s.id);
  assert.deepEqual(ids,Array.from({length:48},(_,i)=>i));
  for(const side of [-1,1])for(let row=0;row<4;row++){
-   const z=-30+row*19.4;
+   const z=-27+row*17.4;
    const tableSeats=layout.seats.filter(s=>Math.sign(s.x)===side && Math.abs(s.z-z)<3);
    assert.equal(tableSeats.length,6,`side=${side}, row=${row}`);
  }
  assert.equal(layout.npcSeats.size,8);
  assert.ok(!layout.npcSeats.has(0));
- for(const z of [-30,-10.6,8.8,28.2,35])assert.equal(isWalkable(0,z),true);
- for(const z of [-29,-7,15,37])assert.equal(isWalkable(14,z),false);
+ for(const z of [-27,-9.6,7.8,25.2,35])assert.equal(isWalkable(0,z),true);
+ for(const z of [-25,-7,11,29]){assert.equal(isWalkable(13,z),false);assert.equal(isWalkable(22.2,z),false);}
 });
