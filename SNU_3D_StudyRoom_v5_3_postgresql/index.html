@@ -17,7 +17,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
 .tag .plate .clock{color:var(--mint);font-variant-numeric:tabular-nums}.tag .badge-npc{font-size:9px;vertical-align:1px;color:#ffc981;margin-right:4px}.tag.me .plate{border-color:#8acaff;box-shadow:0 0 0 1px #58bcf044}.tag.remote .plate{border-color:#e7bf8a}.tag.offline{opacity:.58}
 #topbar{position:fixed;top:max(12px,env(safe-area-inset-top));left:14px;right:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;pointer-events:none;z-index:3}
 .group{display:flex;align-items:center;gap:8px;pointer-events:auto}.glass{background:var(--panel);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:13px;box-shadow:0 7px 26px #0003}
-.brand{padding:10px 13px;display:flex;align-items:center;gap:10px;font-weight:750;font-size:14px;white-space:nowrap}.brand small{display:block;color:#c1d1e5;font-size:9px;font-weight:450;margin-top:2px}.count{padding:11px 12px;font-size:12px;color:#e6f0ff;white-space:nowrap}.room-pill{padding:11px 12px;font-size:11px;white-space:nowrap;color:#cce5ff}#switchLibraryBtn{background:#6a3944;border-color:#d19da0}#librarySelect[hidden]{display:none!important}#librarySelect{position:fixed;inset:0;z-index:43;background:#071323d9;display:grid;place-items:center;padding:16px;backdrop-filter:blur(6px)}#librarySelect .dialog{width:min(480px,100%)}.library-cards{display:grid;gap:10px;margin:18px 0}.library-choice{display:block;width:100%;padding:16px;border-radius:12px;text-align:left;color:#edf5ff;background:#26394f;border:1px solid #647c95;line-height:1.6}.library-choice strong{display:block;font-size:16px}.library-choice small{display:block;color:#b8d4e3;font-size:11px}.library-choice:disabled{border-color:#77c9ae;opacity:1;background:#29504b}.library-choice:focus-visible{outline:3px solid #a4d6ff}.count i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#70e4a7;margin-right:5px}
+.brand{padding:10px 13px;display:flex;align-items:center;gap:10px;font-weight:750;font-size:14px;white-space:nowrap}.brand small{display:block;color:#c1d1e5;font-size:9px;font-weight:450;margin-top:2px}.count{padding:11px 12px;font-size:12px;color:#e6f0ff;white-space:nowrap}.room-pill{padding:11px 12px;font-size:11px;white-space:nowrap;color:#cce5ff}#switchLibraryBtn{background:var(--panel);border-color:var(--border)}#librarySelect[hidden]{display:none!important}#librarySelect{position:fixed;inset:0;z-index:43;background:#071323d9;display:grid;place-items:center;padding:16px;backdrop-filter:blur(6px)}#librarySelect .dialog{width:min(480px,100%)}.library-cards{display:grid;gap:10px;margin:18px 0}.library-choice{display:block;width:100%;padding:16px;border-radius:12px;text-align:left;color:#edf5ff;background:#26394f;border:1px solid #647c95;line-height:1.6}.library-choice strong{display:block;font-size:16px}.library-choice small{display:block;color:#b8d4e3;font-size:11px}.library-choice:disabled{border-color:#77c9ae;opacity:1;background:#29504b}.library-choice:focus-visible{outline:3px solid #a4d6ff}.count i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#70e4a7;margin-right:5px}
 .iconbtn{border:1px solid var(--border);color:#f3f7ff;background:var(--panel);padding:0 12px;height:40px;border-radius:12px;backdrop-filter:blur(12px);font-size:12px;white-space:nowrap}.iconbtn.active{background:#35658e;border-color:#a4d6ff}
 #bottom{position:fixed;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(95vw,480px);z-index:3;padding:9px 10px;pointer-events:auto}
 .controls{display:flex;align-items:center;gap:7px;flex-wrap:nowrap}
@@ -87,6 +87,76 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
  body:not(.panel-visible) #bottom{bottom:calc(62px + env(safe-area-inset-bottom))}
   #dashboard{padding:20px 12px 90px!important}.dash-heading h2{font-size:21px}.dash-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dash-metric{padding:11px}.dash-metric strong{font-size:17px}.dash-columns{grid-template-columns:1fr;gap:10px}.dash-card{padding:12px}.dash-day{min-height:36px}.dash-rank{gap:8px;padding:8px}.dash-rank-name strong{font-size:12px}.dash-rank-name small{font-size:10px}.dash-rank-time{font-size:12px}
 }
+
+/* V6.6 mobile-first UI: preserve scene, networking and study logic. */
+:root{--panel:rgba(17,30,49,.89);--border:rgba(164,193,222,.26);--blue:#8bcaff;--mint:#8cecc6}
+#topbar{align-items:flex-start;gap:8px;min-width:0}
+#topbar .room-summary{display:flex;flex-direction:column;gap:2px;padding:9px 12px;min-width:0;flex:1;max-width:640px}
+#topbar .room-titleline{display:flex;align-items:center;gap:10px;min-width:0;width:100%}
+#libraryBrand{display:block;min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:750;font-size:13px}
+#topbar .count{padding:0;border:0;background:transparent;box-shadow:none;font-size:11px;flex:none;white-space:nowrap}
+#topbar .room-pill{padding:0;border:0;font-size:10px;line-height:1.4;color:#b7cce0;white-space:nowrap}
+#topbar .top-actions{flex:0 0 auto;gap:6px}
+.iconbtn{background:var(--panel);border-radius:11px;box-shadow:none}
+.ui-icon{display:block;width:19px;height:19px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.icon-only{width:42px;min-width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation}
+.icon-only:focus-visible,#appNav button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+#bottom{width:min(calc(100vw - 20px),540px);padding:6px 7px;border-radius:13px;box-shadow:none}
+#bottom .controls{gap:6px}
+#bottom .controls button{height:42px;min-height:42px;padding:0;background:rgba(43,66,91,.95);border-radius:10px}
+#bottom .controls .chat-action{width:42px;min-width:42px}
+#bottom .controls #sendBtn{width:42px;min-width:42px;background:#568fbd;border-color:#8fc7f1}
+#bottom .controls #chatInput{height:42px;min-height:42px;font-size:14px;padding:0 10px;min-width:0;background:#16283e;border-radius:10px}
+#bottom .controls #chatInput::placeholder{color:#94abc0}
+#appNav{box-shadow:none}
+#appNav button[disabled]{display:none!important} /* preserve unfinished tab code, hide only its UI */
+#appNav button{display:flex;gap:6px;align-items:center;justify-content:center;min-width:0}
+#appNav .nav-icon{width:16px;height:16px}
+.tag{filter:drop-shadow(0 2px 4px #0008);transition:opacity .12s ease;max-width:180px}
+.tag .plate{background:rgba(15,28,46,.86);border:1px solid rgba(165,201,227,.28);color:#f8fbff;font-size:10px;line-height:1.38;border-radius:9px;padding:4px 7px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag .clock{white-space:nowrap;font-size:.95em}
+.tag.me .plate{font-size:11px;padding:5px 9px;border-color:#86caff;box-shadow:0 0 0 1px #86caff33}
+.tag.remote .plate{border-color:rgba(165,201,227,.28)}
+.tag[data-tier="mid"] .clock,.tag[data-tier="far"] .clock{display:none}
+.tag[data-tier="mid"] .plate{font-size:10px;padding:3px 6px}
+.tag[data-tier="far"] .plate{font-size:9px;padding:2px 5px;border-radius:7px;background:rgba(18,31,47,.77)}
+.tag[data-tier="mid"] .bubble,.tag[data-tier="far"] .bubble{display:none!important}
+.tag .bubble{max-width:175px;padding:5px 8px;border-radius:9px;background:rgba(15,28,46,.92);color:#f4f8ff;font-size:10px;box-shadow:none;border:1px solid var(--border)}
+@media(max-width:690px){
+ #topbar{top:calc(6px + env(safe-area-inset-top));left:6px;right:6px;flex-wrap:nowrap;gap:5px;align-items:flex-start}
+ #topbar>.group:first-child{width:auto;justify-content:flex-start}
+ #topbar .room-summary{padding:7px 9px;gap:2px;max-width:none;flex:1;overflow:hidden}
+ #topbar .room-titleline{gap:5px}
+ #libraryBrand{font-size:11px}
+ #topbar .count{display:flex;align-items:center;font-size:10px;padding:0}
+ #topbar .room-pill{font-size:9px}
+ #topbar>.group:last-child{margin-left:0}
+ #topbar .top-actions{gap:4px}
+ #topbar .top-actions button{width:38px;min-width:38px;height:38px;padding:0}
+ #bottom{width:calc(100vw - 12px);left:6px;transform:none;bottom:calc(54px + env(safe-area-inset-bottom));padding:5px}
+ #bottom .controls{gap:4px}
+ #bottom .controls button,#bottom .controls #chatInput{height:40px;min-height:40px}
+ #bottom .controls .chat-action,#bottom .controls #sendBtn{min-width:40px;width:40px}
+ #bottom .controls #chatInput{font-size:13px;padding:0 8px}
+ #appNav{top:auto!important;left:0;right:0;bottom:0;transform:none;width:100%;max-width:none;justify-content:space-around;gap:1px;padding:3px 4px calc(3px + env(safe-area-inset-bottom));border-radius:10px 10px 0 0}
+ #appNav button{min-height:43px;white-space:nowrap;flex:1 1 0;font-size:11px;padding:4px 2px;gap:4px}
+ #appNav .nav-icon{width:15px;height:15px}
+ #dashboard{padding:20px 12px calc(74px + env(safe-area-inset-bottom))!important}
+ .tag.me .plate{font-size:10px}
+ body:not(.panel-visible) #bottom{bottom:calc(54px + env(safe-area-inset-bottom))}
+ body.keyboard-open #appNav{display:none!important}
+ body.keyboard-open:not(.panel-visible) #bottom{bottom:calc(6px + var(--keyboard-lift,0px))}
+}
+@media(max-width:360px){
+ #libraryBrand{font-size:10px}
+ #topbar .count{font-size:9px}
+ #topbar .top-actions button{width:36px;min-width:36px;height:38px}
+ #appNav button{font-size:10px;gap:3px}
+ #appNav .nav-icon{width:14px;height:14px}
+ #bottom .controls .chat-action,#bottom .controls #sendBtn{width:38px;min-width:38px}
+}
 </style>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"}}
@@ -96,12 +166,12 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
 <canvas id="scene" aria-label="마우스 또는 터치로 조작하는 3D 도서관"></canvas>
 <div id="labels"></div>
 <div id="loading">3D 도서관을 불러오는 중입니다.<br/>Three.js 다운로드를 위해 인터넷 연결이 필요합니다.</div>
-<header id="topbar"><div class="group"><div class="glass brand"><span class="symbol">▦</span><span id="libraryBrand">대학 도서관 스터디카페</span></div><div class="glass count" id="onlineCount"><i></i>실제 접속자 0명 · NPC 8명</div><div class="glass room-pill" id="roomBadge">서울대 도서관</div></div><div class="group"><button class="iconbtn" id="switchLibraryBtn" type="button">도서관 변경</button><button class="iconbtn" id="avatarBtn" title="캐릭터 변경">캐릭터</button><button class="iconbtn" id="inviteBtn" title="같은 방 초대 링크 복사">초대 링크</button><button class="iconbtn" id="accountBtn" title="계정">게스트 · 로그인</button></div></header>
-<nav id="appNav" hidden role="tablist" aria-label="스터디룸 메뉴"><button type="button" role="tab" data-tab="library" aria-selected="true" class="selected">도서관</button><button type="button" role="tab" data-tab="records" aria-selected="false">내 기록</button><button type="button" role="tab" data-tab="ranking" aria-selected="false">랭킹</button><button type="button" role="tab" data-tab="friends" aria-selected="false">친구</button><button type="button" role="tab" disabled aria-disabled="true">커뮤니티 · 준비 중</button></nav>
+<header id="topbar" aria-label="도서관 정보 및 계정"><div class="room-summary glass"><div class="room-titleline"><span id="libraryBrand">대학 도서관 스터디카페</span><span class="count" id="onlineCount" role="status"><i></i>접속 0명</span></div><small class="room-pill" id="roomBadge">1번 방</small></div><div class="group top-actions"><button class="iconbtn icon-only" id="inviteBtn" type="button" title="초대 링크 복사" aria-label="같은 방 초대 링크 복사"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l2.3-2.3a5 5 0 0 0-7.1-7.1l-1.3 1.3M14 11a5 5 0 0 0-7.5-.5l-2.3 2.3a5 5 0 0 0 7.1 7.1l1.3-1.3"/></svg></button><button class="iconbtn icon-only" id="accountBtn" type="button" title="게스트 · 로그인" aria-label="게스트 · 로그인"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg><span class="sr-only account-label">게스트 · 로그인</span></button></div></header>
+<nav id="appNav" hidden role="tablist" aria-label="스터디룸 메뉴"><button type="button" role="tab" data-tab="library" aria-selected="true" class="selected"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a6 6 0 0 0-9-2v14a6 6 0 0 1 9 2 6 6 0 0 1 9-2V5a6 6 0 0 0-9 2ZM12 7v14"/></svg><span>도서관</span></button><button type="button" role="tab" data-tab="records" aria-selected="false"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V4M4 20h16M8 16v-5m5 5V7m5 9v-8"/></svg><span>내 기록</span></button><button type="button" role="tab" data-tab="ranking" aria-selected="false"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="m8 12-2 9 6-3 6 3-2-9"/></svg><span>랭킹</span></button><button type="button" role="tab" data-tab="friends" aria-selected="false"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="3"/><path d="M2 20v-2a7 7 0 0 1 14 0v2M17 6a3 3 0 0 1 0 6m1 3a5 5 0 0 1 4 5"/></svg><span>친구</span></button><button type="button" role="tab" disabled aria-disabled="true" hidden>커뮤니티 · 준비 중</button></nav>
 <section id="dashboard" hidden aria-label="공부 기록과 랭킹"><div id="dashboardBody"></div></section>
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="librarySelect" hidden role="dialog" aria-modal="true" aria-labelledby="librarySelectTitle"><div class="dialog"><h1 id="librarySelectTitle">도서관 선택</h1><p>공부 기록과 친구 관계는 세 공간에서 동일하게 유지됩니다. 다른 도서관으로 이동하면 기존 좌석은 반납됩니다.</p><div class="library-cards"><button type="button" class="library-choice" data-library="main"><strong>서울대학교 중앙도서관</strong><small>48석</small></button><button type="button" class="library-choice" data-library="korea"><strong>고려대학교 중앙도서관</strong><small>48석</small></button><button type="button" class="library-choice" data-library="yonsei"><strong>연세대학교 연세·삼성학술정보관</strong><small>48석</small></button></div><button type="button" class="iconbtn" id="libraryClose">현재 도서관에 머물기</button></div></div><div id="accountOverlay" hidden><div class="dialog" role="dialog" aria-modal="true" aria-label="계정 메뉴"><button type="button" id="accountClose" aria-label="도서관으로 돌아가기" title="닫기">×</button><h1>계정 연결</h1><p id="accountStatus">게스트로 이용 중입니다. 친구 기능은 Google 로그인 후 사용할 수 있습니다.</p><p id="authError" class="auth-error" role="alert" hidden></p><div class="account-actions"><button id="googleLogin" class="ok">Google로 계속하기</button><button id="logoutBtn" class="ok alt" hidden>Google 로그아웃</button><button id="deleteAccountBtn" class="account-danger" hidden>스터디룸 계정 데이터 삭제</button></div><p class="note">게스트 인증 정보가 삭제되면 이전 기록에 접근하지 못할 수 있습니다. Google 연결 시 기존 게스트 기록을 서버에서 안전하게 병합합니다.</p><p class="note">모바일 Google 팝업이 차단되면 브라우저 설정에서 팝업을 허용해 주세요.</p></div></div>
-<section id="bottom" class="glass" aria-label="실시간 채팅"><div class="controls"><input id="chatInput" maxlength="40" placeholder="실시간 채팅 (최대 40자)" aria-label="실시간 채팅 입력"/><button id="sendBtn" class="primary">말하기</button></div></section>
+<section id="bottom" class="glass" aria-label="실시간 채팅"><div class="controls"><button class="chat-action" id="switchLibraryBtn" type="button" title="도서관 변경" aria-label="도서관 변경"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V6l7-3 7 3v15M9 9v2m6-2v2M9 14v2m6-2v2M10 21v-3h4v3"/></svg></button><button class="chat-action" id="avatarBtn" type="button" title="캐릭터 변경" aria-label="캐릭터 변경"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="16" rx="5" ry="3.3"/><path d="M5.5 9.5c-1.5-.8-2.5.5-1.7 2.2.6 1.1 1.9 1.4 2.5.5M9.2 6c-1.2-1-2.5.3-2.1 2 .3 1.3 1.7 1.7 2.4.7M14.7 6c1.2-1 2.5.3 2.1 2-.3 1.3-1.7 1.7-2.4.7M18.5 9.5c1.5-.8 2.5.5 1.7 2.2-.6 1.1-1.9 1.4-2.5.5"/></svg></button><input id="chatInput" maxlength="40" enterkeyhint="send" placeholder="메시지 입력 (40자)" aria-label="실시간 채팅 입력"/><button id="sendBtn" class="primary" type="button" title="메시지 전송" aria-label="메시지 전송"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4 20-7ZM22 2 11 13"/></svg></button></div></section>
 <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog"><h1 id="modalTitle">캐릭터 선택</h1><p>로우폴리 동물 캐릭터를 선택하고 도서관에 입장하세요. 선택 내용은 이 브라우저에 저장됩니다.</p><div class="fields"><label class="field full">닉네임<input id="nick" maxlength="15" value="공부하는토끼" /></label><label class="field">동물<select id="species"><option value="rabbit">토끼</option><option value="bear">곰</option><option value="cat">고양이</option><option value="dog">강아지</option></select></label><label class="field">기본 후드 색상<select id="gender"><option value="female">분홍색 기본</option><option value="male">하늘색 기본</option></select></label><label class="field full">후드 색상 직접 변경<input id="hood" type="color" value="#f39bc4" /></label></div><button id="enterBtn" class="ok">3D 도서관 입장</button><div class="note">게스트로 실시간 서버에 접속합니다. NPC는 NPC로 표시되며 실제 이용자 수에 포함되지 않습니다.</div></div></div>
 <script type="module">
 import * as THREE from 'three';
@@ -144,8 +214,8 @@ const LIBRARY_META={
  yonsei:{badge:'연세대 도서관',brand:'연세대학교 연세·삼성학술정보관',short:'연세대'}
 };
 const libraryMeta=LIBRARY_META[BASE_LIBRARY];
-$('#roomBadge').textContent=libraryMeta.badge + (!PRIMARY_ROOM?' · '+ROOM_ID.split('-').at(-1)+'번 방':' · 1번 방');
-$('#libraryBrand').firstChild.textContent=libraryMeta.brand;
+$('#roomBadge').textContent=(!PRIMARY_ROOM?ROOM_ID.split('-').at(-1):'1')+'번 방';
+$('#libraryBrand').textContent=libraryMeta.brand;
 document.title=libraryMeta.short+' 도서관 · 3D 스터디카페';
 const COLORS = {male:'#8bcaff',female:'#f39bc4'};
 const fmt=ms=>{let s=Math.floor(Math.max(0,ms)/1000);return [Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(x=>String(x).padStart(2,'0')).join(':')};
@@ -182,9 +252,9 @@ renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.
 renderer.shadowMap.enabled=!MOBILE&&!LOW_QUALITY;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();scene.background=new THREE.Color('#b3cfe0');scene.fog=new THREE.Fog('#b3cfe0',65,150);
 const camera=new THREE.PerspectiveCamera(MOBILE?66:58,innerWidth/innerHeight,.07,210);
-camera.position.set(4.2,6.0,42.2); // closer third-person framing at spawn (0, 35)
+camera.position.set(MOBILE?3.2:4.2,MOBILE?7.6:6.0,MOBILE?44.2:42.2);
 const orbit=new OrbitControls(camera,D.canvas);
-orbit.target.set(0,1.45,33.7);orbit.enableDamping=true;orbit.dampingFactor=.075;
+orbit.target.set(0,MOBILE?1.72:1.45,MOBILE?31.6:33.7);orbit.enableDamping=true;orbit.dampingFactor=.075;
 orbit.enablePan=false;orbit.minDistance=2.7;orbit.maxDistance=42;
 orbit.minPolarAngle=.08;orbit.maxPolarAngle=Math.PI/2-.035;
 orbit.rotateSpeed=MOBILE?.65:.75;orbit.zoomSpeed=.9;orbit.update();
@@ -825,7 +895,7 @@ class Character{
   this.route=[];this.routeIndex=0;this.arrive=null;this.seated=false;this.seat=null;
   this.walkState={phase:0,blend:0};this.lastWalkX=this.root.position.x;this.lastWalkZ=this.root.position.z;
   this.studyMs=opts.studyMs||0;this.studyActive=false;this.studySince=0;
-  this.bubbleUntil=0;this.stretchUntil=0;this.label=document.createElement('div');this.label.className='tag'+(this.isNpc?'':(this.isRemote?' remote':' me'));
+  this.labelTier='near';this.bubbleUntil=0;this.stretchUntil=0;this.label=document.createElement('div');this.label.className='tag'+(this.isNpc?'':(this.isRemote?' remote':' me'));
   this.label.innerHTML='<div class="bubble"></div><div class="plate"><div class="name"></div><div class="clock"></div></div>';
   this.label.querySelector('.name').textContent=(this.isNpc?'NPC · ':'')+this.name;
   D.labels.appendChild(this.label);
@@ -974,7 +1044,7 @@ function applyStudyClock(record,day){
  if(!study.running)study.paused=false;
  updateHUD();
 }
-function updatePlayerCount(count){$('#onlineCount').innerHTML='<i></i>실제 접속자 '+Math.max(0,count||0)+'명 · NPC '+npcList.length+'명';}
+function updatePlayerCount(count){$('#onlineCount').innerHTML='<i></i>접속 '+Math.max(0,count||0)+'명';}
 // The server sends the canonical NPC positions. Clients never roll independent
 // random NPC movement, so all users see the same action and the same seat lock.
 const npcStretchWords=['오늘도 집중!','잠깐 스트레칭해요.','열공 중이에요.','물 한 잔 마셔야지.'];
@@ -1226,8 +1296,22 @@ function keyboardMove(dt){const f=(keys.has('w')||keys.has('arrowup')?1:0)-(keys
 // ─────────────────────────────────────────────────────────────────────────────
 // 9. User interactions, NPC state machines, world-space HTML labels
 // ─────────────────────────────────────────────────────────────────────────────
-function sendChat(){const msg=D.chat.value.trim();if(!msg)return;if(!net?.send({t:'chat',message:msg})){toast('서버에 연결되지 않았습니다.');return;}D.chat.value='';D.chat.blur()}
+let lastChatSentAt=0;
+function sendChat(){const msg=D.chat.value.trim();if(!msg||performance.now()-lastChatSentAt<250)return;
+ if(!net?.send({t:'chat',message:msg})){toast('서버에 연결되지 않았습니다.');return;}
+ lastChatSentAt=performance.now();D.chat.value='';D.chat.blur();}
 D.send.onclick=sendChat;D.chat.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChat()}});
+// On mobile, the visual viewport shrinks above the software keyboard.
+function updateKeyboardInset(){
+ const vv=window.visualViewport;
+ const covered=vv?Math.max(0,innerHeight-vv.height-vv.offsetTop):0;
+ const open=MOBILE&&document.activeElement===D.chat&&(covered>105||vv&&vv.height<innerHeight*.72);
+ document.body.classList.toggle('keyboard-open',!!open);
+ document.documentElement.style.setProperty('--keyboard-lift',open?Math.round(covered)+'px':'0px');
+}
+if(window.visualViewport){window.visualViewport.addEventListener('resize',updateKeyboardInset);window.visualViewport.addEventListener('scroll',updateKeyboardInset);}
+D.chat.addEventListener('focus',updateKeyboardInset);
+D.chat.addEventListener('blur',()=>requestAnimationFrame(updateKeyboardInset));
 $('#avatarBtn').onclick=()=>showModal();
 $('#inviteBtn').onclick=async()=>{const u=new URL(location.href);u.searchParams.set('room',ROOM_ID);u.searchParams.delete('auto');u.hash='';
  try{await navigator.clipboard.writeText(u.href);toast('같은 방 초대 링크를 복사했습니다.');}
@@ -1254,18 +1338,56 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.addEventListener('pageshow',()=>{if(!document.hidden)net?.refresh()});
 // NPC behavior is driven by server clock messages, never Math.random().
-const tempVec=new THREE.Vector3();const shown=[];
-function updateLabels(){shown.length=0;
+const tempVec=new THREE.Vector3();
+// Boundaries derive from the existing 48×88m room; 1.8m hysteresis avoids flicker.
+const LABEL_LIMITS=[CONFIG.width*.30,CONFIG.width*.56,CONFIG.width*.88];
+const LABEL_HYSTERESIS=1.8;
+const LABEL_CAP=MOBILE?12:22;
+function labelTier(obj,d){
+ if(obj===player)return 0;
+ let tier=obj.labelTierIndex??0;
+ while(tier<3&&d>LABEL_LIMITS[tier]+LABEL_HYSTERESIS)tier++;
+ while(tier>0&&d<LABEL_LIMITS[tier-1]-LABEL_HYSTERESIS)tier--;
+ obj.labelTierIndex=tier;return tier;
+}
+function updateLabels(){
+ const width=innerWidth,height=innerHeight,topbarRect=$('#topbar').getBoundingClientRect();
+ const chatRect=$('#bottom').getBoundingClientRect(),navRect=$('#appNav').getBoundingClientRect();
+ const safeTop=Math.max(8,topbarRect.bottom+8);
+ const safeBottom=Math.min(chatRect.top,(!$('#appNav').hidden&&!document.body.classList.contains('keyboard-open')?navRect.top:height))-6;
+ const candidates=[];const now=performance.now();
  for(const obj of [player,...remotePlayers.values(),...npcList]){
-  const tag=obj.label;obj.model.headAnchor.getWorldPosition(tempVec);
-  const d=camera.position.distanceTo(tempVec);tempVec.project(camera);
-  if(tempVec.z>1||tempVec.z< -1||Math.abs(tempVec.x)>1.16||Math.abs(tempVec.y)>1.16||(obj.isNpc&&d>43)||(obj.isRemote&&d>60)){
-   tag.style.display='none';continue}
-  const x=(tempVec.x*.5+.5)*innerWidth,y=(-tempVec.y*.5+.5)*innerHeight;
-  if((obj.isNpc||obj.isRemote)&&shown.some(p=>Math.abs(x-p.x)<80&&Math.abs(y-p.y)<34)){tag.style.display='none';continue}
-  shown.push({x,y});tag.style.display='block';tag.style.left=x+'px';tag.style.top=y+'px';
-  tag.querySelector('.clock').textContent='◷ '+fmt(obj.getTimer());
-  if(performance.now()>obj.bubbleUntil)tag.querySelector('.bubble').style.display='none';
+  obj.model.headAnchor.getWorldPosition(tempVec);
+  const distance=camera.position.distanceTo(tempVec);tempVec.project(camera);
+  const self=obj===player,tier=labelTier(obj,distance);
+  const outside=tempVec.z>1||tempVec.z< -1||Math.abs(tempVec.x)>1.04||Math.abs(tempVec.y)>1.04;
+  if((outside&&!self)||(!self&&tier===3)){obj.label.style.display='none';continue;}
+  let x=(tempVec.x*.5+.5)*width,y=(-tempVec.y*.5+.5)*height;
+  if(self&&outside){x=width/2;y=height*.57;}
+  const halfWidth=self?66:tier===0?62:tier===1?49:36;
+  const labelHeight=self||tier===0?39:24;
+  x=clamp(x,halfWidth+5,width-halfWidth-5);
+  if(self)y=clamp(y,safeTop+labelHeight,Math.max(safeTop+labelHeight,safeBottom));
+  if(!self&&(y-labelHeight<safeTop||y>safeBottom)){obj.label.style.display='none';continue;}
+  candidates.push({obj,tier,x,y,halfWidth,labelHeight,distance});
+ }
+ // Self first; nearest characters win when labels overlap. Use a per-screen cap.
+ candidates.sort((a,b)=>(a.obj===player?-1:b.obj===player?1:0)||a.distance-b.distance);
+ const placed=[];let otherCount=0;
+ for(const item of candidates){
+  const {obj,tier,x,y,halfWidth,labelHeight}=item,tag=obj.label;
+  const rect={left:x-halfWidth,right:x+halfWidth,top:y-labelHeight-6,bottom:y+2};
+  if(obj!==player){
+   if(otherCount>=LABEL_CAP||placed.some(r=>rect.left<r.right+5&&rect.right>r.left-5&&rect.top<r.bottom+4&&rect.bottom>r.top-4)){
+    tag.style.display='none';continue;
+   }
+   otherCount++;
+  }
+  placed.push(rect);tag.style.display='block';tag.style.left=x+'px';tag.style.top=y+'px';
+  const tierName=obj===player?'near':['near','mid','far'][tier];
+  if(tag.dataset.tier!==tierName)tag.dataset.tier=tierName;
+  if(obj===player||tier===0)tag.querySelector('.clock').textContent='◷ '+fmt(obj.getTimer());
+  if(now>obj.bubbleUntil)tag.querySelector('.bubble').style.display='none';
  }
 }
 // Lightweight frame diagnostics are enabled ONLY with ?perf=1.
@@ -1307,7 +1429,7 @@ function frame(now){requestAnimationFrame(frame);
  for(const obj of remotePlayers.values())obj.animateLocomotion(dt,elapsed);
  for(const npc of npcList)npc.animateLocomotion(dt,elapsed);
  // Follow the avatar unconditionally; orbit/zoom controls remain usable.
- targetFollow.set(player.root.position.x,1.35,player.root.position.z-1.3);
+ targetFollow.set(player.root.position.x,MOBILE?1.72:1.35,player.root.position.z-(MOBILE?3.4:1.3));
  offsetFollow.subVectors(targetFollow,orbit.target).multiplyScalar(Math.min(1,dt*2.9));
  orbit.target.add(offsetFollow);camera.position.add(offsetFollow);
  orbit.update();
@@ -1323,7 +1445,7 @@ function frame(now){requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth<700?66:58;camera.updateProjectionMatrix();
- renderer.setPixelRatio(pixelRatio());renderer.setSize(innerWidth,innerHeight)});
+ renderer.setPixelRatio(pixelRatio());renderer.setSize(innerWidth,innerHeight);updateKeyboardInset()});
 updateHUD();updatePlayerCount(0);$('#loading').remove();
 await account.initialize();
 net=new NetworkClient({room:ROOM_ID,admission:ADMISSION,profile:currentProfile,onEvent:onServer,

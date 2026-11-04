@@ -111,7 +111,7 @@ export class AccountClient {
    this.account=null;this.csrf=null;this.draw();this.onChange();this.onToast('스터디룸 계정 데이터가 삭제되었습니다.');}
   catch(e){this.onToast(e.message);}
  }
- draw(){const b=$('#accountBtn');if(b)b.textContent=this.signedIn?'Google · '+this.account.nick:'게스트 · 로그인';
+ draw(){const b=$('#accountBtn');if(b){const text=this.signedIn?'Google · '+this.account.nick:'게스트 · 로그인';const caption=b.querySelector('.account-label');if(caption)caption.textContent=text;else b.textContent=text;b.setAttribute('aria-label',text);b.title=text;}
   const label=$('#accountStatus');if(label)label.textContent=this.signedIn?`Google 연결됨 · ${this.account.nick}`:'게스트 · 이 브라우저에서만 기록 접근 가능';
   const login=$('#googleLogin');if(login){login.disabled=!this.config||this.signedIn;login.textContent=this.signedIn?'Google 계정 연결됨':this.config?'Google로 계속하기':'Google 로그인 (Firebase 설정 필요)';}
   const logout=$('#logoutBtn');if(logout)logout.hidden=!this.signedIn;

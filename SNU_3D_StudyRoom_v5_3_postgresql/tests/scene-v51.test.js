@@ -10,8 +10,8 @@ const serverIndex=readFileSync(new URL('../server/index.js',import.meta.url),'ut
 const walkable=(x,z)=>x>=0&&x<=20&&z>=0&&z<=20&&!(x>7&&x<11&&z>7&&z<13);
 
 test('camera starts near avatar, follow target aligned, and HTML supports closing login',()=>{
- assert.match(html,/camera\.position\.set\(4\.2,6\.0,42\.2\)/);
- assert.match(html,/orbit\.target\.set\(0,1\.45,33\.7\)/);
+ assert.match(html,/camera\.position\.set\(MOBILE\?3\.2:4\.2,MOBILE\?7\.6:6\.0,MOBILE\?44\.2:42\.2\)/);
+ assert.match(html,/orbit\.target\.set\(0,MOBILE\?1\.72:1\.45,MOBILE\?31\.6:33\.7\)/);
  assert.match(html,/id="accountClose"/);
  assert.match(html,/\$\('#accountClose'\)\.onclick=closeAccountOverlay/);
  assert.match(html,/keydown.*Escape.*welcome\.hidden/s);
