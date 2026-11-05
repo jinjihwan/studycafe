@@ -1,6 +1,6 @@
 {
   "name": "snu-library-3d-studyroom",
-  "version": "7.5.0-character-camera-pivot.1",
+  "version": "7.6.0-hood-rim-fit.1",
   "private": true,
   "type": "module",
   "description": "Three photo-referenced university libraries (SNU, Korea, Yonsei) with isolated WebSocket rooms and PostgreSQL study records",

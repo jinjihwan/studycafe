@@ -892,7 +892,9 @@ function animalModel(species,hood){
  mesh(body,'sphere',hoodMat,[0,.78,.286],[.24,.18,.055]);
  mesh(body,'sphere',shadowHood,[0,1.79,-.085],[.55,.57,.49]);
  mesh(body,'sphere',fur,[0,1.8,.281],[.419,.402,.25]);
- mesh(body,'torus',hoodMat,[0,1.79,.47],[.445,.47,.46]);
+ // Place the hood seam on the curved hood shell (front contour ~z=.19-.20),
+ // not out in front of the face (old z=.47). It follows body rotation as before.
+ mesh(body,'torus',hoodMat,[0,1.79,.20],[.445,.47,.46]);
  // Hood cords / drawstrings.
  for(const x of [-.13,.13])mesh(body,'cylinder',white,[x,1.35,.343],[.023,.235,.023]);
  // Feet, arms, cuffs and paws.
