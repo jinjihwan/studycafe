@@ -289,10 +289,14 @@ renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.22;
 renderer.shadowMap.enabled=!MOBILE&&!LOW_QUALITY;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();scene.background=new THREE.Color('#b3cfe0');scene.fog=new THREE.Fog('#b3cfe0',65,150);
+// Rotate about the middle of the avatar's torso, not an invisible point ahead of it.
+const CAMERA_PIVOT_HEIGHT=1.25;
 const camera=new THREE.PerspectiveCamera(MOBILE?66:58,innerWidth/innerHeight,.07,210);
-camera.position.set(MOBILE?3.2:4.2,MOBILE?7.6:6.0,MOBILE?44.2:42.2);
+// Keep roughly the previous camera distance and elevation after moving the pivot.
+camera.position.set(MOBILE?3.2:4.2,MOBILE?7.13:5.80,MOBILE?47.0:43.5);
 const orbit=new OrbitControls(camera,D.canvas);
-orbit.target.set(0,MOBILE?1.72:1.45,MOBILE?31.6:33.7);orbit.enableDamping=true;orbit.dampingFactor=.075;
+// Player spawns at (0, 0, 35); use the same pivot as the follow loop.
+orbit.target.set(0,CAMERA_PIVOT_HEIGHT,35);orbit.enableDamping=true;orbit.dampingFactor=.075;
 orbit.enablePan=false;orbit.minDistance=2.7;orbit.maxDistance=42;
 orbit.minPolarAngle=.08;orbit.maxPolarAngle=Math.PI/2-.035;
 orbit.rotateSpeed=MOBILE?.65:.75;orbit.zoomSpeed=.9;orbit.update();
@@ -1465,6 +1469,10 @@ D.canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();setStatus('W
 D.canvas.addEventListener('webglcontextrestored',()=>{toast('WebGL 컨텍스트가 복원되었습니다.');net?.refresh();});
 let last=performance.now(),elapsed=0,uiElapsed=0,saveElapsed=0;
 const targetFollow=new THREE.Vector3(),offsetFollow=new THREE.Vector3();
+function setAvatarCameraPivot(target,root){
+ // Seated avatars shift upward and scale down; follow their true torso center.
+ return target.set(root.position.x,root.position.y+CAMERA_PIVOT_HEIGHT*root.scale.y,root.position.z);
+}
 function frame(now){requestAnimationFrame(frame);
  const rawInterval=now-last;const dt=Math.min(.055,rawInterval/1000||.016);last=now;elapsed+=dt;uiElapsed+=dt;saveElapsed+=dt;
  player.update(dt,elapsed);keyboardMove(dt);sendPosition();updateRemoteMovement(dt);updateTapRipples(dt);
@@ -1474,10 +1482,11 @@ function frame(now){requestAnimationFrame(frame);
  player.animateLocomotion(dt,elapsed);
  for(const obj of remotePlayers.values())obj.animateLocomotion(dt,elapsed);
  for(const npc of npcList)npc.animateLocomotion(dt,elapsed);
- // Follow the avatar unconditionally; orbit/zoom controls remain usable.
- targetFollow.set(player.root.position.x,MOBILE?1.72:1.35,player.root.position.z-(MOBILE?2.5:1.3));
- offsetFollow.subVectors(targetFollow,orbit.target).multiplyScalar(Math.min(1,dt*2.9));
- orbit.target.add(offsetFollow);camera.position.add(offsetFollow);
+ // Move the orbit center exactly with the avatar (even while walking or seated).
+ // Translate the camera by the same amount to preserve the user's orbit angle/zoom.
+ setAvatarCameraPivot(targetFollow,player.root);
+ offsetFollow.subVectors(targetFollow,orbit.target);
+ orbit.target.copy(targetFollow);camera.position.add(offsetFollow);
  orbit.update();
  // Camera cannot pass into the front bookshelf wall, rear facade, ceiling or side glazing.
  // OrbitControls recalculates its spherical state from this camera position next frame.

@@ -70,7 +70,7 @@ test('mobile viewport handling supports keyboard and system safe area with compa
 });
 test('only the existing camera framing changes on mobile; no new protocol or data model',()=>{
  assert.match(html,/camera\.position\.set\(MOBILE\?3\.2:4\.2/);
- assert.match(html,/targetFollow\.set\(player\.root\.position\.x,MOBILE\?1\.72:1\.35/);
+ assert.match(html,/setAvatarCameraPivot\(targetFollow,player\.root\)/);
  assert.match(html,/camera\.position\.z=clamp\(camera\.position\.z,CONFIG\.frontZ\+2\.7,CONFIG\.rearZ-1\.7\)/);
  assert.match(html,/function syncNpcStates\(states\)/);
  assert.match(html,/function updateRemoteRecord\(p,initial=false\)/);
