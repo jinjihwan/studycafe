@@ -5,13 +5,10 @@ import vm from "node:vm";
 const html=readFileSync(new URL("../index.html",import.meta.url),"utf8");
 const markup=html.slice(0,html.indexOf('<script type="module">'));
 
-test('onboarding retains all eight steps and preserves first-visit storage',()=>{
-  assert.match(markup,/id="tutorialOverlay" hidden role="region"/);
-  assert.match(html,/const TUTORIAL_STORAGE = 'snu-v69-tutorial-complete'/);
-  assert.match(html,/const tutorialSteps=\[/);
-  for(const title of ['화면 움직이기','도서관 바꿔보기','나만의 캐릭터 만들기','바닥 터치로 걷기','의자에 앉아 공부 시작','메시지 보내기','친구 초대해 보기','Google 로그인 알아보기'])assert.match(html,new RegExp(title));
-  assert.match(html,/if\(profileComplete&&!tutorialSeen\)setTimeout\(openTutorial,420\)/);
-  assert.match(html,/else setTimeout\(openTutorial,220\)/);
+test('no first-visit tutorial obstructs the nearby label view',()=>{
+  assert.doesNotMatch(markup,/id="tutorialOverlay"|#tutorialOverlay/);
+  assert.doesNotMatch(html,/setTimeout\(openTutorial|const tutorialSteps=/);
+  assert.match(markup,/<canvas id="scene"/);
 });
 
 test('labels now keep only nearby subset while retaining name and time together',()=>{

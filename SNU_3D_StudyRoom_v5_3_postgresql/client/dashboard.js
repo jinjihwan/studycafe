@@ -3,7 +3,6 @@
 // read only when making same-origin API calls.
 const $=s=>document.querySelector(s);
 const dur=ms=>{let s=Math.floor(Math.max(0,ms||0)/1000);return [Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(n=>String(n).padStart(2,'0')).join(':');};
-const speciesIcon={rabbit:'🐰',bear:'🐻',cat:'🐱',dog:'🐶'};
 const labelTime=ms=>dur(ms);
 const timeStr=day=>`${Number(day.slice(5,7))}/${Number(day.slice(8,10))}`;
 const monthShift=(month,off)=>{const [y,m]=month.split('-').map(Number);const d=new Date(Date.UTC(y,m-1+off,1));return d.toISOString().slice(0,7);};
@@ -88,10 +87,8 @@ export function initDashboard({getToken,onToast,onFriends,onFriendRanking,onHide
     const list=el('div','dash-rank-list');
     for(const r of data.entries){const item=el('article','dash-rank');if(r.isMe)item.classList.add('is-me');
       const number=el('span','dash-rank-num',String(r.rank));
-      const avatar=el('span','dash-avatar',speciesIcon[r.species]||'🐾');avatar.style.background=r.hood;
-      avatar.title=r.species+' · '+r.hood;
-      const name=el('div','dash-rank-name');name.append(el('strong','',r.nick+(r.isMe?' (나)':'')),el('small','',r.species+' · 후드 '+r.hood));
-      item.append(number,avatar,name,el('strong','dash-rank-time',dur(r.ms)));list.append(item);}
+      const name=el('div','dash-rank-name');name.append(el('strong','',r.nick+(r.isMe?' (나)':'')));
+      item.append(number,name,el('strong','dash-rank-time',dur(r.ms)));list.append(item);}
     root.append(list);
     const pages=el('div','dash-ranking-pages');pages.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:12px;margin:15px 0;';
     const previous=el('button','friend-action','이전 20명');previous.disabled=rankingOffset===0;

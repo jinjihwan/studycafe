@@ -80,12 +80,12 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
 .dash-privacy-label{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700}.dash-privacy-label input{width:20px;height:20px;accent-color:#86c8ff}
 .dash-ranking-summary{padding:14px;background:#213e53;border-radius:10px;margin-bottom:16px;font-size:13px;color:#dbf2fa}
 .dash-rank-list{display:grid;gap:7px}.dash-rank{display:flex;align-items:center;gap:12px;border:1px solid #49688271;border-radius:10px;background:#22344a;padding:10px 14px}.dash-rank.is-me{border-color:#85cdf4;background:#274b64}
-.dash-rank-num{width:28px;text-align:center;font-weight:800;font-size:16px}.dash-avatar{border-radius:12px;width:44px;height:44px;display:grid;place-items:center;font-size:25px;flex-shrink:0}.dash-rank-name{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}.dash-rank-name strong{font-size:14px;overflow-wrap:anywhere}.dash-rank-name small{font-size:11px;color:#b6cbdc}.dash-rank-time{font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}.dash-empty,.dash-loading{text-align:center;color:#c3d5e1;padding:35px 5px}
+.dash-rank-num{width:28px;text-align:center;font-weight:800;font-size:16px}.dash-rank-name{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}.dash-rank-name strong{font-size:14px;overflow-wrap:anywhere}.dash-rank-time{font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}.dash-empty,.dash-loading{text-align:center;color:#c3d5e1;padding:35px 5px}
 @media(max-width:690px){
  #appNav{top:auto!important;left:0;right:0;bottom:0;transform:none;max-width:none;width:100%;justify-content:space-around;border-radius:12px 12px 0 0;gap:0;padding:4px 2px calc(4px + env(safe-area-inset-bottom))}
  #appNav button{font-size:11px;padding:6px 5px;min-height:43px;flex:1;white-space:normal}
  body:not(.panel-visible) #bottom{bottom:calc(62px + env(safe-area-inset-bottom))}
-  #dashboard{padding:20px 12px 90px!important}.dash-heading h2{font-size:21px}.dash-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dash-metric{padding:11px}.dash-metric strong{font-size:17px}.dash-columns{grid-template-columns:1fr;gap:10px}.dash-card{padding:12px}.dash-day{min-height:36px}.dash-rank{gap:8px;padding:8px}.dash-rank-name strong{font-size:12px}.dash-rank-name small{font-size:10px}.dash-rank-time{font-size:12px}
+  #dashboard{padding:20px 12px 90px!important}.dash-heading h2{font-size:21px}.dash-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dash-metric{padding:11px}.dash-metric strong{font-size:17px}.dash-columns{grid-template-columns:1fr;gap:10px}.dash-card{padding:12px}.dash-day{min-height:36px}.dash-rank{gap:8px;padding:8px}.dash-rank-name strong{font-size:12px}.dash-rank-time{font-size:12px}
 }
 
 /* V6.6 mobile-first UI: preserve scene, networking and study logic. */
@@ -196,28 +196,6 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
  #bottom .controls #chatInput{height:40px;min-height:40px}
 }
 
-/* V6.9: non-blocking interactive onboarding with real action verification. */
-#tutorialOverlay[hidden]{display:none!important}
-#tutorialOverlay{position:fixed;inset:0;z-index:46;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;padding:12px 12px calc(160px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent 35%,rgba(6,14,24,.13) 85%)}
-#tutorialOverlay[data-position="world"]{align-items:flex-start;padding-top:calc(92px + env(safe-area-inset-top));padding-bottom:12px}
-#tutorialOverlay .dialog{pointer-events:auto;width:min(410px,100%);padding:16px 17px;max-height:min(55dvh,390px);overflow-y:auto;background:rgba(19,33,51,.97);border:1px solid #88b8db70;border-radius:17px;box-shadow:0 10px 38px #0008}
-#tutorialOverlay .tutorial-progress{display:flex;align-items:center;gap:12px;margin:0 0 9px}
-#tutorialOverlay .tutorial-step{font-size:11px;color:#bbd8ec;white-space:nowrap}
-#tutorialOverlay .tutorial-bars{display:flex;gap:5px;flex:1;justify-content:flex-end}
-#tutorialOverlay .tutorial-bars i{display:block;flex:1;max-width:24px;height:4px;border-radius:999px;background:#304962}
-#tutorialOverlay .tutorial-bars i.active{background:#8bcaff}
-#tutorialOverlay h1{font-size:17px;margin:0 0 7px}
-#tutorialOverlay p{font-size:12px;color:#e0eaf5;line-height:1.55;margin:0 0 7px}
-#tutorialOverlay .tutorial-hint{font-size:11px;color:#9ddcc8;margin:7px 0 0;min-height:15px}
-#tutorialOverlay .tutorial-actions{display:flex;align-items:center;gap:8px;margin-top:12px}
-#tutorialOverlay .tutorial-actions button{min-height:42px;flex:1;padding:7px 10px;border-radius:10px;border:1px solid #6483a0;background:#263b52;color:#f4f8ff;font-size:11px}
-#tutorialOverlay .tutorial-actions .ghost{background:transparent;border-color:#586b80;color:#b9cfe0}
-body.tutorial-open .tutorial-focus{box-shadow:0 0 0 2px #8bcaff,0 0 0 6px #8bcaff55!important;outline:1px solid #acdfff;outline-offset:2px}
-body.tutorial-open #bottom .tutorial-focus,body.tutorial-open #topbar .tutorial-focus{position:relative}
-body.keyboard-open #tutorialOverlay{padding-bottom:calc(70px + var(--keyboard-lift,0px))}
-@media(max-width:690px){#tutorialOverlay{padding:10px 10px calc(158px + env(safe-area-inset-bottom))}#tutorialOverlay .dialog{padding:13px 14px;max-height:min(42dvh,310px)}#tutorialOverlay h1{font-size:16px}#tutorialOverlay p{font-size:12px}}
-@media(max-height:600px){#tutorialOverlay{padding-bottom:calc(80px + env(safe-area-inset-bottom))}#tutorialOverlay .dialog{max-height:45dvh}}
-
 </style>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"}}
@@ -234,7 +212,6 @@ body.keyboard-open #tutorialOverlay{padding-bottom:calc(70px + var(--keyboard-li
 <div id="librarySelect" hidden role="dialog" aria-modal="true" aria-labelledby="librarySelectTitle"><div class="dialog"><h1 id="librarySelectTitle">도서관 선택</h1><p>공부 기록과 친구 관계는 세 공간에서 동일하게 유지됩니다. 다른 도서관으로 이동하면 기존 좌석은 반납됩니다.</p><div class="library-cards"><button type="button" class="library-choice" data-library="main"><strong>서울대학교 중앙도서관</strong><small>48석</small></button><button type="button" class="library-choice" data-library="korea"><strong>고려대학교 중앙도서관</strong><small>48석</small></button><button type="button" class="library-choice" data-library="yonsei"><strong>연세대학교 연세·삼성학술정보관</strong><small>48석</small></button></div><button type="button" class="iconbtn" id="libraryClose">현재 도서관에 머물기</button></div></div><div id="accountOverlay" hidden><div class="dialog" role="dialog" aria-modal="true" aria-label="계정 메뉴"><button type="button" id="accountClose" aria-label="도서관으로 돌아가기" title="닫기">×</button><h1>계정 연결</h1><p id="accountStatus">게스트로 이용 중입니다. 친구 기능은 Google 로그인 후 사용할 수 있습니다.</p><p id="authError" class="auth-error" role="alert" hidden></p><div class="account-actions"><button id="googleLogin" class="ok">Google로 계속하기</button><button id="logoutBtn" class="ok alt" hidden>Google 로그아웃</button><button id="deleteAccountBtn" class="account-danger" hidden>스터디룸 계정 데이터 삭제</button></div><p class="note">게스트 인증 정보가 삭제되면 이전 기록에 접근하지 못할 수 있습니다. Google 연결 시 기존 게스트 기록을 서버에서 안전하게 병합합니다.</p><p class="note">모바일 Google 팝업이 차단되면 브라우저 설정에서 팝업을 허용해 주세요.</p></div></div>
 <section id="bottom" class="glass" aria-label="실시간 채팅"><div class="controls"><button class="chat-action" id="switchLibraryBtn" type="button" title="도서관 변경" aria-label="도서관 변경"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V6l7-3 7 3v15M9 9v2m6-2v2M9 14v2m6-2v2M10 21v-3h4v3"/></svg></button><button class="chat-action" id="avatarBtn" type="button" title="캐릭터 변경" aria-label="캐릭터 변경"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="16" rx="5" ry="3.3"/><path d="M5.5 9.5c-1.5-.8-2.5.5-1.7 2.2.6 1.1 1.9 1.4 2.5.5M9.2 6c-1.2-1-2.5.3-2.1 2 .3 1.3 1.7 1.7 2.4.7M14.7 6c1.2-1 2.5.3 2.1 2-.3 1.3-1.7 1.7-2.4.7M18.5 9.5c1.5-.8 2.5.5 1.7 2.2-.6 1.1-1.9 1.4-2.5.5"/></svg></button><input id="chatInput" maxlength="40" enterkeyhint="send" placeholder="메시지 입력 (40자)" aria-label="실시간 채팅 입력"/><button id="sendBtn" class="primary" type="button" title="메시지 전송" aria-label="메시지 전송"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4 20-7ZM22 2 11 13"/></svg></button></div></section>
 <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog"><h1 id="modalTitle">캐릭터 선택</h1><p>로우폴리 동물 캐릭터를 선택하고 도서관에 입장하세요. 선택 내용은 이 브라우저에 저장됩니다.</p><div class="fields"><label class="field full">닉네임<input id="nick" maxlength="15" value="공부하는토끼" /></label><label class="field">동물<select id="species"><option value="rabbit">토끼</option><option value="bear">곰</option><option value="cat">고양이</option><option value="dog">강아지</option></select></label><label class="field">기본 후드 색상<select id="gender"><option value="female">분홍색 기본</option><option value="male">하늘색 기본</option></select></label><label class="field full">후드 색상 직접 변경<input id="hood" type="color" value="#f39bc4" /></label></div><button id="enterBtn" class="ok">3D 도서관 입장</button><div class="note">게스트로 실시간 서버에 접속합니다. 도서관에는 가상 학습자가 함께 참여하며 실제 접속 인원과는 구분해 표시됩니다.</div></div></div>
-<div id="tutorialOverlay" hidden role="region" aria-labelledby="tutorialTitle" aria-describedby="tutorialBody" aria-live="polite"><div class="dialog"><div class="tutorial-progress"><strong class="tutorial-step" id="tutorialStepCount">1 / 8</strong><div class="tutorial-bars" id="tutorialBars" aria-hidden="true"></div></div><h1 id="tutorialTitle">화면 움직이기</h1><p id="tutorialBody">화면을 드래그하고, 두 손가락으로 확대·축소해 보세요.</p><p class="tutorial-hint" id="tutorialHint">조작을 완료하면 자동으로 다음 단계로 넘어갑니다.</p><div class="tutorial-actions"><button type="button" id="tutorialSkipStep">이 단계 건너뛰기</button><button type="button" class="ghost" id="tutorialEnd">튜토리얼 종료</button></div></div></div>
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -270,8 +247,6 @@ const PERF_ENABLED = query.get('perf')==='1';
 const LOW_QUALITY = query.get('quality')==='low'; // opt-in diagnostics; default rendering unchanged.
 const pixelRatio=()=>LOW_QUALITY?Math.min(devicePixelRatio,1):Math.min(devicePixelRatio,innerWidth<700?1.35:1.85);
 const STORAGE = 'snu-study-3d-demo-v1'; // v1 visual preferences are preserved
-const TUTORIAL_STORAGE = 'snu-v69-tutorial-complete';
-const TUTORIAL_RESUME_KEY = 'snu-v69-tutorial-library-switch';
 const LIBRARY_META={
  main:{badge:'서울대 도서관',brand:'서울대학교 중앙도서관',short:'서울대'},
  korea:{badge:'고려대 도서관',brand:'고려대학교 중앙도서관',short:'고려대'},
@@ -304,113 +279,6 @@ let statusMessage='';
 function setStatus(message){statusMessage=message}
 // Study time is displayed above the avatar by updateLabels(), not a second HUD.
 function updateHUD(){}
-const tutorialSteps=[
- {title:'화면 움직이기',body:'3D 공간을 손가락으로 드래그해 시점을 바꾸고, 두 손가락으로 확대·축소해 보세요. PC에서는 드래그와 마우스 휠을 사용합니다.',hint:'□ 화면 드래그   □ 확대·축소',focus:null},
- {title:'도서관 바꿔보기',body:'아래의 도서관 변경 버튼을 누른 뒤, 지금과 다른 도서관을 선택해 실제로 이동해 보세요.',hint:'도서관을 선택하면 화면이 전환되고 다음 단계로 이어집니다.',focus:'#switchLibraryBtn'},
- {title:'나만의 캐릭터 만들기',body:'아래 캐릭터 버튼을 눌러 동물, 이름 또는 후드 색상을 바꾼 다음 저장해 보세요.',hint:'한 가지 이상 실제로 바꿔야 다음 단계로 넘어갑니다.',focus:'#avatarBtn'},
- {title:'바닥 터치로 걷기',body:'도서관 바닥을 터치하고 캐릭터가 선택한 위치까지 이동하는 모습을 확인해 보세요.',hint:'이동을 완료하면 다음 단계로 넘어갑니다.',focus:null},
- {title:'의자에 앉아 공부 시작',body:'비어 있는 의자를 터치해 실제로 앉아 보세요. 공부 시간은 서버에서 착석과 시작을 확인하면 기록됩니다.',hint:'연결이 끊기면 기록은 서버에서 일시정지됩니다.',focus:null},
- {title:'메시지 보내기',body:'아래 채팅창에 짧은 인사를 입력하고 종이비행기 버튼을 눌러 보내 보세요.',hint:'메시지가 전송되면 다음 단계로 넘어갑니다.',focus:'#chatInput'},
- {title:'친구 초대해 보기',body:'오른쪽 위 링크 버튼을 눌러 같은 방의 초대 주소를 복사해 보세요. 친구에게 전달하면 함께 공부할 수 있어요.',hint:'링크를 복사하거나 공유 화면을 열면 다음 단계로 넘어갑니다.',focus:'#inviteBtn'},
- {title:'Google 로그인 알아보기',body:'오른쪽 위 계정 버튼을 눌러 로그인 메뉴를 열어 보세요. Google 로그인으로 친구 등록과 공부 기록에 접근할 수 있습니다.',hint:'로그인을 강제하지 않습니다. 계정 메뉴를 확인하면 완료됩니다.',focus:'#accountBtn'}
-];
-let tutorialSeen=false;
-try{tutorialSeen=localStorage.getItem(TUTORIAL_STORAGE)==='1'||localStorage.getItem('snu-v68-tutorial-seen')==='1'}catch{}
-const tutorialReplay=query.get('tutorial')==='1';
-if(tutorialReplay){
- tutorialSeen=false;
- const cleanURL=new URL(location.href);cleanURL.searchParams.delete('tutorial');history.replaceState(null,'',cleanURL.href);
-}
-let tutorialIndex=0,tutorialActive=false,tutorialSeatRequested=false;
-let tutorialRotated=false,tutorialZoomed=false;
-let tutorialAvatarStart=null;
-try{
- const resume=JSON.parse(sessionStorage.getItem(TUTORIAL_RESUME_KEY)||'null');
- if(resume?.library===BASE_LIBRARY&&resume?.nextIndex===2){tutorialSeen=false;tutorialIndex=2;}
- sessionStorage.removeItem(TUTORIAL_RESUME_KEY);
-}catch{}
-function markTutorialSeen(){tutorialSeen=true;try{localStorage.setItem(TUTORIAL_STORAGE,'1')}catch{}}
-function clearTutorialFocus(){document.querySelectorAll('.tutorial-focus').forEach(el=>el.classList.remove('tutorial-focus'));}
-function tutorialDialogsOpen(){return !$('#librarySelect').hidden||D.modal.classList.contains('visible')||!$('#accountOverlay').hidden;}
-function renderTutorial(){
- const step=tutorialSteps[tutorialIndex];if(!step)return;
- $('#tutorialOverlay').dataset.position=(tutorialIndex===3||tutorialIndex===4)?'world':'default';
- $('#tutorialTitle').textContent=step.title;$('#tutorialBody').textContent=step.body;
- $('#tutorialHint').textContent=tutorialIndex===0
-  ?`${tutorialRotated?'✓':'□'} 화면 드래그   ${tutorialZoomed?'✓':'□'} 확대·축소`:step.hint;
- $('#tutorialStepCount').textContent=`${tutorialIndex+1} / ${tutorialSteps.length}`;
- const bars=$('#tutorialBars');bars.replaceChildren();
- tutorialSteps.forEach((_,i)=>{const dot=document.createElement('i');if(i<=tutorialIndex)dot.className='active';bars.append(dot);});
- clearTutorialFocus();if(step.focus)document.querySelector(step.focus)?.classList.add('tutorial-focus');
- $('#tutorialSkipStep').textContent=tutorialIndex===tutorialSteps.length-1?'로그인 없이 마치기':'이 단계 건너뛰기';
-}
-function resumeTutorial(){
- if(!tutorialActive||tutorialDialogsOpen())return;
- $('#tutorialOverlay').hidden=false;document.body.classList.add('tutorial-open');renderTutorial();
-}
-function pauseTutorial(){
- if(!tutorialActive)return;
- $('#tutorialOverlay').hidden=true;document.body.classList.remove('tutorial-open');clearTutorialFocus();
-}
-function finishTutorial(){
- tutorialActive=false;$('#tutorialOverlay').hidden=true;document.body.classList.remove('tutorial-open');clearTutorialFocus();
- try{sessionStorage.removeItem(TUTORIAL_RESUME_KEY)}catch{}
- markTutorialSeen();
-}
-function nextTutorialStep(){
- if(!tutorialActive)return;
- if(tutorialIndex===tutorialSteps.length-1){finishTutorial();return;}
- tutorialIndex++;tutorialSeatRequested=false;tutorialRotated=false;tutorialZoomed=false;
- tutorialAvatarStart=tutorialIndex===2?{...prefs}:null;
- resumeTutorial();
-}
-function tutorialAction(action){
- if(!tutorialActive)return;
- if(tutorialIndex===0){
-  if(action==='camera-rotated')tutorialRotated=true;
-  if(action==='camera-zoomed')tutorialZoomed=true;
-  if(tutorialRotated&&tutorialZoomed)nextTutorialStep();else if(tutorialRotated||tutorialZoomed)renderTutorial();
- }else if((tutorialIndex===2&&action==='avatar-changed')||
-          (tutorialIndex===3&&action==='floor-arrived')||
-          (tutorialIndex===4&&action==='study-started'&&tutorialSeatRequested)||
-          (tutorialIndex===5&&action==='chat-sent')||
-          (tutorialIndex===6&&action==='invite-opened')||
-          (tutorialIndex===7&&action==='account-opened'))nextTutorialStep();
-}
-function rememberTutorialRoomSwitch(room){
- if(!tutorialActive||tutorialIndex!==1||room===BASE_LIBRARY)return;
- try{sessionStorage.setItem(TUTORIAL_RESUME_KEY,JSON.stringify({library:room,nextIndex:2}));}catch{}
-}
-function openTutorial(){
- if(tutorialActive||tutorialSeen||!profileComplete||tutorialDialogsOpen())return;
- tutorialActive=true;
- if(tutorialIndex===2)tutorialAvatarStart={...prefs};
- resumeTutorial();
-}
-// Tutorial gestures are sampled from real user pointer/wheel input; automatic camera following never counts.
-const tutorialPointers=new Map();
-let tutorialPinchStart=0;
-function tutorialPointerDown(e){
- if(!tutorialActive||tutorialIndex!==0)return;
- tutorialPointers.set(e.pointerId,{x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY});
- if(tutorialPointers.size===2){const pair=[...tutorialPointers.values()];tutorialPinchStart=Math.hypot(pair[0].x-pair[1].x,pair[0].y-pair[1].y);}
-}
-function tutorialPointerMove(e){
- const prev=tutorialPointers.get(e.pointerId);if(!prev||!tutorialActive||tutorialIndex!==0)return;
- prev.x=e.clientX;prev.y=e.clientY;
- if(tutorialPointers.size===1&&Math.hypot(prev.x-prev.startX,prev.y-prev.startY)>24)tutorialAction('camera-rotated');
- if(tutorialPointers.size===2){
-  const pair=[...tutorialPointers.values()],size=Math.hypot(pair[0].x-pair[1].x,pair[0].y-pair[1].y);
-  if(Math.abs(size-tutorialPinchStart)>16)tutorialAction('camera-zoomed');
- }
-}
-function tutorialPointerUp(e){tutorialPointers.delete(e.pointerId);if(tutorialPointers.size<2)tutorialPinchStart=0;}
-D.canvas.addEventListener('pointerdown',tutorialPointerDown);
-D.canvas.addEventListener('pointermove',tutorialPointerMove);
-D.canvas.addEventListener('pointerup',tutorialPointerUp);
-D.canvas.addEventListener('pointercancel',tutorialPointerUp);
-D.canvas.addEventListener('wheel',e=>{if(tutorialActive&&tutorialIndex===0&&Math.abs(e.deltaY)>2)tutorialAction('camera-zoomed');},{passive:true});
-
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. Three renderer, camera, lights
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1168,18 +1036,17 @@ const chooser=$('#librarySelect');
 let switchingTo=null;
 function libraryURL(room){const url=new URL(location.href);url.searchParams.set('room',room);
  url.searchParams.set('auto','1');url.searchParams.delete('suggestSeat');return url.href;}
-function openLibraryChooser(){pauseTutorial();chooser.hidden=false;chooser.querySelectorAll('[data-library]').forEach(btn=>{
+function openLibraryChooser(){chooser.hidden=false;chooser.querySelectorAll('[data-library]').forEach(btn=>{
   const same=btn.dataset.library===ROOM_ID;btn.disabled=same&&!!net?.connected;
   btn.querySelector('strong').textContent=(LIBRARY_META[btn.dataset.library]?.brand||'도서관')+(same?' · 현재 위치':'');
  });}
-function closeLibraryChooser(){chooser.hidden=true;if(profileComplete&&!net?.connected&&!switchingTo)net?.start();resumeTutorial();if(!tutorialActive)openTutorial();}
+function closeLibraryChooser(){chooser.hidden=true;if(profileComplete&&!net?.connected&&!switchingTo)net?.start();}
 $('#switchLibraryBtn').addEventListener('click',openLibraryChooser);
 $('#libraryClose').addEventListener('click',closeLibraryChooser);
 chooser.addEventListener('click',e=>{if(e.target===chooser)closeLibraryChooser()});
 for(const btn of chooser.querySelectorAll('[data-library]'))btn.addEventListener('click',()=>{
  const room=btn.dataset.library;if(room===ROOM_ID){try{localStorage.setItem('snu-last-library-v6',room);}catch{}if(!net?.connected){location.assign(libraryURL(room));return;}closeLibraryChooser();return;}
  try{localStorage.setItem('snu-last-library-v6',room);}catch{}
- rememberTutorialRoomSwitch(room);
  save();switchingTo=libraryURL(room);
  if(!net?.connected||!net.send({t:'room_exit'})){location.assign(switchingTo);return;}
  setStatus('공부 기록을 저장하고 다른 도서관으로 이동하는 중…');
@@ -1187,8 +1054,8 @@ for(const btn of chooser.querySelectorAll('[data-library]'))btn.addEventListener
  setTimeout(()=>{if(switchingTo)location.assign(switchingTo);},2600);
 });
 const welcome=$('#accountOverlay');
-function closeAccountOverlay(){welcome.hidden=true;resumeTutorial();}
-$('#accountBtn').onclick=()=>{account.draw();welcome.hidden=false;tutorialAction('account-opened');if(tutorialActive)pauseTutorial();};
+function closeAccountOverlay(){welcome.hidden=true;}
+$('#accountBtn').onclick=()=>{account.draw();welcome.hidden=false;};
 $('#accountClose').onclick=closeAccountOverlay;
 welcome.addEventListener('click',e=>{if(e.target===welcome)closeAccountOverlay()});
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!welcome.hidden){e.preventDefault();closeAccountOverlay()}});
@@ -1205,7 +1072,6 @@ function applyStudyClock(record,day){
  study.running=!!record.studying;study.paused=!!record.paused;
  study.sampledAt=performance.now();
  if(!study.running)study.paused=false;
- if(player?.seated&&study.running&&!study.paused&&net?.connected)tutorialAction('study-started');
  updateHUD();
 }
 let lastVirtualCount=0;
@@ -1285,7 +1151,6 @@ function syncSelf(p,day){
  }else{player.root.position.set(p.x,0,p.z);player.root.rotation.y=p.yaw;}
  player.resetWalkSample();
  applyStudyClock(p,day);
- if(player.seated&&study.running&&!study.paused&&net?.connected)tutorialAction('study-started');
 }
 function updateRemoteRecord(p,initial=false){
  if(p.id===selfId)return;
@@ -1431,14 +1296,14 @@ function goToSeat(s){
  if(player.seated){net.send({t:'stand'});player.stand();}
  pendingIntent=s.id;
  if(!net.send({t:'seat_request',seatId:s.id}))pendingIntent=null;
- else {if(tutorialActive&&tutorialIndex===4)tutorialSeatRequested=true;setStatus('서버에 좌석 점유를 요청하는 중…');}
+ else setStatus('서버에 좌석 점유를 요청하는 중…');
 }
 function goToFloor(p){
  if(!net?.connected){toast('서버에 연결되지 않았습니다.');return;}
  abortPendingSeat();if(player.seated){net.send({t:'stand'});player.stand();}
  ring.visible=false;
  const target={x:clamp(p.x,-21.8,21.8),z:clamp(p.z,CONFIG.frontWalkLimit+.22,CONFIG.rearWalkLimit-.2)};
- player.go(target,()=>tutorialAction('floor-arrived'));
+ player.go(target);
 }
 const down=new Map();let multitouch=false;
 D.canvas.addEventListener('pointerdown',e=>{down.set(e.pointerId,{x:e.clientX,y:e.clientY,time:performance.now()});if(down.size>1)multitouch=true});
@@ -1486,7 +1351,7 @@ function keyboardMove(dt){const f=(keys.has('w')||keys.has('arrowup')?1:0)-(keys
 let lastChatSentAt=0;
 function sendChat(){const msg=D.chat.value.trim();if(!msg||performance.now()-lastChatSentAt<250)return;
  if(!net?.send({t:'chat',message:msg})){toast('서버에 연결되지 않았습니다.');return;}
- lastChatSentAt=performance.now();D.chat.value='';updateSendAvailability();D.chat.blur();tutorialAction('chat-sent');}
+ lastChatSentAt=performance.now();D.chat.value='';updateSendAvailability();D.chat.blur();}
 function updateSendAvailability(){D.send.disabled=!D.chat.value.trim();}
 D.chat.addEventListener('input',updateSendAvailability);updateSendAvailability();
 D.send.onclick=sendChat;D.chat.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChat()}});
@@ -1501,18 +1366,14 @@ function updateKeyboardInset(){
 if(window.visualViewport){window.visualViewport.addEventListener('resize',updateKeyboardInset);window.visualViewport.addEventListener('scroll',updateKeyboardInset);}
 D.chat.addEventListener('focus',updateKeyboardInset);
 D.chat.addEventListener('blur',()=>requestAnimationFrame(updateKeyboardInset));
-$('#tutorialSkipStep').onclick=()=>nextTutorialStep();
-$('#tutorialEnd').onclick=finishTutorial;
-window.addEventListener('keydown',e=>{if(e.key==='Escape'&&tutorialActive&&!$('#tutorialOverlay').hidden)finishTutorial();});
 $('#avatarBtn').onclick=()=>showModal();
 $('#inviteBtn').onclick=async()=>{const u=new URL(location.href);u.searchParams.set('room',ROOM_ID);u.searchParams.delete('auto');u.searchParams.delete('tutorial');u.hash='';
- try{await navigator.clipboard.writeText(u.href);toast('같은 방 초대 링크를 복사했습니다.');tutorialAction('invite-opened');}
- catch{const shown=window.prompt('친구에게 이 주소를 전달하세요.',u.href);if(shown!==null)tutorialAction('invite-opened');}};
+ try{await navigator.clipboard.writeText(u.href);toast('같은 방 초대 링크를 복사했습니다.');}
+ catch{window.prompt('친구에게 이 주소를 전달하세요.',u.href);}};
 $('#species').value=prefs.species;$('#gender').value=prefs.gender;$('#nick').value=prefs.nick;$('#hood').value=prefs.hood;
 $('#gender').addEventListener('change',()=>{$('#hood').value=COLORS[$('#gender').value]});
-function showModal(){pauseTutorial();D.modal.classList.add('visible')}
+function showModal(){D.modal.classList.add('visible')}
 $('#enterBtn').onclick=()=>{
- const previous={...prefs};
  prefs={nick:$('#nick').value.trim().slice(0,15)||'공부하는토끼',species:$('#species').value,gender:$('#gender').value,hood:$('#hood').value};
  profileComplete=true;player.setAppearance(prefs.species,prefs.hood,prefs.nick);save();D.modal.classList.remove('visible');
  if(net?.connected)net.send({t:'profile',profile:currentProfile()});
@@ -1520,11 +1381,6 @@ $('#enterBtn').onclick=()=>{
   if(!query.has('room')&&!localStorage.getItem('snu-last-library-v6'))openLibraryChooser();
   else {setStatus('게스트로 입장하는 중…');net.start();}
  }
- if(tutorialActive&&tutorialIndex===2){
-  const before=tutorialAvatarStart||previous;
-  if(['nick','species','gender','hood'].some(k=>prefs[k]!==before[k]))tutorialAction('avatar-changed');
- }
- if(tutorialActive)resumeTutorial();else setTimeout(openTutorial,220);
  toast('캐릭터 설정을 저장했습니다.')
 };
 if(!profileComplete)showModal();
@@ -1641,7 +1497,6 @@ if(profileComplete)net.start();
 // No Google-vs-guest choice at launch; Google login remains available from
 // the account menu and the explicit button inside the guest friend tab.
 welcome.hidden=true;
-if(profileComplete&&!tutorialSeen)setTimeout(openTutorial,420);
 const suggested=Number(query.get('suggestSeat'));
 if(query.has('suggestSeat')&&Number.isInteger(suggested)&&seats[suggested])setTimeout(()=>toast(`친구 주변 추천 좌석: ${suggested+1}번 의자를 터치해 주세요.`),3500);
 console.info('Multilibrary 3D study room initialized:',{room:ROOM_ID,tables:YONSEI_ROOM?22:KOREA_ROOM?24:CONFIG.rows*CONFIG.columnsPerSide*2,seats:seats.length,npcCapacity:PRIMARY_ROOM?CONFIG.npcCount:0});
