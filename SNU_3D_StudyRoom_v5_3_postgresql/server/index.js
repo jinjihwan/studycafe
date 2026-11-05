@@ -16,6 +16,8 @@ import { createAccountAPI,accountContext } from './account-api.js';
 import { originDecision } from './origin.js';
 import {statePaths,assertExistingProductionData} from './state-paths.js';
 import {LivePresence} from './live-presence.js';
+import {librarySeatTotals} from './library-seats.js';
+import {virtualPresent} from './virtual-learners.js';
 import {validId} from './room.js';
 import {parseWorkerTargets,proxyRoomWebsocket} from './ws-router.js';
 import {LIBRARIES,choosePublicRoom,parsedPublicRoom,workerForRoom,roomCapacity} from './room-routing.js';
@@ -180,7 +182,8 @@ async function handleHttp(req,res){
       const counts=livePresence?await livePresence.occupancy(library):
         new Map([...rooms.rooms].filter(([room])=>parsedPublicRoom(room)?.library===library)
           .map(([room,r])=>[room,rooms.members(r)]));
-      data[library]={users:[...counts.values()].reduce((a,b)=>a+b,0),rooms:[...counts.entries()].filter(([,n])=>n>0).length,
+      const totals=librarySeatTotals(library,counts,virtualPresent(library,Date.now()).length);
+      data[library]={...totals,users:[...counts.values()].reduce((a,b)=>a+b,0),rooms:[...counts.entries()].filter(([,n])=>n>0).length,
         occupied:[...counts.entries()].map(([room,n])=>({room,users:n,capacity:roomCapacity(room)}))};
     }
     return json(res,200,{libraries:data,users:Object.values(data).reduce((a,x)=>a+x.users,0),routerEnabled:routeTargets.length>0});

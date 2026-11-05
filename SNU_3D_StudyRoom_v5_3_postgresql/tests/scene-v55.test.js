@@ -13,7 +13,7 @@ test('48 authoritative seats remain eight 6-chair tables with clear central path
  assert.equal(isWalkable(24,0),false);
 });
 test('Seoul triangular supports rotated into depth, tips separated and no visible apex',()=>{
- assert.match(html,/const x=side\*17\.6, gap=\.92, spread=4\.60/);
+ assert.match(html,/const x=side\*17\.6, gap=\.92, spread=gap\+\(H-\.88\)/);
  assert.match(html,/const footZ=z\+dir\*spread, tipZ=z\+dir\*gap/);
  assert.match(html,/batch\.segment\('steel',\[x,\.25,footZ\],\[x,H-\.63,tipZ\],\.91\)/);
  assert.doesNotMatch(html,/const innerX=side\*13\.0, outerX=side\*22\.2, apexX=side\*17\.6/);

@@ -51,7 +51,7 @@ export function buildSeatsAndObstacles() {
   // Each column has two floor feet at different z, directly mirroring the client.
   for(const z of [-18,20])for(const side of [-1,1]){
     const x=side*17.6;
-    for(const dir of [-1,1])obstacles.push({x,z:z+dir*4.60,w:1.8,d:1.65});
+    for(const dir of [-1,1])obstacles.push({x,z:z+dir*(.92+(16.2-.88)),w:1.8,d:1.65}); // 45° supports: matches client
   }
   return {seats,obstacles,npcSeats:new Set()};
 }

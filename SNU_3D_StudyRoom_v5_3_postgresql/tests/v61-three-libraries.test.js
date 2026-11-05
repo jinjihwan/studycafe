@@ -25,11 +25,11 @@ test('three real-photo-referenced rooms are selectable, with correct names and v
 });
 
 test('Seoul supports are rotated along Z, have separated ceiling tips and aligned collision feet',()=>{
- assert.match(html,/const x=side\*17\.6, gap=\.92, spread=4\.60/);
+ assert.match(html,/const x=side\*17\.6, gap=\.92, spread=gap\+\(H-\.88\)/);
  assert.match(html,/const footZ=z\+dir\*spread, tipZ=z\+dir\*gap/);
  assert.match(server,/const x=side\*17\.6/);
  for(const z of [-18,20])for(const side of [-1,1])for(const dir of [-1,1]){
-  const x=side*17.6,footZ=z+dir*4.60;
+  const x=side*17.6,footZ=z+dir*(.92+(16.2-.88));
   const foot=layoutForRoom('main').obstacles.find(o=>o.x===x&&o.z===footZ);
   assert.ok(foot,`missing collision at ${x} / ${footZ}`);
   assert.equal(isWalkable(x,footZ,'main'),false);

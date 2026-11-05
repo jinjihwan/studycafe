@@ -58,7 +58,7 @@ test('public heading shows one combined participant count and operator details r
  assert.match(markup,/id="onlineCount"[^>]*>.*?학습자 0명/s);
  assert.doesNotMatch(markup,/id="onlineCount"[^>]*>[^<]*가상\s*\d+명/);
  assert.match(markup,/id="operatorPresence" hidden/);
- assert.match(markup,/실제 접속 이용자 수와는 다릅니다/);
+ assert.doesNotMatch(markup.slice(markup.indexOf('id="accountOverlay"'),markup.indexOf('id="bottom"')), /실제 접속 이용자 수와는 다릅니다/);
  assert.match(html,/credentials:'same-origin',cache:'no-store'/);
  const excerpt=html.slice(html.indexOf('let lastRealCount=0,lastVirtualCount=0;'),html.indexOf('// The server sends the canonical NPC positions'));
  const fields={};for(const name of ['#onlineCount','#operatorPresence','#operatorPresenceCount'])fields[name]={innerHTML:'',textContent:'',hidden:true};

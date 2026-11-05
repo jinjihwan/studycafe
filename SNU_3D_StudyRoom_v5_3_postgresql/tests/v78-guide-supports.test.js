@@ -44,7 +44,7 @@ test('Seoul has four A-shaped supports, matching both client meshes and server c
  const feet=obstacles.filter(o=>Math.abs(o.x)===17.6&&o.w===1.8&&o.d===1.65);
  assert.equal(feet.length,8,'four A-shaped supports have two feet each');
  for(const z of [-18,20])for(const side of [-1,1])for(const dir of [-1,1]){
-   const x=side*17.6,footZ=z+dir*4.6;
+   const x=side*17.6,footZ=z+dir*(.92+(16.2-.88));
    assert.ok(feet.some(o=>o.x===x&&o.z===footZ));
    assert.equal(isWalkable(x,footZ,'main'),false);
  }
@@ -60,7 +60,7 @@ test('ranking includes only ordinary date/refresh and tie-break notices, with no
  assert.match(ranking,/약 30초 간격 자동 갱신/);
  assert.match(ranking,/동률은 고유 ID/);
  assert.match(ranking,/한국시간 00:00에 초기화/);
- assert.match(html,/상단의 학습자 인원에는 가상 학습자가 포함될 수 있습니다/,'account transparency remains');
+ assert.doesNotMatch(markup.slice(markup.indexOf('id="accountOverlay"'),markup.indexOf('id="bottom"')), /상단의 학습자 인원에는 가상 학습자가 포함/,'account text is concise');
 });
 
 test('real static HTTP endpoint returns exact guide JPEG bytes, HEAD and rejects arbitrary paths',()=>{
@@ -81,7 +81,7 @@ try {
 } finally {await shutdown();}
 `;
    const result=spawnSync(process.execPath,['--input-type=module','-e',program],{
-     env:{...process.env,NODE_ENV:'test-autostart-disabled',STUDYROOM_STATE_DIR:temp,STUDYROOM_DB_PATH:path.join(temp,'studyroom.sqlite'),STUDYROOM_SECRET:'v78-local-validation-test-secret-minimum-32'},encoding:'utf8',timeout:15000});
+     env:{PATH:process.env.PATH,HOME:process.env.HOME,NODE_ENV:'test-autostart-disabled',STUDYROOM_STATE_DIR:temp,STUDYROOM_DB_PATH:path.join(temp,'studyroom.sqlite'),STUDYROOM_SECRET:'v78-local-validation-test-secret-minimum-32'},encoding:'utf8',timeout:15000});
    assert.equal(result.status,0,result.stderr||result.stdout);
  }finally{fs.rmSync(temp,{recursive:true,force:true});}
 });
