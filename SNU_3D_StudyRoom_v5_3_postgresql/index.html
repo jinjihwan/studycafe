@@ -257,6 +257,37 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
  white-space:normal;overflow-wrap:anywhere;word-break:break-word}
 @media(max-width:690px){.tag .bubble{font-size:11px;max-width:176px;padding:6px 8px}}
 
+
+/* V7.13: compact content-width room information and first-open guide emphasis. */
+#topbar .room-summary{
+ flex:0 1 auto;
+ width:max-content;
+ max-width:min(360px,calc(100vw - 154px));
+ min-width:0;
+ overflow:hidden;
+}
+#topbar .room-titleline{width:auto;max-width:100%}
+#libraryBrand{flex:0 1 auto;max-width:100%}
+#guideBtn.guide-unseen{
+ position:relative;
+ border-color:rgba(255,217,117,.94);
+ background:rgba(47,65,86,.95);
+ box-shadow:0 0 0 1px rgba(255,215,102,.48),0 0 13px rgba(255,204,94,.30);
+ animation:guideAttention 2.7s ease-in-out infinite;
+}
+#guideBtn.guide-unseen::after{
+ content:"";
+ position:absolute;top:-3px;right:-3px;
+ width:9px;height:9px;border-radius:50%;
+ background:#ffd46b;border:2px solid #20334a;
+ box-sizing:content-box;
+}
+@keyframes guideAttention{
+ 0%,100%{transform:translateY(0)}
+ 50%{transform:translateY(-2px)}
+}
+@media(prefers-reduced-motion:reduce){#guideBtn.guide-unseen{animation:none}}
+
 </style>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"}}
@@ -265,12 +296,12 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
 <body>
 <canvas id="scene" aria-label="마우스 또는 터치로 조작하는 3D 도서관"></canvas>
 <div id="labels"></div>
-<div id="loading">3D 도서관을 불러오는 중입니다.<br/>Three.js 다운로드를 위해 인터넷 연결이 필요합니다.</div>
+<div id="loading" role="status" aria-live="polite">온라인스카 입장하는 중...</div>
 <header id="topbar" aria-label="도서관 정보 및 계정"><div class="room-summary glass"><div class="room-titleline"><span id="libraryBrand">대학 도서관 스터디카페</span></div><div class="room-subline"><small class="room-pill" id="roomBadge">1번 방</small><span class="count" id="onlineCount" role="status" title="실제 이용자와 가상 학습자를 포함한 인원"><i></i>학습자 0명</span></div></div><div class="group top-actions"><button class="iconbtn icon-only" id="inviteBtn" type="button" title="초대 링크 복사" aria-label="같은 방 초대 링크 복사"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l2.3-2.3a5 5 0 0 0-7.1-7.1l-1.3 1.3M14 11a5 5 0 0 0-7.5-.5l-2.3 2.3a5 5 0 0 0 7.1 7.1l1.3-1.3"/></svg></button><button class="iconbtn icon-only" id="guideBtn" type="button" title="이용 안내" aria-label="이용 안내 이미지 보기" aria-haspopup="dialog"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.3"/><path d="M9.4 9.1a2.9 2.9 0 1 1 4.3 2.6c-1.1.6-1.7 1.2-1.7 2.5M12 17.3h.01"/></svg></button><button class="iconbtn icon-only" id="accountBtn" type="button" title="게스트 · 로그인" aria-label="게스트 · 로그인"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg><span class="sr-only account-label">게스트 · 로그인</span></button></div></header>
 <nav id="appNav" hidden role="tablist" aria-label="스터디룸 메뉴"><button type="button" role="tab" data-tab="library" aria-selected="true" class="selected"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a6 6 0 0 0-9-2v14a6 6 0 0 1 9 2 6 6 0 0 1 9-2V5a6 6 0 0 0-9 2ZM12 7v14"/></svg><span>도서관</span></button><button type="button" role="tab" data-tab="records" aria-selected="false"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V4M4 20h16M8 16v-5m5 5V7m5 9v-8"/></svg><span>내 기록</span></button><button type="button" role="tab" data-tab="ranking" aria-selected="false"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="m8 12-2 9 6-3 6 3-2-9"/></svg><span>랭킹</span></button><button type="button" role="tab" data-tab="friends" aria-selected="false"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="3"/><path d="M2 20v-2a7 7 0 0 1 14 0v2M17 6a3 3 0 0 1 0 6m1 3a5 5 0 0 1 4 5"/></svg><span>친구</span></button><button type="button" role="tab" disabled aria-disabled="true" hidden>커뮤니티 · 준비 중</button></nav>
 <section id="dashboard" hidden aria-label="공부 기록과 랭킹"><div id="dashboardBody"></div></section>
 <div id="toast" role="status" aria-live="polite"></div>
-<div id="guideOverlay" hidden role="dialog" aria-modal="true" aria-label="스터디카페 안내"><div class="guide-sheet" role="document"><button type="button" id="guideClose" aria-label="안내 닫기" title="닫기">×</button><img id="guideImage" src="/assets/guide.jpg" alt="스터디카페 안내 이미지" decoding="async" /></div></div>
+<div id="guideOverlay" hidden role="dialog" aria-modal="true" aria-label="스터디카페 안내"><div class="guide-sheet" role="document"><button type="button" id="guideClose" aria-label="안내 닫기" title="닫기">×</button><img id="guideImage" src="/assets/guide.jpg" alt="온라인스카 이용 안내: 바닥 터치 이동, 화면 회전, 확대·축소, 링크 공유, Google 로그인, 도서관 변경, 프로필 설정, 착석 후 공부 시간 측정" decoding="async" /></div></div>
 <div id="librarySelect" hidden role="dialog" aria-modal="true" aria-labelledby="librarySelectTitle"><div class="dialog"><h1 id="librarySelectTitle">도서관 선택</h1><p>온라인스카에서는 공부 기록과 친구 관계가 세 공간에서 동일하게 유지됩니다. 다른 도서관으로 이동하면 기존 좌석은 반납됩니다.</p><div class="library-cards"><button type="button" class="library-choice" data-library="main"><strong>서울대학교 중앙도서관</strong><small class="library-seat-count" aria-live="polite" aria-busy="true">조회 중…</small></button><button type="button" class="library-choice" data-library="korea"><strong>고려대학교 중앙도서관</strong><small class="library-seat-count" aria-live="polite" aria-busy="true">조회 중…</small></button><button type="button" class="library-choice" data-library="yonsei"><strong>연세대학교 연세·삼성학술정보관</strong><small class="library-seat-count" aria-live="polite" aria-busy="true">조회 중…</small></button></div><button type="button" class="iconbtn" id="libraryClose">현재 도서관에 머물기</button></div></div><div id="accountOverlay" hidden><div class="dialog" role="dialog" aria-modal="true" aria-label="계정 메뉴"><button type="button" id="accountClose" aria-label="도서관으로 돌아가기" title="닫기">×</button><h1>계정 연결</h1><p id="accountStatus">게스트로 이용 중입니다. 친구 기능은 Google 로그인 후 사용할 수 있습니다.</p><p id="authError" class="auth-error" role="alert" hidden></p><div class="account-actions"><button id="googleLogin" class="ok">Google로 계속하기</button><button id="logoutBtn" class="ok alt" hidden>Google 로그아웃</button><button id="deleteAccountBtn" class="account-danger" hidden>스터디룸 계정 데이터 삭제</button></div><section id="operatorPresence" hidden aria-label="운영자 전용 인원 현황"><div class="operator-heading"><strong>운영자 · 현재 방 인원</strong><button type="button" id="operatorRefreshBtn">새로고침</button></div><p id="operatorPresenceCount" aria-live="polite">인원 확인 중</p></section><p class="note">게스트 인증 정보가 삭제되면 이전 기록에 접근하지 못할 수 있습니다. Google 연결 시 기존 게스트 기록을 서버에서 안전하게 병합합니다.</p><p class="note">모바일 Google 팝업이 차단되면 브라우저 설정에서 팝업을 허용해 주세요.</p></div></div>
 <section id="bottom" class="glass" aria-label="실시간 채팅"><div class="controls"><button class="chat-action" id="switchLibraryBtn" type="button" title="도서관 변경" aria-label="도서관 변경"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V6l7-3 7 3v15M9 9v2m6-2v2M9 14v2m6-2v2M10 21v-3h4v3"/></svg></button><button class="chat-action" id="avatarBtn" type="button" title="캐릭터 변경" aria-label="캐릭터 변경"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="16" rx="5" ry="3.3"/><path d="M5.5 9.5c-1.5-.8-2.5.5-1.7 2.2.6 1.1 1.9 1.4 2.5.5M9.2 6c-1.2-1-2.5.3-2.1 2 .3 1.3 1.7 1.7 2.4.7M14.7 6c1.2-1 2.5.3 2.1 2-.3 1.3-1.7 1.7-2.4.7M18.5 9.5c1.5-.8 2.5.5 1.7 2.2-.6 1.1-1.9 1.4-2.5.5"/></svg></button><input id="chatInput" maxlength="40" enterkeyhint="send" placeholder="메시지 입력 (40자)" aria-label="실시간 채팅 입력"/><button id="sendBtn" class="primary" type="button" title="메시지 전송" aria-label="메시지 전송"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4 20-7ZM22 2 11 13"/></svg></button></div></section>
 <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog"><button type="button" id="avatarClose" title="캐릭터 선택 닫기" aria-label="캐릭터 선택 닫기">×</button><h1 id="modalTitle">캐릭터 선택</h1><p>로우폴리 동물 캐릭터를 선택하고 도서관에 입장하세요. 선택 내용은 이 브라우저에 저장됩니다.</p><div class="fields"><label class="field full">닉네임<input id="nick" maxlength="15" value="공부하는토끼" /></label><label class="field">동물<select id="species"><option value="rabbit">토끼</option><option value="bear">곰</option><option value="cat">고양이</option><option value="dog">강아지</option></select></label><label class="field">기본 후드 색상<select id="gender"><option value="female">분홍색 기본</option><option value="male">하늘색 기본</option></select></label><label class="field full">후드 색상 직접 변경<input id="hood" type="color" value="#f39bc4" /></label></div><button id="enterBtn" class="ok">3D 도서관 입장</button><div class="note">게스트로 실시간 서버에 접속합니다. 도서관에는 가상 학습자가 함께 참여할 수 있습니다.</div></div></div>
@@ -1489,11 +1520,20 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',update
 D.chat.addEventListener('focus',updateKeyboardInset);
 D.chat.addEventListener('blur',()=>requestAnimationFrame(updateKeyboardInset));
 $('#avatarBtn').onclick=()=>showModal();
-// Image-only guide. Future notices can replace assets/guide.jpg without changing UI.
+// Highlight the guide until this browser opens it for the first time.
+// Storage may be disabled in private browsing; the guide remains usable regardless.
 const guideOverlay=$('#guideOverlay');
 const guideButton=$('#guideBtn');
+const GUIDE_SEEN_KEY='onlineSkaGuideOpened_v1';
+try{if(localStorage.getItem(GUIDE_SEEN_KEY)!=='1')guideButton.classList.add('guide-unseen');}
+catch{guideButton.classList.add('guide-unseen');}
 function closeGuide(){if(guideOverlay.hidden)return;guideOverlay.hidden=true;guideButton.focus({preventScroll:true});}
-guideButton.addEventListener('click',()=>{guideOverlay.hidden=false;$('#guideClose').focus({preventScroll:true});});
+guideButton.addEventListener('click',()=>{
+ guideButton.classList.remove('guide-unseen');
+ try{localStorage.setItem(GUIDE_SEEN_KEY,'1');}catch{/* storage access is optional */}
+ guideOverlay.hidden=false;
+ $('#guideClose').focus({preventScroll:true});
+});
 $('#guideClose').addEventListener('click',closeGuide);
 guideOverlay.addEventListener('click',event=>{if(event.target===guideOverlay)closeGuide();});
 window.addEventListener('keydown',event=>{
