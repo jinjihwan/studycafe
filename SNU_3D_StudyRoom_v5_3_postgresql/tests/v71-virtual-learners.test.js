@@ -65,7 +65,7 @@ test('KST midnight resets study while study across operating-day midnight remain
  }
 });
 
-test('room assigns only free seats, real user can claim an NPC chair, overflow stays empty',async()=>{
+test('room assigns only free seats, NPC chair is locked until vacated, overflow stays empty',async()=>{
  const rooms=new Rooms(createAuth('v71-fixed-test-secret'),fakeStore);
  const room=rooms.get('main');
  // Worst-case: 40 user seats occupied; virtuals may take only remaining eight.
@@ -74,15 +74,20 @@ test('room assigns only free seats, real user can claim an NPC chair, overflow s
  assert.ok(initial.length<=8);
  assert.equal(new Set(initial.map(n=>n.seatId)).size,initial.length);
  assert.ok(initial.every(n=>n.seatId>=40));
- // Clear injected locks, then join a real participant and reserve a chair in use by a virtual.
+ // Clear injected locks, then join a real participant and attempt an NPC chair.
  room.locks.clear();
  const peer=new Peer();rooms.connect(peer);const token=rooms.auth.issue();
  peer.inbound({t:'join',room:'main',token:token.token,profile:{nick:'실제학생',species:'cat',hood:'#fffddd'}});
  const welcome=await waitFor(peer,'welcome');const lock=welcome.locks.find(l=>l.phase==='npc');
- if(lock){peer.inbound({t:'seat_request',seatId:lock.id});
-  await waitFor(peer,'seat_granted');
-  assert.equal(room.locks.get(lock.id)?.phase,'reserved');
-  assert.equal([...room.npcSeats.values()].includes(lock.id),false);
+ if(lock){
+  const before=new Map(room.npcSeats);
+  peer.inbound({t:'seat_request',seatId:lock.id});
+  const denial=await waitFor(peer,'error');
+  assert.equal(denial.code,'seat_occupied');
+  assert.equal(denial.seatId,lock.id);
+  assert.deepEqual(room.npcSeats,before,'tapping NPC seat never evicts or relocates it');
+  assert.equal(room.locks.has(lock.id),false,'NPC seat is never granted to a person');
+  assert.equal(peer.messages.some(m=>m.t==='seat_granted'&&m.seatId===lock.id),false);
  }
  assert.equal(rooms.refreshNpc(rooms.get('main-2')).length,0);
  peer.close();

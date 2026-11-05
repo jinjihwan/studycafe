@@ -68,8 +68,13 @@ test('two users receive identical virtual learner poses and dynamic seat locks',
   assert.equal(second.npcCount,second.npcStates.length);
   assert.equal(second.locks.filter(l=>l.phase==='npc').length,second.npcCount);
   const taken=second.locks.find(l=>l.phase==='npc');
-  if(taken){peers[0].inbound({t:'seat_request',seatId:taken.id});
-    const granted=await until(peers[0],'seat_granted');assert.equal(granted.seatId,taken.id);}
+  if(taken){
+    const before=new Map(rooms.get('yonsei').npcSeats);
+    peers[0].inbound({t:'seat_request',seatId:taken.id});
+    const denied=await until(peers[0],'error');
+    assert.equal(denied.code,'seat_occupied');assert.equal(denied.seatId,taken.id);
+    assert.deepEqual(rooms.get('yonsei').npcSeats,before,'NPC does not leave its chair after a human tap');
+  }
   await rooms.tick();
   const c1=peers[0].messages.findLast(m=>m.t==='clock');
   const c2=peers[1].messages.findLast(m=>m.t==='clock');

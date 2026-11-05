@@ -84,9 +84,11 @@ test('three simultaneous guests have isolated multiplayer seats and chat; Yonsei
   const msg=await until(peers[i],'welcome');
   assert.equal(msg.room,ids[i]);assert.equal(msg.count,1);
   assert.equal(msg.players.length,1);
-  peers[i].inbound({t:'seat_request',seatId:0});
+  const seatId=Array.from({length:48},(_,id)=>id).find(id=>!msg.locks.some(lock=>lock.id===id));
+  assert.ok(Number.isInteger(seatId));
+  peers[i].inbound({t:'seat_request',seatId});
   await until(peers[i],'seat_granted');
-  assert.equal(rooms.get(ids[i]).locks.get(0)?.id,tokens[i].id);
+  assert.equal(rooms.get(ids[i]).locks.get(seatId)?.id,tokens[i].id);
  }
  peers[2].inbound({t:'chat',message:'연세대 도서관'});
  await until(peers[2],'chat');
@@ -95,7 +97,8 @@ test('three simultaneous guests have isolated multiplayer seats and chat; Yonsei
  c[2].player.studying=true;c[2].player.paused=false;c[2].player.lastAccruedAt=Date.now()-1300;
  peers[2].inbound({t:'room_exit'});await until(peers[2],'room_exit_ok');
  assert.equal(rooms.rooms.has('yonsei'),false);
- assert.ok(rooms.get('main').locks.has(0));assert.ok(rooms.get('korea').locks.has(0));
+ assert.ok([...rooms.get('main').locks.values()].some(lock=>lock.id===tokens[0].id));
+ assert.ok([...rooms.get('korea').locks.values()].some(lock=>lock.id===tokens[1].id));
  assert.ok(calls.some(call=>call.id===tokens[2].id&&[...call.segments.values()].some(ms=>ms>=900)));
  peers[0].close();peers[1].close();
 });

@@ -55,24 +55,26 @@ test('REST + genuine WebSocket: 2 users, room isolation, seat lock, chat, moveme
  assert.equal((await B.wait(m=>m.t==='chat'&&m.id===a.id)).message,msg);
  assert.equal(C.queue.some(m=>m.t==='chat'),false);
  // A reservation locks the chair on the server, preventing B from racing A.
- const sid=0;assert.equal(NPC_SEATS.has(sid),false);
+ const occupied=new Set(aWelcome.locks.map(l=>l.id));
+ const sid=LAYOUT_SEATS.find(s=>!occupied.has(s.id))?.id;assert.ok(Number.isInteger(sid));
  A.send({t:'seat_request',seatId:sid});assert.equal((await A.wait(m=>m.t==='seat_granted'&&m.seatId===sid)).seatId,sid);
  await B.wait(m=>m.t==='seat_lock'&&m.seatId===sid&&m.phase==='reserved');
  B.send({t:'seat_request',seatId:sid});await B.wait(m=>m.t==='error'&&m.code==='seat_occupied');
  A.send({t:'seat_cancel'});await B.wait(m=>m.t==='seat_lock'&&m.seatId===sid&&m.ownerId===null);
  B.send({t:'seat_request',seatId:sid});await B.wait(m=>m.t==='seat_granted'&&m.seatId===sid);
  B.send({t:'seat_cancel'});
- // NPC-assigned chair yields to an actual human reservation.
+ // A person cannot reserve an NPC-occupied chair: the NPC keeps its seat.
  const chosenVirtual=aWelcome.locks.find(l=>l.phase==='npc');
  if(chosenVirtual){A.send({t:'seat_request',seatId:chosenVirtual.id});
-   await A.wait(m=>m.t==='seat_granted'&&m.seatId===chosenVirtual.id);
-   A.send({t:'seat_cancel'});}
+   await A.wait(m=>m.t==='error'&&m.code==='seat_occupied'&&m.seatId===chosenVirtual.id);
+   assert.equal(A.queue.some(m=>m.t==='seat_granted'&&m.seatId===chosenVirtual.id),false);}
 
  // Invalid positions are corrected; a legal move is visible on another socket.
  A.send({t:'move',x:100,z:100,yaw:0});await A.wait(m=>m.t==='correction');
  A.send({t:'move',x:.45,z:35,yaw:0});await B.wait(m=>m.t==='moved'&&m.id===a.id&&m.x===.45);
  // Walk to a real free chair (server checks proximity before seating).
- const seat=LAYOUT_SEATS.find(s=>s.x>5&&s.x<6&&s.z>25&&s.sign===1&&!NPC_SEATS.has(s.id));
+ const seat=LAYOUT_SEATS.find(s=>s.x>5&&s.x<6&&s.z>25&&s.sign===1&&!occupied.has(s.id))
+   || LAYOUT_SEATS.find(s=>s.z>25&&s.sign===1&&!occupied.has(s.id));
  assert.ok(seat,'Expect an available front-row seat');
  const approach={x:seat.x,z:seat.z+seat.sign*2.62};
  A.send({t:'seat_request',seatId:seat.id});await A.wait(m=>m.t==='seat_granted'&&m.seatId===seat.id);

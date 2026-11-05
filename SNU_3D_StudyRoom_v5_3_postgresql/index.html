@@ -1290,7 +1290,11 @@ function goToSeat(s){
  showTapRipple(s.x,s.z,true);
  if(!net?.connected){toast('서버에 연결되지 않았습니다.');return;}
  const lock=seatLocks.get(s.id);
- if(lock&&lock.phase!=='npc'&&lock.ownerId!==selfId){toast('다른 사용자가 예약하거나 앉아 있는 자리입니다.');return;}
+ // A seated NPC holds its chair just as a human occupant does.
+ // Local feedback is immediate; the server independently enforces this lock.
+ if((lock&&lock.ownerId!==selfId)||(s.occupiedBy&&s.occupiedBy!==player)){
+  toast('이미 사용 중이거나 예약된 좌석입니다.');return;
+ }
  if(player.seated&&player.seat===s)return;
  abortPendingSeat();ring.visible=false;player.route=[];player.arrive=null;
  if(player.seated){net.send({t:'stand'});player.stand();}

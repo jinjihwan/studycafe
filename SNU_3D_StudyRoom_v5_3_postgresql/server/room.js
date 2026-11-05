@@ -198,7 +198,7 @@ export class Rooms {
     for(const p of attendees){
       if(room.npcSeats.size>=MAX_SIMULTANEOUS)break;
       if(room.npcSeats.has(p.id))continue;
-      // Each NPC prefers a different deterministic chair but yields to people.
+      // Pick a free chair. Once assigned, it remains occupied until the NPC leaves or its scheduled seat ends.
       const start=(p.id*13+VIRTUAL_POPULATION*baseLibraryForRoom(room.id).length)%seats.length;
       let chosen=null;
       for(let n=0;n<seats.length;n++){
@@ -396,13 +396,10 @@ export class Rooms {
     this.refreshNpc(room);
     if(!Number.isInteger(m.seatId)||!s)
       return this.error(c.peer,'seat_unavailable','유효하지 않은 좌석입니다.',m.seatId);
-    // A real person's direct seat request takes priority: move the virtual
-    // learner elsewhere. Never evict an actual human reservation/occupant.
-    for(const [npcId,npcSeat] of room.npcSeats||[]){
-      if(npcSeat!==s.id)continue;
-      room.npcSeats.delete(npcId);
-      this.broadcast(room,{t:'seat_lock',seatId:s.id,ownerId:null,phase:null});
-    }
+    // NPC-occupied seats are occupied, exactly like seats taken by another person.
+    // Do not evict or relocate an NPC when someone taps its chair.
+    if([...(room.npcSeats||new Map()).values()].includes(s.id))
+      return this.error(c.peer,'seat_occupied','이미 사용 중이거나 예약된 좌석입니다.',s.id);
     const occupant=room.locks.get(s.id);
     if(occupant&&occupant.id!==p.id)return this.error(c.peer,'seat_occupied','이미 사용 중이거나 예약된 좌석입니다.',s.id);
     if(p.seatId===s.id){return c.peer.send({t:'seat_granted',seatId:s.id,alreadySeated:true});}

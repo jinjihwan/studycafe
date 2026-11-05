@@ -71,18 +71,22 @@ test('two virtual users occupy separate libraries, and leaving persists study ti
   const wa=await waitMessage(a,'welcome'),wb=await waitMessage(b,'welcome');
   assert.equal(wa.room,'korea');assert.equal(wb.room,'main');
   assert.equal(wa.count,1);assert.equal(wb.count,1);
-  a.inbound({t:'seat_request',seatId:0});
-  b.inbound({t:'seat_request',seatId:0});
+  // NPC chairs are occupied: choose a free chair independently in each library.
+  const freeSeat=welcome=>Array.from({length:48},(_,id)=>id).find(id=>!welcome.locks.some(lock=>lock.id===id));
+  const seatA=freeSeat(wa),seatB=freeSeat(wb);
+  assert.ok(Number.isInteger(seatA)&&Number.isInteger(seatB));
+  a.inbound({t:'seat_request',seatId:seatA});
+  b.inbound({t:'seat_request',seatId:seatB});
   await waitMessage(a,'seat_granted');await waitMessage(b,'seat_granted');
-  assert.equal(rooms.get('korea').locks.get(0).id,tokenA.id);
-  assert.equal(rooms.get('main').locks.get(0).id,tokenB.id);
+  assert.equal(rooms.get('korea').locks.get(seatA).id,tokenA.id);
+  assert.equal(rooms.get('main').locks.get(seatB).id,tokenB.id);
   assert.equal(b.messages.some(m=>m.t==='seat_lock'&&m.ownerId===tokenA.id),false);
   // Simulate an active study interval; this is the same accrued ledger as normal seating.
   ca.player.studying=true;ca.player.paused=false;ca.player.lastAccruedAt=Date.now()-1250;
   a.inbound({t:'room_exit'});
   await waitMessage(a,'room_exit_ok');
   assert.equal(a.closed,true);assert.equal(rooms.rooms.has('korea'),false);
-  assert.equal(rooms.get('main').locks.has(0),true);
+  assert.equal(rooms.get('main').locks.has(seatB),true);
   assert.ok(calls.some(c=>c.id===tokenA.id&&[...c.segments.values()].some(ms=>ms>=900)));
   b.close();
 });
