@@ -22,11 +22,13 @@ export function buildStats(records,month=kstNow().slice(0,7),today=kstNow(),rank
   const last7=Array.from({length:7},(_,i)=>{const day=shifted(today,i-6);return {day,ms:total(day)};});
   return {day:today,month,todayMs:total(today),yesterdayMs:total(yesterday),weekMs,monthMs,totalMs,streak,calendar,last7,rankingPublic};
 }
-export function buildRanking(rows,userId,day,limit=20){
+export function buildRanking(rows,userId,day,limit=20,offset=0){
   const sorted=rows.slice().sort((a,b)=>b.ms-a.ms||a.id.localeCompare(b.id));
   const myIdx=sorted.findIndex(r=>r.id===userId);
-  return {day,count:sorted.length,myRank:myIdx<0?null:myIdx+1,
+  const start=Math.max(0,Math.min(10000,offset));
+  const pageSize=Math.max(1,Math.min(100,limit));
+  return {day,count:sorted.length,offset:start,limit:pageSize,hasMore:start+pageSize<sorted.length,myRank:myIdx<0?null:myIdx+1,
     myStudyMs:myIdx<0?null:sorted[myIdx].ms,
-    entries:sorted.slice(0,Math.max(1,Math.min(20,limit))).map((v,i)=>({...v,rank:i+1,isMe:v.id===userId}))};
+    entries:sorted.slice(start,start+pageSize).map((v,i)=>({...v,rank:start+i+1,isMe:v.id===userId}))};
 }
 export function validMonth(s){return typeof s==='string'&&/^(19|20|21)\d{2}-(0[1-9]|1[0-2])$/.test(s);}

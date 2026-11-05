@@ -9,7 +9,7 @@ test('top summary uses content width; library, room and online count remain avai
  assert.match(markup,/<div class="room-titleline"><span id="libraryBrand"/);
  assert.match(markup,/<div class="room-subline"><small class="room-pill" id="roomBadge"[^>]*>[^<]*<\/small><span class="count" id="onlineCount"/);
  assert.match(markup,/#topbar \.room-summary\{flex:0 1 auto;width:max-content/);
- assert.match(html,/function updatePlayerCount\(count\)/);
+ assert.match(html,/function updatePlayerCount\(count,npcCount=null\)/);
 });
 test('chat controls have transparent shell; both icons and send are grid-centered',()=>{
  assert.match(markup,/#bottom\.glass\{padding:0;background:transparent;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none\}/);

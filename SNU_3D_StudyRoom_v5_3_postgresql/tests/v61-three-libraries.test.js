@@ -40,7 +40,7 @@ test('Seoul supports are rotated along Z, have separated ceiling tips and aligne
 test('Yonsei has photo-based 6 round + 8 single + 8 paired desks, 48 seats',()=>{
  const l=buildYonseiSeatsAndObstacles();
  assert.equal(l.seats.length,48);
- assert.equal(l.npcSeats.size,8);
+ assert.equal(l.npcSeats.size,0);
  assert.equal(l.seats.filter(s=>s.type==='round').length,24);
  assert.equal(l.seats.filter(s=>s.type==='single').length,8);
  assert.equal(l.seats.filter(s=>s.type==='pair').length,16);

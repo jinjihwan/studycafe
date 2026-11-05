@@ -233,7 +233,7 @@ body.keyboard-open #tutorialOverlay{padding-bottom:calc(70px + var(--keyboard-li
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="librarySelect" hidden role="dialog" aria-modal="true" aria-labelledby="librarySelectTitle"><div class="dialog"><h1 id="librarySelectTitle">도서관 선택</h1><p>공부 기록과 친구 관계는 세 공간에서 동일하게 유지됩니다. 다른 도서관으로 이동하면 기존 좌석은 반납됩니다.</p><div class="library-cards"><button type="button" class="library-choice" data-library="main"><strong>서울대학교 중앙도서관</strong><small>48석</small></button><button type="button" class="library-choice" data-library="korea"><strong>고려대학교 중앙도서관</strong><small>48석</small></button><button type="button" class="library-choice" data-library="yonsei"><strong>연세대학교 연세·삼성학술정보관</strong><small>48석</small></button></div><button type="button" class="iconbtn" id="libraryClose">현재 도서관에 머물기</button></div></div><div id="accountOverlay" hidden><div class="dialog" role="dialog" aria-modal="true" aria-label="계정 메뉴"><button type="button" id="accountClose" aria-label="도서관으로 돌아가기" title="닫기">×</button><h1>계정 연결</h1><p id="accountStatus">게스트로 이용 중입니다. 친구 기능은 Google 로그인 후 사용할 수 있습니다.</p><p id="authError" class="auth-error" role="alert" hidden></p><div class="account-actions"><button id="googleLogin" class="ok">Google로 계속하기</button><button id="logoutBtn" class="ok alt" hidden>Google 로그아웃</button><button id="deleteAccountBtn" class="account-danger" hidden>스터디룸 계정 데이터 삭제</button></div><p class="note">게스트 인증 정보가 삭제되면 이전 기록에 접근하지 못할 수 있습니다. Google 연결 시 기존 게스트 기록을 서버에서 안전하게 병합합니다.</p><p class="note">모바일 Google 팝업이 차단되면 브라우저 설정에서 팝업을 허용해 주세요.</p></div></div>
 <section id="bottom" class="glass" aria-label="실시간 채팅"><div class="controls"><button class="chat-action" id="switchLibraryBtn" type="button" title="도서관 변경" aria-label="도서관 변경"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V6l7-3 7 3v15M9 9v2m6-2v2M9 14v2m6-2v2M10 21v-3h4v3"/></svg></button><button class="chat-action" id="avatarBtn" type="button" title="캐릭터 변경" aria-label="캐릭터 변경"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="16" rx="5" ry="3.3"/><path d="M5.5 9.5c-1.5-.8-2.5.5-1.7 2.2.6 1.1 1.9 1.4 2.5.5M9.2 6c-1.2-1-2.5.3-2.1 2 .3 1.3 1.7 1.7 2.4.7M14.7 6c1.2-1 2.5.3 2.1 2-.3 1.3-1.7 1.7-2.4.7M18.5 9.5c1.5-.8 2.5.5 1.7 2.2-.6 1.1-1.9 1.4-2.5.5"/></svg></button><input id="chatInput" maxlength="40" enterkeyhint="send" placeholder="메시지 입력 (40자)" aria-label="실시간 채팅 입력"/><button id="sendBtn" class="primary" type="button" title="메시지 전송" aria-label="메시지 전송"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4 20-7ZM22 2 11 13"/></svg></button></div></section>
-<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog"><h1 id="modalTitle">캐릭터 선택</h1><p>로우폴리 동물 캐릭터를 선택하고 도서관에 입장하세요. 선택 내용은 이 브라우저에 저장됩니다.</p><div class="fields"><label class="field full">닉네임<input id="nick" maxlength="15" value="공부하는토끼" /></label><label class="field">동물<select id="species"><option value="rabbit">토끼</option><option value="bear">곰</option><option value="cat">고양이</option><option value="dog">강아지</option></select></label><label class="field">기본 후드 색상<select id="gender"><option value="female">분홍색 기본</option><option value="male">하늘색 기본</option></select></label><label class="field full">후드 색상 직접 변경<input id="hood" type="color" value="#f39bc4" /></label></div><button id="enterBtn" class="ok">3D 도서관 입장</button><div class="note">게스트로 실시간 서버에 접속합니다. NPC는 NPC로 표시되며 실제 이용자 수에 포함되지 않습니다.</div></div></div>
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog"><h1 id="modalTitle">캐릭터 선택</h1><p>로우폴리 동물 캐릭터를 선택하고 도서관에 입장하세요. 선택 내용은 이 브라우저에 저장됩니다.</p><div class="fields"><label class="field full">닉네임<input id="nick" maxlength="15" value="공부하는토끼" /></label><label class="field">동물<select id="species"><option value="rabbit">토끼</option><option value="bear">곰</option><option value="cat">고양이</option><option value="dog">강아지</option></select></label><label class="field">기본 후드 색상<select id="gender"><option value="female">분홍색 기본</option><option value="male">하늘색 기본</option></select></label><label class="field full">후드 색상 직접 변경<input id="hood" type="color" value="#f39bc4" /></label></div><button id="enterBtn" class="ok">3D 도서관 입장</button><div class="note">게스트로 실시간 서버에 접속합니다. 도서관에는 가상 학습자가 함께 참여하며 실제 접속 인원과는 구분해 표시됩니다.</div></div></div>
 <div id="tutorialOverlay" hidden role="region" aria-labelledby="tutorialTitle" aria-describedby="tutorialBody" aria-live="polite"><div class="dialog"><div class="tutorial-progress"><strong class="tutorial-step" id="tutorialStepCount">1 / 8</strong><div class="tutorial-bars" id="tutorialBars" aria-hidden="true"></div></div><h1 id="tutorialTitle">화면 움직이기</h1><p id="tutorialBody">화면을 드래그하고, 두 손가락으로 확대·축소해 보세요.</p><p class="tutorial-hint" id="tutorialHint">조작을 완료하면 자동으로 다음 단계로 넘어갑니다.</p><div class="tutorial-actions"><button type="button" id="tutorialSkipStep">이 단계 건너뛰기</button><button type="button" class="ghost" id="tutorialEnd">튜토리얼 종료</button></div></div></div>
 <script type="module">
 import * as THREE from 'three';
@@ -262,7 +262,7 @@ const ADMISSION=query.get('admission');
 if(ADMISSION){const scrub=new URL(location.href);scrub.searchParams.delete('admission');history.replaceState(null,'',scrub.href);}
 const BASE_LIBRARY=KOREA_ROOM?'korea':YONSEI_ROOM?'yonsei':'main';
 const CONFIG = {width:48, length:88, height:16.2, frontZ:-39, rearZ:49, frontWalkLimit:-33.5, rearWalkLimit:44, rows:4, columnsPerSide:1,
-  rowSpacing:17.4, columnSpacing:4.55, npcCount:8, navStep:.6};
+  rowSpacing:17.4, columnSpacing:4.55, npcCount:16, navStep:.6};
 const D = {canvas:$('#scene'),labels:$('#labels'),modal:$('#modal'),
   avatar:$('#avatarBtn'),chat:$('#chatInput'),send:$('#sendBtn')};
 const MOBILE = matchMedia('(pointer:coarse)').matches || innerWidth < 700;
@@ -1067,7 +1067,7 @@ class Character{
   this.studyMs=opts.studyMs||0;this.studyActive=false;this.studySince=0;
   this.labelTier='near';this.bubbleUntil=0;this.stretchUntil=0;this.label=document.createElement('div');this.label.className='tag'+(this.isNpc?'':(this.isRemote?' remote':' me'));
   this.label.innerHTML='<div class="bubble"></div><div class="plate"><div class="name"></div><div class="clock"></div></div>';
-  this.label.querySelector('.name').textContent=(this.isNpc?'NPC · ':'')+this.name;
+  this.label.querySelector('.name').textContent=this.name;
   D.labels.appendChild(this.label);
  }
  resetWalkSample(){this.lastWalkX=this.root.position.x;this.lastWalkZ=this.root.position.z;}
@@ -1085,7 +1085,7 @@ class Character{
  setAppearance(species,hood,name){const p=this.root.position.clone(),r=this.root.rotation.y,scale=this.root.scale.x;
   scene.remove(this.root);this.species=species;this.hood=hood;this.model=animalModel(species,hood);this.root=this.model.root;
   this.root.position.copy(p);this.root.rotation.y=r;this.root.scale.setScalar(scale);scene.add(this.root);
-  this.name=name;this.label.querySelector('.name').textContent=(this.isNpc?'NPC · ':'')+name;
+  this.name=name;this.label.querySelector('.name').textContent=name;
  }
  go(target,then){const route=nav.route(this.root.position,target);
   if(!route.length){if(!this.isNpc)toast('이동 가능한 경로를 찾지 못했습니다.');return false}
@@ -1134,23 +1134,15 @@ class Character{
  getTimer(){return (this.isNpc||this.isRemote)?this.studyMs+(this.studyActive?Math.max(0,Date.now()-this.studySince):0):currentStudyMs()}
 }
 let player=null;
-const NPC_SPECIES=['cat','bear','rabbit','dog','cat','rabbit','bear','dog'];
-const NPC_COLORS=['#8bcaff','#f39bc4','#aaa4dc','#a6ba94','#8bcaff','#f39bc4','#c8a995','#a9cce1'];
+// NPCs are created and disposed on demand from authoritative server states.
+// At most 16 are visible simultaneously, rather than rendering all 48 profiles.
+const npcList=[];
+const npcById=new Map();
 // Seat movement/rotation works for single west-facing and round-table chairs.
 function seatApproach(s,dist=s.approachDist??2.62){
  return {x:s.x+(s.dirX??0)*dist,z:s.z+(s.dirZ??s.sign)*dist};
 }
 function seatYaw(s){return s.yaw??(s.sign===1?Math.PI:0);}
-const npcNames=['열공냥','독서곰','모닝토끼','필기왕','묵묵이','초코토끼','집중곰','도서관멍'];
-const npcList=[];
-// Server reserves exactly these seat IDs in EACH library. Do not reindex by location:
-// Yonsei's west-facing single desks are at x≈-1 and must keep their original IDs.
-const npcIndices=[2,8,14,20,26,32,38,44]; // 8 distinct NPC seats among 48
-for(let i=0;i<(PRIMARY_ROOM?CONFIG.npcCount:0);i++){
- const s=seats[npcIndices[i]];
- const npc=new Character({npc:true,name:npcNames[i],species:NPC_SPECIES[i],hood:NPC_COLORS[i],x:s.x,z:s.z,studyMs:60000*(12+i*19)});
- npc.sit(s);npcList.push(npc)
-}
 player=new Character({name:prefs.nick,species:prefs.species,hood:prefs.hood,x:0,z:35});
 player.root.rotation.y=Math.PI;
 
@@ -1216,30 +1208,53 @@ function applyStudyClock(record,day){
  if(player?.seated&&study.running&&!study.paused&&net?.connected)tutorialAction('study-started');
  updateHUD();
 }
-function updatePlayerCount(count){$('#onlineCount').innerHTML='<i></i>접속 '+Math.max(0,count||0)+'명';}
+let lastVirtualCount=0;
+function updatePlayerCount(count,npcCount=null){if(Number.isInteger(npcCount))lastVirtualCount=npcCount;
+ $('#onlineCount').innerHTML='<i></i>접속 '+Math.max(0,count||0)+'명 · 가상 '+lastVirtualCount+'명';}
 // The server sends the canonical NPC positions. Clients never roll independent
 // random NPC movement, so all users see the same action and the same seat lock.
 const npcStretchWords=['오늘도 집중!','잠깐 스트레칭해요.','열공 중이에요.','물 한 잔 마셔야지.'];
 function syncNpcStates(states){
+ const active=new Set();
  for(const state of states||[]){
-  const npc=npcList[state.id],seat=seats[state.seatId];
-  if(!npc||!seat)continue;
-  npc.studyMs=Number(state.studyMs)||0;npc.studyActive=false;
+  const seat=seats[state.seatId];if(!seat||!Number.isInteger(state.id))continue;
+  active.add(state.id);
+  let npc=npcById.get(state.id);
+  if(npc&&npc.npcSeatId!==state.seatId){
+   const previous=seats[npc.npcSeatId];if(previous?.occupiedBy===npc)previous.occupiedBy=null;
+  }
+  if(!npc){
+   npc=new Character({npc:true,name:state.nick||'학습자',species:state.species||'cat',hood:state.hood||'#8bcaff',x:state.x,z:state.z,studyMs:state.studyMs||0});
+   npc.npcId=state.id;npcById.set(state.id,npc);npcList.push(npc);
+  }else if(npc.name!==state.nick||npc.species!==state.species||npc.hood!==state.hood){
+   npc.setAppearance(state.species,state.hood,state.nick);
+  }
+  npc.npcSeatId=state.seatId;
+  npc.studyMs=Math.max(0,Number(state.studyMs)||0);npc.studyActive=false;
   if(state.seated){
-   if(!npc.seated||npc.seat!==seat)npc.sit(seat);
-   npc.studyActive=false;
-   npc.npcTarget=null;npc.root.rotation.y=state.yaw;
+   if(!npc.seated||npc.seat!==seat){
+    if(npc.seated)npc.stand();
+    npc.sit(seat);
+   }
+   npc.studyActive=false;npc.npcTarget=null;npc.root.rotation.y=state.yaw;
   }else{
    if(npc.seated){npc.stand();npc.root.position.set(state.x,0,state.z);npc.resetWalkSample();}
-   // A vacant-looking chair is still reserved for its home NPC.
-   seat.occupiedBy=npc;
+   // Break-time chairs stay locked on the server.
+   if(!seat.occupiedBy||seat.occupiedBy===npc)seat.occupiedBy=npc;
    npc.route=[];npc.arrive=null;
    npc.npcTarget={x:state.x,z:state.z,yaw:state.yaw};
    if(!npc.npcSynced){npc.root.position.set(state.x,0,state.z);npc.root.rotation.y=state.yaw;npc.resetWalkSample();}
   }
+  npc.studyActive=false;
   npc.stretchUntil=state.kind==='stretch'?performance.now()+1300:0;
   if(state.kind==='stretch'&&npc.npcLastKind!=='stretch')npc.say(npcStretchWords[state.id%npcStretchWords.length]);
   npc.npcLastKind=state.kind;npc.npcSynced=true;
+ }
+ for(const [id,npc] of [...npcById]){
+  if(active.has(id))continue;
+  const lastSeat=seats[npc.npcSeatId];if(lastSeat?.occupiedBy===npc)lastSeat.occupiedBy=null;
+  scene.remove(npc.root);npc.label.remove();npcById.delete(id);
+  const pos=npcList.indexOf(npc);if(pos!==-1)npcList.splice(pos,1);
  }
 }
 function updateNpcVisuals(dt){for(const npc of npcList){
@@ -1308,7 +1323,7 @@ function onServer(m){
  switch(m.t){
  case 'welcome':{
    selfId=m.id;pendingIntent=null;ring.visible=false;
-   setLocks(m.locks);syncNpcStates(m.npcStates);updatePlayerCount(m.count);
+   setLocks(m.locks);syncNpcStates(m.npcStates);updatePlayerCount(m.count,m.npcCount);
    for(const id of [...remotePlayers.keys()])disposeRemote(id);
    const me=m.players.find(p=>p.id===selfId);
    for(const p of m.players)if(p.id!==selfId)updateRemoteRecord(p,true);
@@ -1318,7 +1333,7 @@ function onServer(m){
    break;
  }
  case 'player':{
-   if(typeof m.count==='number')updatePlayerCount(m.count);
+   if(typeof m.count==='number')updatePlayerCount(m.count,m.npcCount);
    const p=m.player;
    if(p.id===selfId){
       // The server sends this on confirmed sitting/standing/profile changes.
@@ -1355,7 +1370,7 @@ function onServer(m){
    break;
  }
  case 'clock':{
-   if(typeof m.count==='number')updatePlayerCount(m.count);
+   if(typeof m.count==='number')updatePlayerCount(m.count,m.npcCount);
    syncNpcStates(m.npcStates);
    for(const p of m.players||[]){if(p.id===selfId)applyStudyClock(p,m.day);
      else {const obj=remotePlayers.get(p.id);if(obj){obj.studyMs=p.studyMs||0;obj.studyActive=!!p.studying&&!p.paused;obj.studySince=Date.now();}}}
@@ -1364,13 +1379,13 @@ function onServer(m){
  case 'chat':{
    const obj=m.id===selfId?player:remotePlayers.get(m.id);obj?.say(m.message);break;
  }
- case 'left':disposeRemote(m.id);if(typeof m.count==='number')updatePlayerCount(m.count);break;
+ case 'left':disposeRemote(m.id);if(typeof m.count==='number')updatePlayerCount(m.count,m.npcCount);break;
  case 'snapshot':{
    // If a mobile tab was suspended halfway through approaching a reserved chair,
    // cancel the local intention and release the server reservation safely.
    if(pendingIntent!==null){pendingIntent=null;player.route=[];player.arrive=null;
      ring.visible=false;net?.send({t:'seat_cancel'});}
-   setLocks(m.locks);syncNpcStates(m.npcStates);updatePlayerCount(m.count);
+   setLocks(m.locks);syncNpcStates(m.npcStates);updatePlayerCount(m.count,m.npcCount);
    const ids=new Set(m.players.map(p=>p.id));for(const id of [...remotePlayers.keys()])if(!ids.has(id))disposeRemote(id);
    for(const p of m.players)if(p.id===selfId)syncSelf(p,m.day);else updateRemoteRecord(p);
    dashboard.onReconnect();
@@ -1409,9 +1424,8 @@ function abortPendingSeat(){if(pendingIntent!==null){pendingIntent=null;net?.sen
 function goToSeat(s){
  showTapRipple(s.x,s.z,true);
  if(!net?.connected){toast('서버에 연결되지 않았습니다.');return;}
- if(s.occupiedBy?.isNpc){toast('NPC가 사용하는 좌석입니다.');return;}
  const lock=seatLocks.get(s.id);
- if(lock&&lock.ownerId!==selfId){toast('다른 사용자가 예약하거나 앉아 있는 자리입니다.');return;}
+ if(lock&&lock.phase!=='npc'&&lock.ownerId!==selfId){toast('다른 사용자가 예약하거나 앉아 있는 자리입니다.');return;}
  if(player.seated&&player.seat===s)return;
  abortPendingSeat();ring.visible=false;player.route=[];player.arrive=null;
  if(player.seated){net.send({t:'stand'});player.stand();}
@@ -1630,7 +1644,7 @@ welcome.hidden=true;
 if(profileComplete&&!tutorialSeen)setTimeout(openTutorial,420);
 const suggested=Number(query.get('suggestSeat'));
 if(query.has('suggestSeat')&&Number.isInteger(suggested)&&seats[suggested])setTimeout(()=>toast(`친구 주변 추천 좌석: ${suggested+1}번 의자를 터치해 주세요.`),3500);
-console.info('Multilibrary 3D study room initialized:',{room:ROOM_ID,tables:YONSEI_ROOM?22:KOREA_ROOM?24:CONFIG.rows*CONFIG.columnsPerSide*2,seats:seats.length,npcs:npcList.length});
+console.info('Multilibrary 3D study room initialized:',{room:ROOM_ID,tables:YONSEI_ROOM?22:KOREA_ROOM?24:CONFIG.rows*CONFIG.columnsPerSide*2,seats:seats.length,npcCapacity:PRIMARY_ROOM?CONFIG.npcCount:0});
 </script>
 </body>
 </html>

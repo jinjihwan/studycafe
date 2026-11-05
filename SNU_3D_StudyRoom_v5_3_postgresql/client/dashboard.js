@@ -13,12 +13,12 @@ export function initDashboard({getToken,onToast,onFriends,onFriendRanking,onHide
   const nav=$('#appNav'),panel=$('#dashboard'),body=$('#dashboardBody');
   nav.hidden=false;
   let view='library',month='',selectedDay='',lastFetch=0,inFlight=false,queued=false;
-  let rankingPublic=true,visibleRequest=0,rankingMode='all';
+  let rankingPublic=true,visibleRequest=0,rankingMode='all',rankingOffset=0;
   const tabs=[...nav.querySelectorAll('[data-tab]')];
   const statsButtons=()=>nav.querySelector('[data-tab="records"]');
   function choose(tab){
     if(tab!=='library'&&tab!=='records'&&tab!=='ranking'&&tab!=='friends')return;
-    onHideFriends?.();view=tab;if(tab==='ranking')rankingMode='all';document.body.classList.toggle('panel-visible',view!=='library');
+    onHideFriends?.();view=tab;if(tab==='ranking'){rankingMode='all';rankingOffset=0;}document.body.classList.toggle('panel-visible',view!=='library');
     nav.querySelectorAll('[data-tab]').forEach(b=>{const active=b.dataset.tab===view;b.classList.toggle('selected',active);b.setAttribute('aria-selected',String(active));});
     panel.hidden=view==='library';
     if(view==='friends')onFriends();else if(view!=='library')refresh(true);
@@ -39,7 +39,7 @@ export function initDashboard({getToken,onToast,onFriends,onFriendRanking,onHide
     inFlight=true;const req=++visibleRequest,kind=view;
     if(force)status('서버 기록을 조회하는 중…');
     try{
-      const result=kind==='records'?await api('/api/me/stats?month='+encodeURIComponent(month||new Date(Date.now()+9*3600000).toISOString().slice(0,7))):await api('/api/ranking?limit=20');
+      const result=kind==='records'?await api('/api/me/stats?month='+encodeURIComponent(month||new Date(Date.now()+9*3600000).toISOString().slice(0,7))):await api('/api/ranking?limit=20&offset='+rankingOffset);
       if(req!==visibleRequest||view!==kind)return;
       if(kind==='records')drawRecords(result);else drawRanking(result);
       lastFetch=Date.now();
@@ -81,9 +81,9 @@ export function initDashboard({getToken,onToast,onFriends,onFriendRanking,onHide
   }
   function drawRanking(data){
     const root=document.createDocumentFragment();
-    root.append(heading('오늘의 공부 랭킹',data.day+' (한국시간) · NPC 제외 · 약 30초 간격 자동 갱신'));
+    root.append(heading('오늘의 공부 랭킹',data.day+' (한국시간) · 가상 학습자 포함 · 약 30초 간격 자동 갱신'));
     const friendSwitch=el('div','friend-switch');const all=el('button','friend-action selected','전체 랭킹'),friends=el('button','friend-action','친구 랭킹');friends.addEventListener('click',()=>{rankingMode='friends';onFriendRanking();});friendSwitch.append(all,friends);root.append(friendSwitch);
-    root.append(el('div','dash-ranking-summary',data.myRank?`내 순위 ${data.myRank}위 · ${dur(data.myStudyMs)} · 참여 사용자 ${data.count}명`:'내 순위: 비공개 또는 아직 공부 기록 없음 · 참여 사용자 '+data.count+'명'));
+    root.append(el('div','dash-ranking-summary',data.myRank?`내 순위 ${data.myRank}위 · ${dur(data.myStudyMs)} · 랭킹 전체 ${data.count}명`:'내 순위: 비공개 또는 아직 공부 기록 없음 · 랭킹 전체 '+data.count+'명'));
     if(!data.entries.length)root.append(el('p','dash-empty','오늘 공개 랭킹 기록이 없습니다.'));
     const list=el('div','dash-rank-list');
     for(const r of data.entries){const item=el('article','dash-rank');if(r.isMe)item.classList.add('is-me');
@@ -92,7 +92,15 @@ export function initDashboard({getToken,onToast,onFriends,onFriendRanking,onHide
       avatar.title=r.species+' · '+r.hood;
       const name=el('div','dash-rank-name');name.append(el('strong','',r.nick+(r.isMe?' (나)':'')),el('small','',r.species+' · 후드 '+r.hood));
       item.append(number,avatar,name,el('strong','dash-rank-time',dur(r.ms)));list.append(item);}
-    root.append(list,el('p','dash-footer','동일 공부 시간은 서버 게스트 ID 오름차순으로 순위를 정합니다. 랭킹은 한국시간 00:00에 새로 시작합니다.'));
+    root.append(list);
+    const pages=el('div','dash-ranking-pages');pages.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:12px;margin:15px 0;';
+    const previous=el('button','friend-action','이전 20명');previous.disabled=rankingOffset===0;
+    previous.onclick=()=>{rankingOffset=Math.max(0,rankingOffset-20);void refresh(true);};
+    const page=el('span','',`${Math.min(data.count,rankingOffset+1)}~${Math.min(data.count,rankingOffset+20)} / ${data.count}`);
+    const next=el('button','friend-action','다음 20명');next.disabled=!data.hasMore;
+    next.onclick=()=>{rankingOffset+=20;void refresh(true);};
+    pages.append(previous,page,next);
+    root.append(pages,el('p','dash-footer','이 순위에는 가상 학습자가 포함됩니다. 실제 접속자 수는 별도로 계산되며, 동률은 고유 ID로 결정됩니다. 랭킹은 한국시간 00:00에 초기화됩니다.'));
     body.replaceChildren(root);
   }
   // The server updates the live timer independently of any client navigation.

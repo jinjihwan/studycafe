@@ -29,13 +29,12 @@ const store={
   async getDay(){return 0;},async updateProfile(){},async addSegments(){}
 };
 
-// An overflow room gets the same furniture geometry, but no NPC avatars or
-// reserved NPC chairs; the first room of each university keeps all 8 NPCs.
-test('only university first rooms have eight NPCs; overflow rooms have none',()=>{
+// The primary room has up to sixteen virtual learners chosen out of 48 names.
+test('only primary library rooms support sixteen simultaneous NPCs; overflow rooms have none',()=>{
   for(const room of ['main','korea','yonsei']){
-    assert.equal(npcCountForRoom(room),NPC_COUNT);
-    assert.equal(npcStatesForRoom(room).length,8);
-    assert.deepEqual([...layoutForRoom(room).npcSeats].sort((a,b)=>a-b),[...NPC_HOME_SEAT_IDS]);
+    assert.equal(npcCountForRoom(room),16);
+    assert.equal(layoutForRoom(room).npcSeats.size,0,'no chairs are permanently reserved');
+    assert.deepEqual(NPC_HOME_SEAT_IDS,[]);
   }
   for(const [room,base] of [['main-2','main'],['korea-2','korea'],['yonsei-2','yonsei'],['yonsei-25','yonsei']]){
     assert.equal(baseLibraryForRoom(room),base);
@@ -45,52 +44,39 @@ test('only university first rooms have eight NPCs; overflow rooms have none',()=
   }
 });
 
-test('NPC poses are deterministic by server time; a reserved chair never changes ID',()=>{
+test('NPC state from identical server time and seat assignment is identical',()=>{
   const timestamp=Date.UTC(2026,10,5,4,0,0);
   for(const room of ['main','korea','yonsei']){
-    const a=npcStatesForRoom(room,timestamp);
-    const b=npcStatesForRoom(room,timestamp);
+    const rooms=new Rooms(createAuth('npc-pose'),store),roomObj=rooms.get(room);
+    const a=rooms.refreshNpc(roomObj,timestamp);
+    const b=rooms.refreshNpc(roomObj,timestamp);
     assert.deepEqual(a,b);
-    assert.equal(a.length,8);
-    for(const pose of a){
-      assert.equal(pose.seatId,NPC_HOME_SEAT_IDS[pose.id]);
-      assert.equal(typeof pose.x,'number');
-      assert.equal(typeof pose.z,'number');
-      assert.ok(Number.isFinite(pose.yaw));
-    }
-    const future=npcStatesForRoom(room,timestamp+30_000);
-    assert.notDeepEqual(a.map(p=>p.kind),future.map(p=>p.kind));
+    assert.ok(a.length<=16);
+    assert.equal(new Set(a.map(p=>p.seatId)).size,a.length);
+    for(const pose of a){assert.equal(typeof pose.x,'number');assert.equal(typeof pose.z,'number');assert.ok(Number.isFinite(pose.yaw));}
   }
 });
 
-test('two users receive identical NPC states and reserved seats in the first room',async()=>{
-  const rooms=new Rooms(createAuth('v63-server-authority'),store);
-  const peers=[new Peer(),new Peer()];
-  for(const peer of peers){
-    rooms.connect(peer);
-    const token=rooms.auth.issue();
+test('two users receive identical virtual learner poses and dynamic seat locks',async()=>{
+  const rooms=new Rooms(createAuth('v63-server-authority'),store),peers=[new Peer(),new Peer()];
+  for(const peer of peers){rooms.connect(peer);const token=rooms.auth.issue();
     peer.inbound({t:'join',room:'yonsei',token:token.token,profile:{nick:'학생',species:'cat',hood:'#ffffff'}});
-    await until(peer,'welcome');
-  }
+    await until(peer,'welcome');}
   const first=peers[0].messages.find(m=>m.t==='welcome');
   const second=peers[1].messages.find(m=>m.t==='welcome');
-  assert.equal(first.npcCount,8);
-  assert.equal(second.npcCount,8);
-  assert.equal(first.npcStates.length,8);
-  assert.equal(second.npcStates.length,8);
-  const npcLocks=second.locks.filter(lock=>lock.phase==='npc');
-  assert.deepEqual(npcLocks.map(lock=>lock.id).sort((a,b)=>a-b),[...NPC_HOME_SEAT_IDS]);
-  peers[0].inbound({t:'seat_request',seatId:2});
-  const invalid=await until(peers[0],'error');
-  assert.equal(invalid.code,'seat_unavailable');
+  assert.deepEqual(first.npcStates.map(s=>s.virtualId),second.npcStates.map(s=>s.virtualId));
+  assert.equal(second.npcCount,second.npcStates.length);
+  assert.equal(second.locks.filter(l=>l.phase==='npc').length,second.npcCount);
+  const taken=second.locks.find(l=>l.phase==='npc');
+  if(taken){peers[0].inbound({t:'seat_request',seatId:taken.id});
+    const granted=await until(peers[0],'seat_granted');assert.equal(granted.seatId,taken.id);}
   await rooms.tick();
   const c1=peers[0].messages.findLast(m=>m.t==='clock');
   const c2=peers[1].messages.findLast(m=>m.t==='clock');
   assert.deepEqual(c1.npcStates,c2.npcStates);
   assert.equal(c1.npcCount,c2.npcCount);
-  const snapshotPromise=until(peers[0],'snapshot');
-  peers[0].inbound({t:'sync'});
-  assert.equal((await snapshotPromise).npcStates.length,8);
+  const snapshotPromise=until(peers[0],'snapshot');peers[0].inbound({t:'sync'});
+  assert.ok((await snapshotPromise).npcStates.length<=16);
   peers.forEach(p=>p.close());
 });
 
@@ -113,7 +99,7 @@ test('overflow rooms share correct geometry but allow former NPC-only seats',asy
 
 test('client never generates per-user random NPC actions; it uses server states',()=>{
   assert.match(html,/const PRIMARY_ROOM=\['main','korea','yonsei'\]\.includes\(ROOM_ID\)/);
-  assert.match(html,/for\(let i=0;i<\(PRIMARY_ROOM\?CONFIG\.npcCount:0\);i\+\+\)/);
+  assert.match(html,/const npcById=new Map\(\)/);
   assert.match(html,/function syncNpcStates\(states\)/);
   assert.match(html,/syncNpcStates\(m\.npcStates\)/);
   assert.match(html,/function updateNpcVisuals\(dt\)/);

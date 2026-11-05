@@ -1,3 +1,4 @@
+import {virtualRankingRows} from './virtual-learners.js';
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -75,6 +76,8 @@ async function dailyRanking(day){
     const ms=rooms.studyMs(p,now);
     if(p.day===day&&ms>0)entries.set(p.id,{id:p.id,nick:p.nick,species:p.species,hood:p.hood,ms});
   }
+  // Simulated learners are kept outside the real guest/account database.
+  for(const row of virtualRankingRows(now))entries.set(row.id,row);
   return [...entries.values()];
 }
 const json=(res,status,value)=>{const data=JSON.stringify(value);res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(data);};
@@ -222,10 +225,12 @@ async function handleHttp(req,res){
         }
         const report=buildStats(records,month,day,user.rankingPublic);rooms.persistenceError=null;return json(res,200,report);
       }
-      const requested=new URL(req.url,'http://localhost').searchParams.get('limit');
-      const limit=requested===null?20:Number(requested);
-      if(!Number.isInteger(limit)||limit<1||limit>20)return json(res,400,{error:'Invalid ranking limit'});
-      const report=buildRanking(await dailyRanking(day),id,day,limit);rooms.persistenceError=null;return json(res,200,report);
+      const params=new URL(req.url,'http://localhost').searchParams;
+      const limit=params.has('limit')?Number(params.get('limit')):20;
+      const offset=params.has('offset')?Number(params.get('offset')):0;
+      if(!Number.isInteger(limit)||limit<1||limit>100||!Number.isInteger(offset)||offset<0||offset>10000)
+        return json(res,400,{error:'Invalid ranking pagination'});
+      const report=buildRanking(await dailyRanking(day),id,day,limit,offset);rooms.persistenceError=null;return json(res,200,report);
     }catch(e){console.error('[api/storage]',e.message);rooms.persistenceError=e.message;return json(res,503,{error:'공부 기록 DB를 사용할 수 없습니다. 다시 시도해 주세요.'});}
   }
   if(pathname==='/api/session'&&req.method==='POST'){

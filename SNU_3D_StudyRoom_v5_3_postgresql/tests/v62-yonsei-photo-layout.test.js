@@ -24,7 +24,7 @@ test('V6.2 photo composition: glazed front without bookshelves',()=>{
 test('V6.2 exact 6 round x4, 8 west single x1, 8 facing pair x2 = 48',()=>{
  const l=buildYonseiSeatsAndObstacles();
  assert.equal(l.seats.length,48);
- assert.equal(l.npcSeats.size,8);
+ assert.equal(l.npcSeats.size,0);
  assert.deepEqual(l.seats.map(s=>s.id),Array.from({length:48},(_,i)=>i));
  const groups=[...new Set(l.seats.map(s=>s.group))];
  assert.equal(groups.filter(x=>x.startsWith('round')).length,6);

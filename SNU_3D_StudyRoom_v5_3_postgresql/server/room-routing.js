@@ -1,7 +1,7 @@
 // Stable library sharding: every connection for a room reaches one worker.
 // A library's first room keeps NPCs; overflow rooms do not.
 export const LIBRARIES = Object.freeze(['main', 'korea', 'yonsei']);
-export const PUBLIC_CAPACITY = Object.freeze({primary:40,overflow:48});
+export const PUBLIC_CAPACITY = Object.freeze({primary:32,overflow:48});
 export const MAX_AUTO_ROOM_INDEX = 100;
 export function parsedPublicRoom(room) {
   if(typeof room !== 'string') return null;

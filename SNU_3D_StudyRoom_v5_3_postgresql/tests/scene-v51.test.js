@@ -25,14 +25,14 @@ test('compact ceiling, glazing, rotated separated support and exact 8 tables wit
  assert.match(html,/for\(let row=0;row<CONFIG\.rows;row\+\+\)/);
  const layout=buildSeatsAndObstacles();
  assert.equal(layout.seats.length,48);
- assert.equal(layout.npcSeats.size,8);
+ assert.equal(layout.npcSeats.size,0);
  assert.equal(new Set(layout.seats.map(s=>`${Math.sign(s.x)}:${Math.round((s.z+27)/17.4)}`)).size,8);
  assert.ok(layout.seats.every(s=>Math.abs(s.x)<11 && Math.abs(s.x)>5));
  assert.match(html,/rows:4, columnsPerSide:1/);
  assert.match(html,/for\(const dx of \[-1\.68,0,1\.68\]\)addChair/);
  assert.match(html,/batch\.segment\('steel',\[x,\.25,footZ\],\[x,H-\.63,tipZ\],\.91\)/);
  assert.match(html,/const footZ=z\+dir\*spread, tipZ=z\+dir\*gap/);
- assert.match(html,/npcCount:8/);
+ assert.match(html,/npcCount:16/);
 });
 test('server and client enforce matching front/rear walk bounds',()=>{
  assert.match(server,/pz< -33\.5\|\|pz>44/);
@@ -72,7 +72,7 @@ test('eight six-seat tables stay aligned between browser and server; central ais
    const tableSeats=layout.seats.filter(s=>Math.sign(s.x)===side && Math.abs(s.z-z)<3);
    assert.equal(tableSeats.length,6,`side=${side}, row=${row}`);
  }
- assert.equal(layout.npcSeats.size,8);
+ assert.equal(layout.npcSeats.size,0);
  assert.ok(!layout.npcSeats.has(0));
  for(const z of [-27,-9.6,7.8,25.2,35])assert.equal(isWalkable(0,z),true);
  for(const z of [-25,-7,11,29])for(const side of [-1,1])for(const dir of [-1,1])

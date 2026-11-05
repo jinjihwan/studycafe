@@ -21,7 +21,7 @@ test('Korea Grand Reading Hall renders distinct historic design and library choo
 test('Seoul stays 8 six-seat tables; Korea has 24 two-sided desks with 48 seats',()=>{
   const snu=buildSeatsAndObstacles(),ku=buildKoreaSeatsAndObstacles();
   assert.equal(snu.seats.length,48);assert.equal(ku.seats.length,48);
-  assert.equal(snu.npcSeats.size,8);assert.equal(ku.npcSeats.size,8);
+  assert.equal(snu.npcSeats.size,0);assert.equal(ku.npcSeats.size,0);
   assert.equal(new Set(ku.seats.map(s=>`${s.x}:${Math.round((s.z - s.sign*1.55+27)/11)}`)).size,24);
   assert.deepEqual(ku.seats.map(s=>s.id),Array.from({length:48},(_,i)=>i));
   assert.equal(layoutForRoom('main').seats.length,48); // default unchanged

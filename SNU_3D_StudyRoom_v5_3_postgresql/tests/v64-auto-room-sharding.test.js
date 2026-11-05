@@ -20,18 +20,18 @@ test('public 10th to 100th rooms retain proper layouts and zero NPCs',()=>{
    assert.equal(roomCapacity(room),48);
  }
  for(const library of ['main','korea','yonsei']){
-   assert.equal(roomCapacity(library),40);
-   assert.equal(npcCountForRoom(library),8);
+   assert.equal(roomCapacity(library),32);
+   assert.equal(npcCountForRoom(library),16);
  }
  for(const invalid of ['main-1','main-0','main-01','korea-001','yonsei-101','main-9999'])assert.equal(parsedPublicRoom(invalid),null);
 });
 
 test('automatic room allocation selects first available capacity and creates overflow',async()=>{
- const counts=new Map([['main',40],['main-2',48],['main-3',28]]);
+ const counts=new Map([['main',32],['main-2',48],['main-3',28]]);
  assert.deepEqual(await choosePublicRoom('main',async()=>counts),{room:'main-3',occupied:28,capacity:48});
  counts.set('main-3',48);
  assert.deepEqual(await choosePublicRoom('main',async()=>counts),{room:'main-4',occupied:0,capacity:48});
- assert.equal(await choosePublicRoom('main',async()=>new Map([['main',40]]),{maximum:1}),null);
+ assert.equal(await choosePublicRoom('main',async()=>new Map([['main',32]]),{maximum:1}),null);
  await assert.rejects(()=>choosePublicRoom('not-a-library',async()=>counts));
 });
 
@@ -110,9 +110,9 @@ test('atomic allocation accounts for temporary admissions before any user joins'
  const result=[];
  for(let i=0;i<91;i++)result.push(await presence.allocate('main'));
  assert.equal(result[0].room,'main');
- assert.equal(result[39].room,'main');
- assert.equal(result[40].room,'main-2');
- assert.equal(result[87].room,'main-2');
- assert.equal(result[88].room,'main-3');
+ assert.equal(result[31].room,'main');
+ assert.equal(result[32].room,'main-2');
+ assert.equal(result[79].room,'main-2');
+ assert.equal(result[80].room,'main-3');
  assert.equal(new Set(result.map(v=>v.reservation)).size,91);
 });

@@ -1,10 +1,11 @@
 import crypto from 'node:crypto';
 import {roomCapacity,parsedPublicRoom} from './room-routing.js';
+import {VIRTUAL_POPULATION,MAX_SIMULTANEOUS,virtualPresent,virtualProfile,virtualStudyMs} from './virtual-learners.js';
 
-export const NPC_COUNT = 8;
+export const NPC_COUNT = MAX_SIMULTANEOUS; // maximum simultaneous virtual learners in each primary room
 // NPCs belong only to the FIRST instance of each library, not to overflow rooms.
 export const PRIMARY_LIBRARY_ROOMS = Object.freeze(['main', 'korea', 'yonsei']);
-export const NPC_HOME_SEAT_IDS = Object.freeze([2,8,14,20,26,32,38,44]);
+export const NPC_HOME_SEAT_IDS = Object.freeze([]); // no permanently unavailable seats
 export function baseLibraryForRoom(roomId) {
   if (roomId === 'korea' || /^korea-(?:[2-9]|[1-9][0-9]+)$/.test(roomId)) return 'korea';
   if (roomId === 'yonsei' || /^yonsei-(?:[2-9]|[1-9][0-9]+)$/.test(roomId)) return 'yonsei';
@@ -52,9 +53,7 @@ export function buildSeatsAndObstacles() {
     const x=side*17.6;
     for(const dir of [-1,1])obstacles.push({x,z:z+dir*4.60,w:1.8,d:1.65});
   }
-  const npcIndices=[2,8,14,20,26,32,38,44];
-  const npcSeats=new Set(npcIndices);
-  return {seats,obstacles,npcSeats};
+  return {seats,obstacles,npcSeats:new Set()};
 }
 // Korea University 2021 Graduate School Reading Hall: 24 two-sided carrels.
 // IDs and obstacles MUST mirror the KOREA_ROOM branch in index.html.
@@ -69,7 +68,7 @@ export function buildKoreaSeatsAndObstacles(){
    obstacles.push({x,z:cz,w:.84,d:.79});
   }
  }
- return {seats,obstacles,npcSeats:new Set([2,8,14,20,26,32,38,44])};
+ return {seats,obstacles,npcSeats:new Set()};
 }
 // Yonsei-Samsung Library V6.2, modeled after the user-supplied atrium photograph:
 // left: SIX circular 4-person desks (24); centre: EIGHT west-facing single desks (8);
@@ -101,7 +100,7 @@ export function buildYonseiSeatsAndObstacles(){
    add(x-1.90,z,-1,0,`pair-${i}`,'pair');
    add(x+1.90,z,1,0,`pair-${i}`,'pair');
  }
- return {seats,obstacles,npcSeats:new Set([2,8,14,20,26,32,38,44])};
+ return {seats,obstacles,npcSeats:new Set()};
 }
 // All clients and the authoritative server use the same outbound approach vector.
 export function seatApproach(s,dist=s.approachDist??2.62){
@@ -113,29 +112,30 @@ const koreaLayout=buildKoreaSeatsAndObstacles();
 const yonseiLayout=buildYonseiSeatsAndObstacles();
 export const layoutForRoom=roomId=>baseLibraryForRoom(roomId)==='yonsei'?yonseiLayout:baseLibraryForRoom(roomId)==='korea'?koreaLayout:layout;
 
-// The server owns NPC movement and seat availability. All viewers receive
-// exactly the same timestamped NPC poses in welcome, snapshot and clock.
-// NPC seats stay reserved even while an NPC briefly walks away.
-export function npcStatesForRoom(roomId,now=Date.now()) {
-  if (!npcCountForRoom(roomId)) return [];
-  const seats=layoutForRoom(roomId).seats;
-  const kstStart=Math.floor((now+9*3600000)/86400000)*86400000-9*3600000;
-  return NPC_HOME_SEAT_IDS.map((seatId,id)=>{
-    const seat=seats[seatId];
-    const phase=((now/1000+id*13)%120+120)%120;
-    const home={x:seat.x,z:seat.z};
-    const away=seatApproach(seat,Math.min(2.2,seat.approachDist??2.62));
-    let kind='seated', seated=true, ratio=0;
-    if(phase>=65&&phase<73){kind='walking';seated=false;ratio=(phase-65)/8;}
-    else if(phase>=73&&phase<91){kind='break';seated=false;ratio=1;}
-    else if(phase>=91&&phase<99){kind='walking';seated=false;ratio=1-(phase-91)/8;}
-    else if(phase>=28&&phase<32){kind='stretch';}
-    const x=home.x+(away.x-home.x)*ratio,z=home.z+(away.z-home.z)*ratio;
-    const outward=Math.atan2(away.x-home.x,away.z-home.z);
-    return {id,seatId,kind,seated,x,z,
-      yaw:seated?seatYaw(seat):phase>=91&&phase<99?outward+Math.PI:outward,
-      studyMs:60000*(12+id*19)+Math.floor(Math.max(0,now-kstStart)*.65)};
-  });
+// Stateless virtual schedule + room-owned seat allocation. The server is authoritative
+// for seat locks; all connected clients receive the very same state in each tick.
+export function npcStatesForRoom(roomId,now=Date.now(),assigned=null){
+ if(!npcCountForRoom(roomId))return [];
+ const seats=layoutForRoom(roomId).seats,campus=baseLibraryForRoom(roomId);
+ const attendees=virtualPresent(campus,now);
+ return attendees.flatMap(s=>{
+  const seatId=assigned instanceof Map?assigned.get(s.id):null;
+  if(!Number.isInteger(seatId)||!seats[seatId])return [];
+  const seat=seats[seatId];
+  const approach=seatApproach(seat,Math.min(2.2,seat.approachDist??2.62));
+  const elapsed=now-s.startMs,remaining=s.endMs-now;
+  // The short approach/departure animation uses only walkable points near the chair.
+  const arriving=elapsed<12000,departing=remaining<12000;
+  const studying=s.study.some(([a,b])=>a<=now&&now<b);
+  const breakTime=!studying&&!arriving&&!departing;
+  const kind=arriving||departing?'walking':breakTime?'break':(Math.floor(now/1000+s.id*29)%420<9?'stretch':'seated');
+  const seated=kind==='seated'||kind==='stretch';
+  const ratio=arriving?Math.min(1,elapsed/12000):departing?Math.max(0,remaining/12000):1;
+  const x=approach.x+(seat.x-approach.x)*ratio,z=approach.z+(seat.z-approach.z)*ratio;
+  return [{...virtualProfile(campus,s.id),seatId,kind,seated,x:seated?seat.x:x,z:seated?seat.z:z,
+   yaw:seated?seatYaw(seat):Math.atan2(seat.x-approach.x,seat.z-approach.z),
+   studyMs:virtualStudyMs(campus,s.id,now)}];
+ });
 }
 export const LAYOUT_SEATS=layout.seats;
 export const NPC_SEATS=layout.npcSeats;
@@ -175,7 +175,43 @@ export function createAuth(secret) {
 
 export class Rooms {
   constructor(auth,store,accounts=null,presence=null) { this.presence=presence;this.lastPresenceTick=0;this.auth=auth; this.store=store; this.accounts=accounts; this.rooms=new Map(); this.connections=new Set(); this.lastFlush=0; this.persistenceError=null; this.joinQueue=new Map(); }
-  get(roomId) { if(!this.rooms.has(roomId)) this.rooms.set(roomId,{id:roomId,users:new Map(),locks:new Map()}); return this.rooms.get(roomId); }
+  get(roomId) {
+    if(!this.rooms.has(roomId))this.rooms.set(roomId,{id:roomId,users:new Map(),locks:new Map(),npcSeats:new Map()});
+    return this.rooms.get(roomId);
+  }
+  // Reconcile once per tick and before joins/reservations. Only available seats
+  // can be assigned; one human reservation always blocks NPC allocation.
+  refreshNpc(room,now=Date.now()){
+    if(!npcCountForRoom(room.id))return [];
+    if(!room.npcSeats)room.npcSeats=new Map();
+    const attendees=virtualPresent(baseLibraryForRoom(room.id),now);
+    const active=new Set(attendees.map(p=>p.id));
+    let changed=false;
+    for(const [id,seatId] of [...room.npcSeats]){
+      if(active.has(id)&&!room.locks.has(seatId))continue;
+      room.npcSeats.delete(id);changed=true;
+      const existing=room.locks.get(seatId);
+      this.broadcast(room,{t:'seat_lock',seatId,ownerId:existing?.id||null,phase:existing?.phase||null});
+    }
+    const taken=new Set([...room.locks.keys(),...room.npcSeats.values()]);
+    const seats=layoutForRoom(room.id).seats;
+    for(const p of attendees){
+      if(room.npcSeats.size>=MAX_SIMULTANEOUS)break;
+      if(room.npcSeats.has(p.id))continue;
+      // Each NPC prefers a different deterministic chair but yields to people.
+      const start=(p.id*13+VIRTUAL_POPULATION*baseLibraryForRoom(room.id).length)%seats.length;
+      let chosen=null;
+      for(let n=0;n<seats.length;n++){
+        const seatId=(start+n*17)%seats.length;
+        if(!taken.has(seatId)){chosen=seatId;break;}
+      }
+      if(chosen===null)continue;
+      room.npcSeats.set(p.id,chosen);taken.add(chosen);changed=true;
+      this.broadcast(room,{t:'seat_lock',seatId:chosen,ownerId:`virtual:${room.id}:${p.id}`,phase:'npc'});
+    }
+    if(changed)room.lastNpcUpdate=now;
+    return npcStatesForRoom(room.id,now,room.npcSeats);
+  }
   members(room) { return [...room.users.values()].filter(p=>p.online).length; }
   public(p) { return {id:p.id,nick:p.nick,species:p.species,hood:p.hood,x:p.x,z:p.z,yaw:p.yaw,
     seatId:p.seatId,pendingSeatId:p.pendingSeatId,studyMs:this.studyMs(p),studying:p.studying,paused:p.paused,online:p.online}; }
@@ -265,7 +301,7 @@ export class Rooms {
       case 'chat':this.chat(c,m);break;
       case 'profile':this.profile(c,m);break;
       case 'room_exit':void this.exitRoom(c).catch(e=>{console.error('[room_exit]',e);this.error(c.peer,'room_exit_failed','공부 기록 저장에 실패했습니다. 다시 시도해 주세요.');});break;
-      case 'sync':{const now=Date.now();c.peer.send({t:'snapshot',serverNow:now,day:localDay(now),players:[...room.users.values()].map(u=>this.public(u)),locks:this.getLocks(room),count:this.members(room),npcCount:npcCountForRoom(room.id),npcStates:npcStatesForRoom(room.id,now)});break;}
+      case 'sync':{const now=Date.now();c.peer.send({t:'snapshot',serverNow:now,day:localDay(now),players:[...room.users.values()].map(u=>this.public(u)),locks:this.getLocks(room),count:this.members(room),npcCount:this.refreshNpc(room,now).length,npcStates:npcStatesForRoom(room.id,now,room.npcSeats)});break;}
       default: break;
     }
   }
@@ -320,7 +356,7 @@ export class Rooms {
     await this.store.updateProfile(id,p);
     c.room=room;c.player=p;c.joined=true;
     {const now=Date.now();c.peer.send({t:'welcome',serverNow:now,day:localDay(now),id,room:roomId,resumed,players:[...room.users.values()].map(u=>this.public(u)),
-      locks:this.getLocks(room),count:this.members(room),npcCount:npcCountForRoom(roomId),npcStates:npcStatesForRoom(roomId,now)});}
+      locks:this.getLocks(room),count:this.members(room),npcCount:this.refreshNpc(room,now).length,npcStates:npcStatesForRoom(roomId,now,room.npcSeats)});}
     this.broadcast(room,{t:'player',player:this.public(p),count:this.members(room)},c.peer);
   }
   async exitRoom(c){
@@ -344,9 +380,10 @@ export class Rooms {
     }
   }
   getLocks(room) {
+    this.refreshNpc(room);
     const userLocks=[...room.locks.entries()].map(([id,v])=>({id,ownerId:v.id,phase:v.phase}));
-    if(!npcCountForRoom(room.id))return userLocks;
-    return [...NPC_HOME_SEAT_IDS.map((id,index)=>({id,ownerId:`npc:${room.id}:${index}`,phase:'npc'})),...userLocks];
+    const npcLocks=[...(room.npcSeats||new Map())].map(([id,seatId])=>({id:seatId,ownerId:`virtual:${room.id}:${id}`,phase:'npc'}));
+    return [...npcLocks,...userLocks];
   }
   release(room,p) {
     let changed=false;
@@ -356,8 +393,16 @@ export class Rooms {
   }
   requestSeat(c,m) {
     const p=c.player,room=c.room,layout=layoutForRoom(room.id),s=layout.seats[m.seatId];
-    if(!Number.isInteger(m.seatId)||!s||(npcCountForRoom(room.id)>0&&layout.npcSeats.has(s.id)))
-      return this.error(c.peer,'seat_unavailable','NPC 전용이거나 유효하지 않은 좌석입니다.',m.seatId);
+    this.refreshNpc(room);
+    if(!Number.isInteger(m.seatId)||!s)
+      return this.error(c.peer,'seat_unavailable','유효하지 않은 좌석입니다.',m.seatId);
+    // A real person's direct seat request takes priority: move the virtual
+    // learner elsewhere. Never evict an actual human reservation/occupant.
+    for(const [npcId,npcSeat] of room.npcSeats||[]){
+      if(npcSeat!==s.id)continue;
+      room.npcSeats.delete(npcId);
+      this.broadcast(room,{t:'seat_lock',seatId:s.id,ownerId:null,phase:null});
+    }
     const occupant=room.locks.get(s.id);
     if(occupant&&occupant.id!==p.id)return this.error(c.peer,'seat_occupied','이미 사용 중이거나 예약된 좌석입니다.',s.id);
     if(p.seatId===s.id){return c.peer.send({t:'seat_granted',seatId:s.id,alreadySeated:true});}
@@ -366,11 +411,13 @@ export class Rooms {
     room.locks.set(s.id,{id:p.id,phase:'reserved',expiresAt:Date.now()+RESERVATION_MS});p.pendingSeatId=s.id;
     c.peer.send({t:'seat_granted',seatId:s.id,alreadySeated:false});
     this.broadcast(room,{t:'seat_lock',seatId:s.id,ownerId:p.id,phase:'reserved'});
+    this.refreshNpc(room);
   }
   sit(c,m) {
     const p=c.player,room=c.room,seatId=m.seatId;
     if(!Number.isInteger(seatId)||p.pendingSeatId!==seatId) return this.error(c.peer,'seat_not_reserved','이 좌석의 예약을 확인할 수 없습니다.',seatId);
     const lock=room.locks.get(seatId),s=layoutForRoom(room.id).seats[seatId];
+    if([...(room.npcSeats||new Map()).values()].includes(seatId))return this.error(c.peer,'seat_unavailable','이미 사용 중인 좌석입니다.',seatId);
     if(!lock||lock.id!==p.id||lock.phase!=='reserved'||lock.expiresAt<Date.now())return this.error(c.peer,'seat_expired','좌석 예약이 만료되었습니다.',seatId);
     const approach=seatApproach(s);
     if(Math.hypot(p.x-approach.x,p.z-approach.z)>2.3)return this.error(c.peer,'not_near_seat','좌석 근처로 이동한 후 착석할 수 있습니다.',seatId);
@@ -478,7 +525,7 @@ export class Rooms {
         room.locks.delete(sid);const owner=room.users.get(lock.id);if(owner?.pendingSeatId===sid){owner.pendingSeatId=null;owner.peer?.send({t:'error',code:'seat_expired',seatId:sid,message:'좌석 예약이 만료되었습니다.'});}
         this.broadcast(room,{t:'seat_lock',seatId:sid,ownerId:null,phase:null});
       }
-      this.broadcast(room,{t:'clock',serverNow:now,day:localDay(now),count:this.members(room),npcCount:npcCountForRoom(room.id),npcStates:npcStatesForRoom(room.id,now),
+      this.broadcast(room,{t:'clock',serverNow:now,day:localDay(now),count:this.members(room),npcCount:this.refreshNpc(room,now).length,npcStates:npcStatesForRoom(room.id,now,room.npcSeats),
         players:[...room.users.values()].map(p=>({id:p.id,studyMs:this.studyMs(p),studying:p.studying,paused:p.paused}))});
     }
     if(this.presence && now-this.lastPresenceTick>=10000){
