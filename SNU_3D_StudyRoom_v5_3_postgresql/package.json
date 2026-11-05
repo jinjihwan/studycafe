@@ -1,6 +1,6 @@
 {
   "name": "snu-library-3d-studyroom",
-  "version": "7.1.0-npc144.1",
+  "version": "7.2.0-npc-rhythm.1",
   "private": true,
   "type": "module",
   "description": "Three photo-referenced university libraries (SNU, Korea, Yonsei) with isolated WebSocket rooms and PostgreSQL study records",

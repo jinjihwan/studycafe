@@ -54,8 +54,8 @@ test('KST midnight resets study while study across operating-day midnight remain
  for(const now of [midnight,midnight+30*60000,midnight+60*60000]){
   const maxAllowed=now-midnight;
   const rows=virtualRankingRows(now);
-  assert.equal(rows.length,144);
-  assert.ok(rows.every(r=>r.ms>=0&&r.ms<=maxAllowed),`midnight cap ${maxAllowed}`);
+  if(now===midnight)assert.equal(rows.length,0,'no NPC shows with zero seconds after the KST reset');
+  assert.ok(rows.every(r=>r.ms>=1000&&r.ms<=maxAllowed),`midnight cap and 1-second minimum ${maxAllowed}`);
  }
  for(const campus of campuses){const plan=virtualPlan(campus,midnight+10*60000);
   const attendee=virtualPresent(campus,midnight+10*60000);
@@ -88,17 +88,19 @@ test('room assigns only free seats, real user can claim an NPC chair, overflow s
  peer.close();
 });
 
-test('ranking includes all 144 simulated learners, and paginates among real accounts',()=>{
+test('ranking includes only virtual learners with at least one second and paginates with real accounts',()=>{
  const rows=[{id:'actual',nick:'회원',species:'cat',hood:'#ffffff',ms:9990000},
   ...virtualRankingRows(Date.UTC(2026,10,5,12))];
  const first=buildRanking(rows,'actual','2026-11-05',20,0);
- const last=buildRanking(rows,'actual','2026-11-05',20,140);
- assert.equal(first.count,145);
- assert.equal(first.entries.length,20);
- assert.equal(last.entries.length,5);
- assert.equal(last.entries[0].rank,141);
+ const lastOffset=Math.max(0,rows.length-5);
+ const last=buildRanking(rows,'actual','2026-11-05',20,lastOffset);
+ assert.equal(first.count,rows.length);
+ assert.equal(first.entries.length,Math.min(20,rows.length));
+ assert.equal(last.entries.length,Math.min(5,rows.length));
+ assert.equal(last.entries[0].rank,lastOffset+1);
  assert.ok(first.myRank!==null);
- assert.equal(new Set(rows.map(r=>r.id)).size,145);
+ assert.ok(rows.slice(1).every(r=>r.ms>=1000),'zero-second virtual learners are not ranked');
+ assert.equal(new Set(rows.map(r=>r.id)).size,rows.length);
 });
 
 test('client creates only present virtual avatars, nameplates hide NPC prefix, interface counts are distinct',()=>{

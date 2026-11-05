@@ -69,6 +69,6 @@ test('actual Node server exits, restarts, restores same guest token and persiste
  const response=await fetch(instance.base+where,{headers:{authorization:'Bearer '+same.token}});
  const stats=await response.json();assert.equal(stats.todayMs,75000);assert.ok(stats.totalMs>=97222);
  const ranks=await fetch(instance.base+'/api/ranking',{headers:{authorization:'Bearer '+same.token}});
- assert.ok((await ranks.json()).count>=144,"virtual learners added without modifying stored user history");
+ assert.ok((await ranks.json()).count>=1,'real account remains ranked after restart even when NPCs with no study are hidden');
  restored.sock.close();await terminate(instance.child);
 });

@@ -1,4 +1,4 @@
-// V7.1: deterministic 144 virtual-learner schedules, independent of the user DB.
+// V7.2: deterministic 144 virtual-learner schedules with varied individual study/rest rhythms.
 // Pure calendar calculations, seeded per campus and 06:00 KST operating day.
 // Ranking time is the intersection of simulated *study* intervals with today's KST day.
 // UI and actual WebSocket seat locks are managed separately by room.js.
@@ -72,6 +72,48 @@ function findStart(count,duration,kind,rng){
  return best;
 }
 const add=(count,start,n,delta)=>{for(let i=start;i<start+n;i++)count[i]+=delta;};
+// All randomized behavior is derived from the campus, operating day and unique learner.
+// It is stable across server restarts and shared by every viewer of a room.
+function learnerRng(campus,anchor,id){
+ return seeded((seedFor(campus,anchor)^Math.imul(id+1,0x9e3779b1))>>>0);
+}
+const minute=60000;
+function subtractPause(intervals,from,to){
+ const clipped=[];
+ for(const [a,b] of intervals){
+  if(to<=a||from>=b){clipped.push([a,b]);continue;}
+  if(a<from)clipped.push([a,Math.min(from,b)]);
+  if(to<b)clipped.push([Math.max(to,a),b]);
+ }
+ return clipped.filter(([a,b])=>b>a);
+}
+// Study segments are actual chronological intervals rather than synthetic offsets.
+// Individuals have different arrival prep, 40-130 minute focus cycles, 4-18 minute
+// rests and late-night water/stretch breaks. All times have second-level jitter.
+function individualStudy(campus,anchor,id,startMs,endMs){
+ const rng=learnerRng(campus,anchor,id);
+ const preparedAt=startMs+(2+rng()*10)*minute;
+ const finish=endMs-(2+rng()*6)*minute;
+ const study=[];
+ let cursor=preparedAt;
+ while(cursor<finish){
+  const focus=(40+rng()*90)*minute;
+  const stop=Math.min(finish,cursor+focus);
+  if(stop>cursor)study.push([cursor,stop]);
+  cursor=stop+(4+rng()*14)*minute;
+ }
+ // Cross-midnight learners normally take a short staggered late-night break.
+ // Its duration and placement are individualized: it genuinely pauses the study
+ // clock, preventing dozens of uninterrupted overnight learners from having
+ // the exact same elapsed time at 00:49 KST.
+ const midnight=anchor+18*3600000;
+ if(startMs<midnight-10*minute&&endMs>midnight+25*minute){
+  const pauseEnd=midnight+(2+rng()*26)*minute;
+  const pauseStart=pauseEnd-(4+rng()*14)*minute;
+  return subtractPause(study,pauseStart,pauseEnd);
+ }
+ return study;
+}
 export function generateVirtualPlan(campus,operatingAnchor){
  if(!VIRTUAL_CAMPUSES.includes(campus))return {shifts:[],count:Array(96).fill(0),anchor:operatingAnchor};
  if(!Number.isFinite(operatingAnchor))throw new TypeError('Invalid operating day');
@@ -100,11 +142,12 @@ export function generateVirtualPlan(campus,operatingAnchor){
   if(!changes)break;
  }
  const result={campus,anchor,count,shifts:[...shifts.values()].sort((a,b)=>a.id-b.id).map(p=>{
-  const start=anchor+p.start*SLOT_MS,end=start+p.slots*SLOT_MS;
-  const study=[];let cursor=start+5*60000;
-  const finish=end-5*60000;
-  while(cursor<finish){const stop=Math.min(finish,cursor+80*60000);study.push([cursor,stop]);cursor=stop+10*60000;}
-  return {...p,startMs:start,endMs:end,study};
+  // Sub-slot arrival and departure do not expand occupancy beyond the booked
+  // fifteen-minute slots, so the planned sixteen-person cap remains intact.
+  const jitter=learnerRng(campus,anchor,p.id);
+  const start=anchor+p.start*SLOT_MS+(10+jitter()*210)*1000;
+  const end=anchor+(p.start+p.slots)*SLOT_MS-(10+jitter()*210)*1000;
+  return {...p,startMs:start,endMs:end,study:individualStudy(campus,anchor,p.id,start,end)};
  })};
  return result;
 }
@@ -133,7 +176,9 @@ export function virtualStudyMs(campus,id,now=Date.now()){
 }
 export function virtualRankingRows(now=Date.now()){
  return VIRTUAL_CAMPUSES.flatMap(campus=>Array.from({length:VIRTUAL_POPULATION},(_,id)=>{
+  const ms=virtualStudyMs(campus,id,now);
+  if(ms<1000)return null; // Only learners with >= 1 actual second today appear.
   const p=virtualProfile(campus,id);
-  return {id:p.virtualId,nick:p.nick,species:p.species,hood:p.hood,ms:virtualStudyMs(campus,id,now),virtual:true};
- }));
+  return {id:p.virtualId,nick:p.nick,species:p.species,hood:p.hood,ms,virtual:true};
+ }).filter(Boolean));
 }
