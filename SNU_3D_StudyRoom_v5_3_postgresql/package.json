@@ -1,6 +1,6 @@
 {
   "name": "snu-library-3d-studyroom",
-  "version": "7.10.0-chat-visibility.1",
+  "version": "7.11.0-head-chat.1",
   "private": true,
   "type": "module",
   "description": "Three photo-referenced university libraries (SNU, Korea, Yonsei) with isolated WebSocket rooms and PostgreSQL study records",

@@ -14,7 +14,7 @@ test('no first-visit tutorial obstructs the nearby label view',()=>{
 test('labels now keep only nearby subset while retaining name and time together',()=>{
   const excerpt=html.slice(html.indexOf('function labelTier(obj,d){'),html.indexOf('// Lightweight frame diagnostics'));
   assert.match(html,/const LABEL_CAP=MOBILE\?7:14/);
-  assert.match(excerpt,/if\(obj!==player&&\(tier>=2\|\|otherCount>=LABEL_CAP\)\)/);
+  assert.match(excerpt,/tier>=2&&!chatVisible\|\|otherCount>=LABEL_CAP/);
   const mk=(px,py,depth,dist)=>{
     const clock={textContent:'',style:{}},bubble={style:{}};
     const label={style:{display:'none'},dataset:{},querySelector(sel){return sel==='.clock'?clock:bubble;}};
