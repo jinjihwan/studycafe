@@ -75,6 +75,6 @@ test('eight six-seat tables stay aligned between browser and server; central ais
  assert.equal(layout.npcSeats.size,0);
  assert.ok(!layout.npcSeats.has(0));
  for(const z of [-27,-9.6,7.8,25.2,35])assert.equal(isWalkable(0,z),true);
- for(const z of [-25,-7,11,29])for(const side of [-1,1])for(const dir of [-1,1])
+ for(const z of [-18,20])for(const side of [-1,1])for(const dir of [-1,1])
    assert.equal(isWalkable(side*17.6,z+dir*4.60),false);
 });

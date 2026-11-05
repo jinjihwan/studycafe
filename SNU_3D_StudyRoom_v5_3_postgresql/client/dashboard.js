@@ -80,7 +80,7 @@ export function initDashboard({getToken,onToast,onFriends,onFriendRanking,onHide
   }
   function drawRanking(data){
     const root=document.createDocumentFragment();
-    root.append(heading('오늘의 공부 랭킹',data.day+' (한국시간) · 가상 학습자 포함 · 약 30초 간격 자동 갱신'));
+    root.append(heading('오늘의 공부 랭킹',data.day+' (한국시간) · 약 30초 간격 자동 갱신'));
     const friendSwitch=el('div','friend-switch');const all=el('button','friend-action selected','전체 랭킹'),friends=el('button','friend-action','친구 랭킹');friends.addEventListener('click',()=>{rankingMode='friends';onFriendRanking();});friendSwitch.append(all,friends);root.append(friendSwitch);
     root.append(el('div','dash-ranking-summary',data.myRank?`내 순위 ${data.myRank}위 · ${dur(data.myStudyMs)} · 랭킹 전체 ${data.count}명`:'내 순위: 비공개 또는 아직 공부 기록 없음 · 랭킹 전체 '+data.count+'명'));
     if(!data.entries.length)root.append(el('p','dash-empty','오늘 공개 랭킹 기록이 없습니다.'));
@@ -97,7 +97,7 @@ export function initDashboard({getToken,onToast,onFriends,onFriendRanking,onHide
     const next=el('button','friend-action','다음 20명');next.disabled=!data.hasMore;
     next.onclick=()=>{rankingOffset+=20;void refresh(true);};
     pages.append(previous,page,next);
-    root.append(pages,el('p','dash-footer','이 순위에는 가상 학습자가 포함됩니다. 실제 접속자 수는 별도로 계산되며, 동률은 고유 ID로 결정됩니다. 랭킹은 한국시간 00:00에 초기화됩니다.'));
+    root.append(pages,el('p','dash-footer','동률은 고유 ID로 순위를 결정합니다. 랭킹은 한국시간 00:00에 초기화됩니다.'));
     body.replaceChildren(root);
   }
   // The server updates the live timer independently of any client navigation.

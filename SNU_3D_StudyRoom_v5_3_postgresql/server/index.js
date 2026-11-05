@@ -24,7 +24,7 @@ import {createOperatorAPI} from './operator-access.js';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
 const root=path.resolve(here,'..');
-const allow=new Map([['/','index.html'],['/index.html','index.html'],['/client/network.js','client/network.js'],['/client/dashboard.js','client/dashboard.js'],['/client/account.js','client/account.js'],['/client/friends.js','client/friends.js'],['/client/navigation-smooth.js','client/navigation-smooth.js'],['/client/walk-animation.js','client/walk-animation.js']]);
+const allow=new Map([['/','index.html'],['/index.html','index.html'],['/client/network.js','client/network.js'],['/client/dashboard.js','client/dashboard.js'],['/client/account.js','client/account.js'],['/client/friends.js','client/friends.js'],['/client/navigation-smooth.js','client/navigation-smooth.js'],['/client/walk-animation.js','client/walk-animation.js'],['/assets/guide.jpg','assets/guide.jpg']]);
 const state=statePaths(root);
 assertExistingProductionData(state);
 const secretFile=state.secret;
@@ -246,7 +246,7 @@ async function handleHttp(req,res){
   }
   if(req.method!=='GET'&&req.method!=='HEAD')return json(res,405,{error:'Method not allowed'});
   const allowed=allow.get(pathname);if(!allowed)return json(res,404,{error:'Not found'});
-  const data=path.join(root,allowed), contentType=allowed.endsWith('.js')?'text/javascript; charset=utf-8':'text/html; charset=utf-8';
+  const data=path.join(root,allowed), contentType=allowed.endsWith('.js')?'text/javascript; charset=utf-8':allowed.endsWith('.jpg')?'image/jpeg':'text/html; charset=utf-8';
   try{const bytes=await fs.promises.readFile(data);
     res.writeHead(200,{'Content-Type':contentType,'Cache-Control':'no-cache','X-Content-Type-Options':'nosniff', 'Content-Security-Policy':"default-src 'self' https://cdn.jsdelivr.net https://www.gstatic.com; connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://*.googleapis.com https://*.firebaseapp.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com; frame-src https://*.firebaseapp.com https://accounts.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'", 'Referrer-Policy':'same-origin'});
     res.end(req.method==='HEAD'?'':bytes);

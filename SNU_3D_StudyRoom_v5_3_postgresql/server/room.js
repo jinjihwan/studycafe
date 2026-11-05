@@ -49,7 +49,7 @@ export function buildSeatsAndObstacles() {
   }
   // Photo-inspired Y-rotated pair of separated diagonal supports.
   // Each column has two floor feet at different z, directly mirroring the client.
-  for(const z of [-25,-7,11,29])for(const side of [-1,1]){
+  for(const z of [-18,20])for(const side of [-1,1]){
     const x=side*17.6;
     for(const dir of [-1,1])obstacles.push({x,z:z+dir*4.60,w:1.8,d:1.65});
   }
