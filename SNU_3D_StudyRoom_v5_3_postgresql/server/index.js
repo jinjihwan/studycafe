@@ -20,6 +20,7 @@ import {validId} from './room.js';
 import {parseWorkerTargets,proxyRoomWebsocket} from './ws-router.js';
 import {LIBRARIES,choosePublicRoom,parsedPublicRoom,workerForRoom,roomCapacity} from './room-routing.js';
 import {createSQLiteBackup} from '../scripts/backup-sqlite.mjs';
+import {createOperatorAPI} from './operator-access.js';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
 const root=path.resolve(here,'..');
@@ -136,6 +137,7 @@ function readBody(req,maxBytes=2048) {return new Promise((resolve,reject)=>{
   req.on('error',reject);
  });}
 const accountAPI=createAccountAPI({accounts,rooms,auth,verifyFirebase:firebaseVerifier,json,sameOrigin,permit,readBody,store,livePresence,stopIdentity:stopIdentityGlobal});
+const operatorAPI=createOperatorAPI({accounts,accountContext,json,sameOrigin,permit,configuredCode:process.env.STUDYROOM_OPERATOR_FRIEND_CODE});
 async function handleHttp(req,res){
   let pathname;try{pathname=new URL(req.url||'/',`http://${req.headers.host||'localhost'}`).pathname;}catch{return json(res,400,{error:'Invalid URL'});}
   // Worker-only private endpoint: flush an identity BEFORE the gateway links
@@ -169,6 +171,7 @@ async function handleHttp(req,res){
       res.writeHead(303,{'Location':dest.pathname+dest.search,'Cache-Control':'no-store'});res.end();return;
     }
   }
+  if(await operatorAPI(req,res,pathname))return;
   if(await accountAPI(req,res,pathname))return;
   if(pathname==='/api/rooms/status'&&req.method==='GET'){
     if(!permit(req,'status',60))return json(res,429,{error:'Too many requests'});

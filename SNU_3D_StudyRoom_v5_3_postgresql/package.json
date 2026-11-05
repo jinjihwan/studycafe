@@ -1,13 +1,13 @@
 {
   "name": "snu-library-3d-studyroom",
-  "version": "7.6.0-hood-rim-fit.1",
+  "version": "7.7.0-operator-presence.1",
   "private": true,
   "type": "module",
   "description": "Three photo-referenced university libraries (SNU, Korea, Yonsei) with isolated WebSocket rooms and PostgreSQL study records",
   "scripts": {
     "start": "node --env-file-if-exists=.env server/index.js",
     "test": "node --test --test-concurrency=2 tests/*.test.js",
-    "check": "node --check server/accounts-store.js && node --check server/account-api.js && node --check server/firebase.js && node --check client/account.js && node --check client/friends.js && node --check server/index.js && node --check server/room-routing.js && node --check server/live-presence.js && node --check server/ws-router.js && node --check server/room.js && node --check server/virtual-learners.js && node --check server/store.js && node --check server/stats.js && node --check server/websocket.js && node --check client/navigation-smooth.js && node --check client/network.js && node --check client/dashboard.js && node scripts/check-html.js && node scripts/check-project.js && node --check scripts/import-v4.mjs && node --check scripts/backup-sqlite.mjs && node --check scripts/export-codespaces.mjs && node --check scripts/restore-snapshot.mjs && node --check server/state-paths.js && node --check server/postgres-accounts-store.js && node --check scripts/pg-healthcheck.mjs",
+    "check": "node --check server/accounts-store.js && node --check server/account-api.js && node --check server/firebase.js && node --check client/account.js && node --check client/friends.js && node --check server/index.js && node --check server/room-routing.js && node --check server/live-presence.js && node --check server/ws-router.js && node --check server/room.js && node --check server/virtual-learners.js && node --check server/operator-access.js && node --check server/store.js && node --check server/stats.js && node --check server/websocket.js && node --check client/navigation-smooth.js && node --check client/network.js && node --check client/dashboard.js && node scripts/check-html.js && node scripts/check-project.js && node --check scripts/import-v4.mjs && node --check scripts/backup-sqlite.mjs && node --check scripts/export-codespaces.mjs && node --check scripts/restore-snapshot.mjs && node --check server/state-paths.js && node --check server/postgres-accounts-store.js && node --check scripts/pg-healthcheck.mjs",
     "db:check": "node scripts/pg-healthcheck.mjs",
     "backup:sqlite:legacy": "node scripts/backup-sqlite.mjs",
     "export:sqlite:legacy": "node scripts/export-codespaces.mjs",

@@ -108,11 +108,12 @@ test('ranking includes only virtual learners with at least one second and pagina
  assert.equal(new Set(rows.map(r=>r.id)).size,rows.length);
 });
 
-test('client creates only present virtual avatars, nameplates hide NPC prefix, interface counts are distinct',()=>{
+test('client creates only present virtual avatars, hides NPC prefix, and publicly shows combined participants',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
  assert.match(html,/const npcById=new Map\(\)/);
  assert.match(html,/if\(active\.has\(id\)\)continue/);
  assert.doesNotMatch(html,/'NPC · '/);
  assert.match(html,/가상 학습자가 함께 참여/);
- assert.match(html,/접속 '\+Math\.max\(0,count\|\|0\)\+'명 · 가상 '/);
+ assert.match(html,/학습자 '\+\(lastRealCount\+lastVirtualCount\)\+'명'/);
+ assert.match(html,/id=\"operatorPresence\" hidden/);
 });
